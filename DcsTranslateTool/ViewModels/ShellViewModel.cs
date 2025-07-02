@@ -5,7 +5,7 @@ using DcsTranslateTool.Constants;
 namespace DcsTranslateTool.ViewModels;
 
 /// <summary>
-/// アプリケーションシェルを制御する ViewModel である
+/// アプリケーションシェルを制御する ViewModel
 /// </summary>
 public class ShellViewModel : BindableBase
 {
@@ -16,19 +16,19 @@ public class ShellViewModel : BindableBase
     private ICommand _unloadedCommand;
 
     /// <summary>
-    /// 戻るボタン用のコマンドである
+    /// 戻るボタン用のコマンド
     /// </summary>
     public DelegateCommand GoBackCommand =>
         _goBackCommand ?? (_goBackCommand = new DelegateCommand( OnGoBack, CanGoBack ));
 
     /// <summary>
-    /// ウィンドウロード時に呼び出されるコマンドである
+    /// ウィンドウロード時に呼び出されるコマンド
     /// </summary>
     public ICommand LoadedCommand =>
         _loadedCommand ?? (_loadedCommand = new DelegateCommand( OnLoaded ));
 
     /// <summary>
-    /// ウィンドウアンロード時に呼び出されるコマンドである
+    /// ウィンドウアンロード時に呼び出されるコマンド
     /// </summary>
     public ICommand UnloadedCommand =>
         _unloadedCommand ?? (_unloadedCommand = new DelegateCommand( OnUnloaded ));

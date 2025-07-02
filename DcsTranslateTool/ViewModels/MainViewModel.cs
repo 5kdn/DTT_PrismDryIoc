@@ -3,7 +3,7 @@ using DcsTranslateTool.Constants;
 namespace DcsTranslateTool.ViewModels;
 
 /// <summary>
-/// メイン画面の表示ロジックを保持する ViewModel である
+/// メイン画面の表示ロジックを保持する ViewModel
 /// </summary>
 public class MainViewModel : BindableBase
 {
@@ -11,7 +11,7 @@ public class MainViewModel : BindableBase
     private DelegateCommand _openSettingsCommand;
 
     /// <summary>
-    /// 設定画面を開くコマンドである
+    /// 設定画面を開くコマンド
     /// </summary>
     public DelegateCommand OpenSettingsCommand =>
         _openSettingsCommand ??= new DelegateCommand( OnOpenSettings );
