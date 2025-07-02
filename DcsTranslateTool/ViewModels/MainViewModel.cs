@@ -1,5 +1,3 @@
-using System.Windows.Input;
-
 using DcsTranslateTool.Constants;
 using Prism.Commands;
 using Prism.Mvvm;
