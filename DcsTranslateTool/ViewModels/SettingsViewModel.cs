@@ -5,10 +5,13 @@ using System.Windows.Input;
 using DcsTranslateTool.Contracts.Providers;
 using DcsTranslateTool.Contracts.Services;
 using DcsTranslateTool.Models;
+using DcsTranslateTool.Properties;
 
 namespace DcsTranslateTool.ViewModels;
 
-// TODO: Change the URL for your privacy policy in the appsettings.json file, currently set to https://YourPrivacyUrlGoesHere
+/// <summary>
+/// 設定ページを制御する ViewModel
+/// </summary>
 public class SettingsViewModel : BindableBase, INavigationAware
 {
     private readonly AppConfig _appConfig;
@@ -17,6 +20,7 @@ public class SettingsViewModel : BindableBase, INavigationAware
     private readonly IApplicationInfoService _applicationInfoService;
     private readonly IDialogProvider _dialogProvider;
     private readonly IEnvironmentProvider _environmentProvider;
+    private readonly IAppSettingsService _appSettingsService;
     private AppTheme _theme;
     private string _versionDescription;
     private string _sourceAircraftDir;
@@ -29,6 +33,7 @@ public class SettingsViewModel : BindableBase, INavigationAware
     private ICommand _selectDlcCampaignDirCommand;
     private ICommand _selectUserDirCommand;
     private ICommand _selectTranslateFileDirCommand;
+    private ICommand _resetSettingsCommand;
 
     public AppTheme Theme
     {
@@ -45,25 +50,49 @@ public class SettingsViewModel : BindableBase, INavigationAware
     public string SourceAircraftDir
     {
         get { return _sourceAircraftDir; }
-        set { SetProperty( ref _sourceAircraftDir, value ); }
+        set
+        {
+            if( SetProperty( ref _sourceAircraftDir, value ) )
+            {
+                _appSettingsService.SourceAircraftDir = value;
+            }
+        }
     }
 
     public string SourceDlcCampaignDir
     {
         get { return _sourceDlcCampaignDir; }
-        set { SetProperty( ref _sourceDlcCampaignDir, value ); }
+        set
+        {
+            if( SetProperty( ref _sourceDlcCampaignDir, value ) )
+            {
+                _appSettingsService.SourceDlcCampaignDir = value;
+            }
+        }
     }
 
     public string SourceUserDir
     {
         get { return _sourceUserDir; }
-        set { SetProperty( ref _sourceUserDir, value ); }
+        set
+        {
+            if( SetProperty( ref _sourceUserDir, value ) )
+            {
+                _appSettingsService.SourceUserDir = value;
+            }
+        }
     }
 
     public string TranslateFileDir
     {
         get { return _translateFileDir; }
-        set { SetProperty( ref _translateFileDir, value ); }
+        set
+        {
+            if( SetProperty( ref _translateFileDir, value ) )
+            {
+                _appSettingsService.TranslateFileDir = value;
+            }
+        }
     }
 
     public ICommand SetThemeCommand =>
@@ -90,13 +119,18 @@ public class SettingsViewModel : BindableBase, INavigationAware
         _selectTranslateFileDirCommand
         ?? (_selectTranslateFileDirCommand = new DelegateCommand( OnSelectTranslateFileDir ));
 
+    public ICommand ResetSettingsCommand =>
+        _resetSettingsCommand
+        ?? (_resetSettingsCommand = new DelegateCommand( OnResetSettings ));
+
     public SettingsViewModel(
         AppConfig appConfig,
         IThemeSelectorService themeSelectorService,
         ISystemService systemService,
         IApplicationInfoService applicationInfoService,
         IDialogProvider dialogProvider,
-        IEnvironmentProvider environmentProvider
+        IEnvironmentProvider environmentProvider,
+        IAppSettingsService appSettingsService
     )
     {
         _appConfig = appConfig;
@@ -105,32 +139,14 @@ public class SettingsViewModel : BindableBase, INavigationAware
         _applicationInfoService = applicationInfoService;
         _dialogProvider = dialogProvider;
         _environmentProvider = environmentProvider;
+        _appSettingsService = appSettingsService;
     }
 
     public void OnNavigatedTo( NavigationContext navigationContext )
     {
         VersionDescription = $"{Properties.Resources.AppDisplayName} - {_applicationInfoService.GetVersion()}";
         Theme = _themeSelectorService.GetCurrentTheme();
-        SourceAircraftDir = string.Empty;
-        SourceDlcCampaignDir = string.Empty;
-        var userProfile = _environmentProvider.GetUserProfilePath();
-        var openBeta = Path.Combine( userProfile, "DCS.openbeta" );
-        var release = Path.Combine( userProfile, "DCS" );
-        if( Directory.Exists( openBeta ) )
-        {
-            SourceUserDir = openBeta;
-        }
-        else if( Directory.Exists( release ) )
-        {
-            SourceUserDir = release;
-        }
-        else
-        {
-            SourceUserDir = string.Empty;
-        }
-
-        var exeDir = Path.GetDirectoryName( Assembly.GetEntryAssembly()?.Location );
-        TranslateFileDir = Path.Combine( exeDir!, "TranslateFiles" );
+        LoadSettings();
     }
 
     public void OnNavigatedFrom( NavigationContext navigationContext ) { }
@@ -174,6 +190,69 @@ public class SettingsViewModel : BindableBase, INavigationAware
         {
             TranslateFileDir = path;
         }
+    }
+
+    /// <summary>
+    /// 設定を初期値に戻す
+    /// </summary>
+    private void OnResetSettings()
+        => ResetToDefault();
+
+    /// <summary>
+    /// 保存された設定を読み込む
+    /// </summary>
+    private void LoadSettings()
+    {
+        SourceAircraftDir = _appSettingsService.SourceAircraftDir;
+        SourceDlcCampaignDir = _appSettingsService.SourceDlcCampaignDir;
+        SourceUserDir = string.IsNullOrEmpty( _appSettingsService.SourceUserDir )
+            ? GetDefaultUserDir()
+            : _appSettingsService.SourceUserDir;
+        TranslateFileDir = string.IsNullOrEmpty( _appSettingsService.TranslateFileDir )
+            ? GetDefaultTranslateDir()
+            : _appSettingsService.TranslateFileDir;
+    }
+
+    /// <summary>
+    /// 初期値を設定する
+    /// </summary>
+    private void ResetToDefault()
+    {
+        _appSettingsService.Reset();
+        SourceAircraftDir = string.Empty;
+        SourceDlcCampaignDir = string.Empty;
+        SourceUserDir = GetDefaultUserDir();
+        TranslateFileDir = GetDefaultTranslateDir();
+    }
+
+    /// <summary>
+    /// ユーザーディレクトリの初期値を取得する
+    /// </summary>
+    /// <returns>取得したパス</returns>
+    private string GetDefaultUserDir()
+    {
+        var userProfile = _environmentProvider.GetUserProfilePath();
+        var openBeta = Path.Combine( userProfile, "DCS.openbeta" );
+        var release = Path.Combine( userProfile, "DCS" );
+        if( Directory.Exists( openBeta ) )
+        {
+            return openBeta;
+        }
+        if( Directory.Exists( release ) )
+        {
+            return release;
+        }
+        return string.Empty;
+    }
+
+    /// <summary>
+    /// 翻訳ファイルの保存先初期値を取得する
+    /// </summary>
+    /// <returns>取得したパス</returns>
+    private string GetDefaultTranslateDir()
+    {
+        var exeDir = Path.GetDirectoryName( Assembly.GetEntryAssembly()?.Location );
+        return Path.Combine( exeDir!, "TranslateFiles" );
     }
 
     public bool IsNavigationTarget( NavigationContext navigationContext )

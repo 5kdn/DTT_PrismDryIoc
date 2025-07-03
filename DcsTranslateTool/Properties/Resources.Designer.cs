@@ -243,6 +243,17 @@ namespace DcsTranslateTool.Properties {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to リセット.
+        /// </summary>
+        public static string SettingsPageResetButton
+        {
+            get
+            {
+                return ResourceManager.GetString("SettingsPageResetButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Settings.
         /// </summary>
         public static string SettingsPageTitle

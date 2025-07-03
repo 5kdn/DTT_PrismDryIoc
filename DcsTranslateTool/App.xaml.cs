@@ -62,6 +62,7 @@ public partial class App : PrismApplication
         containerRegistry.Register<IThemeSelectorService, ThemeSelectorService>();
         containerRegistry.Register<IDialogProvider, DialogProvider>();
         containerRegistry.Register<IEnvironmentProvider, EnvironmentProvider>();
+        containerRegistry.Register<IAppSettingsService, AppSettingsService>();
 
         // Views
         containerRegistry.RegisterForNavigation<SettingsPage, SettingsViewModel>( PageKeys.Settings );
