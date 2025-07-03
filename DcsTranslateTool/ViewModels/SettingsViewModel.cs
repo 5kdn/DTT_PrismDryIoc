@@ -20,6 +20,7 @@ public class SettingsViewModel : BindableBase, INavigationAware
     private readonly IApplicationInfoService _applicationInfoService;
     private readonly IDialogProvider _dialogProvider;
     private readonly IEnvironmentProvider _environmentProvider;
+    private readonly IAppSettingsService _appSettingsService;
     private AppTheme _theme;
     private string _versionDescription;
     private string _sourceAircraftDir;
@@ -53,8 +54,7 @@ public class SettingsViewModel : BindableBase, INavigationAware
         {
             if( SetProperty( ref _sourceAircraftDir, value ) )
             {
-                Settings.Default.SourceAircraftDir = value;
-                Settings.Default.Save();
+                _appSettingsService.SourceAircraftDir = value;
             }
         }
     }
@@ -66,8 +66,7 @@ public class SettingsViewModel : BindableBase, INavigationAware
         {
             if( SetProperty( ref _sourceDlcCampaignDir, value ) )
             {
-                Settings.Default.SourceDlcCampaignDir = value;
-                Settings.Default.Save();
+                _appSettingsService.SourceDlcCampaignDir = value;
             }
         }
     }
@@ -79,8 +78,7 @@ public class SettingsViewModel : BindableBase, INavigationAware
         {
             if( SetProperty( ref _sourceUserDir, value ) )
             {
-                Settings.Default.SourceUserDir = value;
-                Settings.Default.Save();
+                _appSettingsService.SourceUserDir = value;
             }
         }
     }
@@ -92,8 +90,7 @@ public class SettingsViewModel : BindableBase, INavigationAware
         {
             if( SetProperty( ref _translateFileDir, value ) )
             {
-                Settings.Default.TranslateFileDir = value;
-                Settings.Default.Save();
+                _appSettingsService.TranslateFileDir = value;
             }
         }
     }
@@ -132,7 +129,8 @@ public class SettingsViewModel : BindableBase, INavigationAware
         ISystemService systemService,
         IApplicationInfoService applicationInfoService,
         IDialogProvider dialogProvider,
-        IEnvironmentProvider environmentProvider
+        IEnvironmentProvider environmentProvider,
+        IAppSettingsService appSettingsService
     )
     {
         _appConfig = appConfig;
@@ -141,6 +139,7 @@ public class SettingsViewModel : BindableBase, INavigationAware
         _applicationInfoService = applicationInfoService;
         _dialogProvider = dialogProvider;
         _environmentProvider = environmentProvider;
+        _appSettingsService = appSettingsService;
     }
 
     public void OnNavigatedTo( NavigationContext navigationContext )
@@ -204,14 +203,14 @@ public class SettingsViewModel : BindableBase, INavigationAware
     /// </summary>
     private void LoadSettings()
     {
-        SourceAircraftDir = Settings.Default.SourceAircraftDir;
-        SourceDlcCampaignDir = Settings.Default.SourceDlcCampaignDir;
-        SourceUserDir = string.IsNullOrEmpty( Settings.Default.SourceUserDir )
+        SourceAircraftDir = _appSettingsService.SourceAircraftDir;
+        SourceDlcCampaignDir = _appSettingsService.SourceDlcCampaignDir;
+        SourceUserDir = string.IsNullOrEmpty( _appSettingsService.SourceUserDir )
             ? GetDefaultUserDir()
-            : Settings.Default.SourceUserDir;
-        TranslateFileDir = string.IsNullOrEmpty( Settings.Default.TranslateFileDir )
+            : _appSettingsService.SourceUserDir;
+        TranslateFileDir = string.IsNullOrEmpty( _appSettingsService.TranslateFileDir )
             ? GetDefaultTranslateDir()
-            : Settings.Default.TranslateFileDir;
+            : _appSettingsService.TranslateFileDir;
     }
 
     /// <summary>
@@ -219,7 +218,7 @@ public class SettingsViewModel : BindableBase, INavigationAware
     /// </summary>
     private void ResetToDefault()
     {
-        Settings.Default.Reset();
+        _appSettingsService.Reset();
         SourceAircraftDir = string.Empty;
         SourceDlcCampaignDir = string.Empty;
         SourceUserDir = GetDefaultUserDir();

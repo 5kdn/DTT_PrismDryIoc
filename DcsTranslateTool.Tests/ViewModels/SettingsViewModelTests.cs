@@ -31,6 +31,7 @@ public class SettingsViewModelTests
         _container.Register<IApplicationInfoService, ApplicationInfoService>( Reuse.Singleton );
         _container.Register<IDialogProvider, DialogProvider>( Reuse.Singleton );
         _container.Register<IEnvironmentProvider, EnvironmentProvider>( Reuse.Singleton );
+        _container.Register<IAppSettingsService, AppSettingsService>( Reuse.Singleton );
 
         // ViewModels
         _container.Register<SettingsViewModel>( Reuse.Transient );
@@ -77,13 +78,15 @@ public class SettingsViewModelTests
         mockEnvironmentProvider
             .Setup( p => p.GetUserProfilePath() )
             .Returns( "Path/To/UserProfile" );
+        var appSettingsService = new AppSettingsService();
         var settingsVm = new SettingsViewModel(
             mockAppConfig.Object,
             mockThemeSelectorService.Object,
             mockSystemService.Object,
             mockApplicationInfoService.Object,
             mockDialogProvider.Object,
-            mockEnvironmentProvider.Object
+            mockEnvironmentProvider.Object,
+            appSettingsService
         );
         settingsVm.OnNavigatedTo( null );
 
@@ -113,6 +116,7 @@ public class SettingsViewModelTests
         mockEnvironmentProvider
             .Setup( p => p.GetUserProfilePath() )
             .Returns( "Path/To/UserProfile" );
+        var appSettingsService = new AppSettingsService();
 
         var settingsVm = new SettingsViewModel(
             mockAppConfig.Object,
@@ -120,7 +124,8 @@ public class SettingsViewModelTests
             mockSystemService.Object,
             mockApplicationInfoService.Object,
             mockDialogProvider.Object,
-            mockEnvironmentProvider.Object
+            mockEnvironmentProvider.Object,
+            appSettingsService
         );
         settingsVm.OnNavigatedTo( null );
 
@@ -143,6 +148,7 @@ public class SettingsViewModelTests
         var mockApplicationInfoService = new Mock<IApplicationInfoService>();
         var mockDialogProvider = new Mock<IDialogProvider>();
         var mockEnvironmentProvider = new Mock<IEnvironmentProvider>();
+        var appSettingsService = new AppSettingsService();
 
         var settingsVm = new SettingsViewModel(
             mockAppConfig.Object,
@@ -150,7 +156,8 @@ public class SettingsViewModelTests
             mockSystemService.Object,
             mockApplicationInfoService.Object,
             mockDialogProvider.Object,
-            mockEnvironmentProvider.Object
+            mockEnvironmentProvider.Object,
+            appSettingsService
         );
 
         // Act
@@ -171,6 +178,7 @@ public class SettingsViewModelTests
         var mockApplicationInfoService = new Mock<IApplicationInfoService>();
         var mockDialogProvider = new Mock<IDialogProvider>();
         var mockEnvironmentProvider = new Mock<IEnvironmentProvider>();
+        var appSettingsService = new AppSettingsService();
 
         var vm = new SettingsViewModel(
             mockAppConfig.Object,
@@ -178,7 +186,8 @@ public class SettingsViewModelTests
             mockSystemService.Object,
             mockApplicationInfoService.Object,
             mockDialogProvider.Object,
-            mockEnvironmentProvider.Object
+            mockEnvironmentProvider.Object,
+            appSettingsService
         );
 
         // Act
@@ -210,6 +219,7 @@ public class SettingsViewModelTests
         mockEnvironmentProvider
             .Setup( p => p.GetUserProfilePath() )
             .Returns( "NonExist" );
+        var appSettingsService = new AppSettingsService();
 
         var vm = new SettingsViewModel(
             mockAppConfig.Object,
@@ -217,7 +227,8 @@ public class SettingsViewModelTests
             mockSystemService.Object,
             mockApplicationInfoService.Object,
             mockDialogProvider.Object,
-            mockEnvironmentProvider.Object
+            mockEnvironmentProvider.Object,
+            appSettingsService
         );
 
         vm.SourceAircraftDir = "A";
