@@ -45,6 +45,9 @@
     <data name="SettingsPageSelectButton" xml:space="preserve">
         <value>参照...</value>
     </data>
+    <data name="SettingsPageResetButton" xml:space="preserve">
+        <value>リセット</value>
+    </data>
     <data name="MainPageTitle" xml:space="preserve">
 		    <value>Main</value>
     </data>

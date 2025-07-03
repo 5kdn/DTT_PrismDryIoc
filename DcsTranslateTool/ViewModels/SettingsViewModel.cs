@@ -29,6 +29,7 @@ public class SettingsViewModel : BindableBase, INavigationAware
     private ICommand _selectDlcCampaignDirCommand;
     private ICommand _selectUserDirCommand;
     private ICommand _selectTranslateFileDirCommand;
+    private ICommand _resetSettingsCommand;
 
     public AppTheme Theme
     {
@@ -45,25 +46,49 @@ public class SettingsViewModel : BindableBase, INavigationAware
     public string SourceAircraftDir
     {
         get { return _sourceAircraftDir; }
-        set { SetProperty( ref _sourceAircraftDir, value ); }
+        set
+        {
+            if(SetProperty( ref _sourceAircraftDir, value ))
+            {
+                App.Current.Properties[nameof(SourceAircraftDir)] = value;
+            }
+        }
     }
 
     public string SourceDlcCampaignDir
     {
         get { return _sourceDlcCampaignDir; }
-        set { SetProperty( ref _sourceDlcCampaignDir, value ); }
+        set
+        {
+            if(SetProperty( ref _sourceDlcCampaignDir, value ))
+            {
+                App.Current.Properties[nameof(SourceDlcCampaignDir)] = value;
+            }
+        }
     }
 
     public string SourceUserDir
     {
         get { return _sourceUserDir; }
-        set { SetProperty( ref _sourceUserDir, value ); }
+        set
+        {
+            if(SetProperty( ref _sourceUserDir, value ))
+            {
+                App.Current.Properties[nameof(SourceUserDir)] = value;
+            }
+        }
     }
 
     public string TranslateFileDir
     {
         get { return _translateFileDir; }
-        set { SetProperty( ref _translateFileDir, value ); }
+        set
+        {
+            if(SetProperty( ref _translateFileDir, value ))
+            {
+                App.Current.Properties[nameof(TranslateFileDir)] = value;
+            }
+        }
     }
 
     public ICommand SetThemeCommand =>
@@ -90,6 +115,13 @@ public class SettingsViewModel : BindableBase, INavigationAware
         _selectTranslateFileDirCommand
         ?? (_selectTranslateFileDirCommand = new DelegateCommand( OnSelectTranslateFileDir ));
 
+    /// <summary>
+    /// 設定を初期状態へ戻すコマンド
+    /// </summary>
+    public ICommand ResetSettingsCommand =>
+        _resetSettingsCommand
+        ?? (_resetSettingsCommand = new DelegateCommand( OnResetSettings ));
+
     public SettingsViewModel(
         AppConfig appConfig,
         IThemeSelectorService themeSelectorService,
@@ -111,26 +143,56 @@ public class SettingsViewModel : BindableBase, INavigationAware
     {
         VersionDescription = $"{Properties.Resources.AppDisplayName} - {_applicationInfoService.GetVersion()}";
         Theme = _themeSelectorService.GetCurrentTheme();
-        SourceAircraftDir = string.Empty;
-        SourceDlcCampaignDir = string.Empty;
-        var userProfile = _environmentProvider.GetUserProfilePath();
-        var openBeta = Path.Combine( userProfile, "DCS.openbeta" );
-        var release = Path.Combine( userProfile, "DCS" );
-        if( Directory.Exists( openBeta ) )
+        if(App.Current.Properties.Contains(nameof(SourceAircraftDir)))
         {
-            SourceUserDir = openBeta;
-        }
-        else if( Directory.Exists( release ) )
-        {
-            SourceUserDir = release;
+            SourceAircraftDir = App.Current.Properties[nameof(SourceAircraftDir)]?.ToString() ?? string.Empty;
         }
         else
         {
-            SourceUserDir = string.Empty;
+            SourceAircraftDir = string.Empty;
         }
 
-        var exeDir = Path.GetDirectoryName( Assembly.GetEntryAssembly()?.Location );
-        TranslateFileDir = Path.Combine( exeDir!, "TranslateFiles" );
+        if(App.Current.Properties.Contains(nameof(SourceDlcCampaignDir)))
+        {
+            SourceDlcCampaignDir = App.Current.Properties[nameof(SourceDlcCampaignDir)]?.ToString() ?? string.Empty;
+        }
+        else
+        {
+            SourceDlcCampaignDir = string.Empty;
+        }
+
+        if(App.Current.Properties.Contains(nameof(SourceUserDir)))
+        {
+            SourceUserDir = App.Current.Properties[nameof(SourceUserDir)]?.ToString() ?? string.Empty;
+        }
+        else
+        {
+            var userProfile = _environmentProvider.GetUserProfilePath();
+            var openBeta = Path.Combine( userProfile, "DCS.openbeta" );
+            var release = Path.Combine( userProfile, "DCS" );
+            if( Directory.Exists( openBeta ) )
+            {
+                SourceUserDir = openBeta;
+            }
+            else if( Directory.Exists( release ) )
+            {
+                SourceUserDir = release;
+            }
+            else
+            {
+                SourceUserDir = string.Empty;
+            }
+        }
+
+        if(App.Current.Properties.Contains(nameof(TranslateFileDir)))
+        {
+            TranslateFileDir = App.Current.Properties[nameof(TranslateFileDir)]?.ToString() ?? string.Empty;
+        }
+        else
+        {
+            var exeDir = Path.GetDirectoryName( Assembly.GetEntryAssembly()?.Location );
+            TranslateFileDir = Path.Combine( exeDir!, "TranslateFiles" );
+        }
     }
 
     public void OnNavigatedFrom( NavigationContext navigationContext ) { }
@@ -174,6 +236,34 @@ public class SettingsViewModel : BindableBase, INavigationAware
         {
             TranslateFileDir = path;
         }
+    }
+
+    /// <summary>
+    /// フォルダ設定を初期化する
+    /// </summary>
+    private void OnResetSettings()
+    {
+        SourceAircraftDir = string.Empty;
+        SourceDlcCampaignDir = string.Empty;
+
+        var userProfile = _environmentProvider.GetUserProfilePath();
+        var openBeta = Path.Combine( userProfile, "DCS.openbeta" );
+        var release = Path.Combine( userProfile, "DCS" );
+        if( Directory.Exists( openBeta ) )
+        {
+            SourceUserDir = openBeta;
+        }
+        else if( Directory.Exists( release ) )
+        {
+            SourceUserDir = release;
+        }
+        else
+        {
+            SourceUserDir = string.Empty;
+        }
+
+        var exeDir = Path.GetDirectoryName( Assembly.GetEntryAssembly()?.Location );
+        TranslateFileDir = Path.Combine( exeDir!, "TranslateFiles" );
     }
 
     public bool IsNavigationTarget( NavigationContext navigationContext )

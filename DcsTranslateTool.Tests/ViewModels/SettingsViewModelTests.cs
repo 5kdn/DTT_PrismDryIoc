@@ -158,4 +158,66 @@ public class SettingsViewModelTests
         // Assert
         mockThemeSelectorService.Verify( mock => mock.SetTheme( expected ) );
     }
+
+    [Fact( DisplayName = "ディレクトリ設定変更時にプロパティへ保存される" )]
+    public void TestSettingsViewModel_PersistProperties()
+    {
+        // Arrange
+        var vm = _container.Resolve<SettingsViewModel>();
+
+        // Act
+        vm.SourceAircraftDir = "A";
+        vm.SourceDlcCampaignDir = "B";
+        vm.SourceUserDir = "C";
+        vm.TranslateFileDir = "D";
+
+        // Assert
+        Assert.Equal( "A", App.Current.Properties[nameof(vm.SourceAircraftDir)] );
+        Assert.Equal( "B", App.Current.Properties[nameof(vm.SourceDlcCampaignDir)] );
+        Assert.Equal( "C", App.Current.Properties[nameof(vm.SourceUserDir)] );
+        Assert.Equal( "D", App.Current.Properties[nameof(vm.TranslateFileDir)] );
+    }
+
+    [Fact( DisplayName = "ナビゲーション時に保存済みプロパティを読み込む" )]
+    public void TestSettingsViewModel_RestoreProperties()
+    {
+        // Arrange
+        App.Current.Properties[nameof(SettingsViewModel.SourceAircraftDir)] = "A";
+        App.Current.Properties[nameof(SettingsViewModel.SourceDlcCampaignDir)] = "B";
+        App.Current.Properties[nameof(SettingsViewModel.SourceUserDir)] = "C";
+        App.Current.Properties[nameof(SettingsViewModel.TranslateFileDir)] = "D";
+
+        var vm = _container.Resolve<SettingsViewModel>();
+
+        // Act
+        vm.OnNavigatedTo( null );
+
+        // Assert
+        Assert.Equal( "A", vm.SourceAircraftDir );
+        Assert.Equal( "B", vm.SourceDlcCampaignDir );
+        Assert.Equal( "C", vm.SourceUserDir );
+        Assert.Equal( "D", vm.TranslateFileDir );
+    }
+
+    [Fact( DisplayName = "リセットコマンドで設定が初期化される" )]
+    public void TestSettingsViewModel_ResetCommand()
+    {
+        // Arrange
+        var vm = _container.Resolve<SettingsViewModel>();
+        App.Current.Properties.Clear();
+        vm.OnNavigatedTo( null );
+        App.Current.Properties[nameof(vm.SourceAircraftDir)] = "tmp";
+        App.Current.Properties[nameof(vm.SourceDlcCampaignDir)] = "tmp";
+        App.Current.Properties[nameof(vm.SourceUserDir)] = "tmp";
+        App.Current.Properties[nameof(vm.TranslateFileDir)] = "tmp";
+
+        // Act
+        vm.ResetSettingsCommand.Execute( null );
+
+        // Assert
+        Assert.Equal( string.Empty, vm.SourceAircraftDir );
+        Assert.Equal( string.Empty, vm.SourceDlcCampaignDir );
+        Assert.NotEqual( "tmp", vm.SourceUserDir );
+        Assert.NotEqual( "tmp", vm.TranslateFileDir );
+    }
 }
