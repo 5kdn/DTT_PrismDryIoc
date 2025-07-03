@@ -1,136 +1,64 @@
-# AGENTS.md
+# Agents.md
 
-## ŠT—v
+## ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆæ¦‚è¦
 
-–{ƒvƒƒWƒFƒNƒg‚ÍAuDCSiDigital Combat Simulatorjv‚Ì“ú–{Œê‰»ì‹Æ‚ðŽx‰‡‚·‚éWindowsƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Å‚·B  
-ƒAƒvƒŠ‚ÍPrismƒtƒŒ[ƒ€ƒ[ƒN‚ÆDryIoc‚É‚æ‚éDIƒRƒ“ƒeƒi‚ð—p‚¢‚½WPFƒAƒvƒŠ‚Æ‚µ‚ÄÝŒv‚³‚ê‚Ä‚¢‚Ü‚·B  
-‚Ü‚½AGitHub‚Æ˜AŒg‚µ‚Ä“ú–{Œê–|–óƒtƒ@ƒCƒ‹‚Ìƒ_ƒEƒ“ƒ[ƒhEƒAƒbƒvƒ[ƒhAƒ[ƒJƒ‹ƒpƒXŠÇ—“™‚ðs‚¢‚Ü‚·B
+æœ¬ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆã¯ã€ã€ŒDCSï¼ˆDigital Combat Simulatorï¼‰ã€ã®æ—¥æœ¬èªžåŒ–ä½œæ¥­ã‚’æ”¯æ´ã™ã‚‹Windowsç”¨ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã§ã™ã€‚
+ã‚¢ãƒ—ãƒªã¯Prismãƒ•ãƒ¬ãƒ¼ãƒ ãƒ¯ãƒ¼ã‚¯ã¨DryIocã«ã‚ˆã‚‹DIã‚³ãƒ³ãƒ†ãƒŠã‚’ç”¨ã„ãŸWPFã‚¢ãƒ—ãƒªã¨ã—ã¦è¨­è¨ˆã•ã‚Œã¦ã„ã¾ã™ã€‚
+ã¾ãŸã€GitHubã¨é€£æºã—ã¦æ—¥æœ¬èªžç¿»è¨³ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ãƒ»ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ã€ãƒ­ãƒ¼ã‚«ãƒ«ãƒ‘ã‚¹ç®¡ç†ç­‰ã‚’è¡Œã„ã¾ã™ã€‚
 
-–{ƒhƒLƒ…ƒƒ“ƒg‚Å‚ÍAƒvƒƒWƒFƒNƒg“à‚ÌŠeƒG[ƒWƒFƒ“ƒgiƒT[ƒrƒXAƒ‚ƒWƒ…[ƒ‹AÓ–±’PˆÊj‚Æ‚»‚Ì–ðŠ„AŽÀ‘•êŠ‚É‚Â‚¢‚Ä‹Lq‚µ‚Ü‚·B
+ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆæ§‹æˆ
 
----
+- DcsTranslateTool (ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³æœ¬ä½“)
+    - Properties (ViewModelã«å®šç¾©ã•ã‚Œã‚‹ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£)
+    - Constants (å®šæ•°å€¤ã‚’ã¾ã¨ã‚ã‚‹ã‚¯ãƒ©ã‚¹ã‚„ãƒ•ã‚¡ã‚¤ãƒ«)
+    - Contracts (ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã‚„æŠ½è±¡ã‚¯ãƒ©ã‚¹)
+    - Converters (å€¤å¤‰æ›ãƒ­ã‚¸ãƒƒã‚¯ã‚’æŒã¤ã‚¯ãƒ©ã‚¹)
+    - Helpers (æ±Žç”¨çš„ãªä¾¿åˆ©é–¢æ•°ã‚„ãƒ¦ãƒ¼ãƒ†ã‚£ãƒªãƒ†ã‚£ã‚¯ãƒ©ã‚¹)
+    - Models (ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã®ãƒ‡ãƒ¼ã‚¿æ§‹é€ ã‚„ã‚¨ãƒ³ãƒ†ã‚£ãƒ†ã‚£ã‚’è¡¨ã™ã‚¯ãƒ©ã‚¹)
+    - Providers (ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚„ãƒ‡ãƒ¼ã‚¿ã‚’ä¾›çµ¦ã™ã‚‹å½¹å‰²)
+    - Services (ãƒ“ã‚¸ãƒã‚¹ãƒ­ã‚¸ãƒƒã‚¯ã‚„å¤–éƒ¨ã¨ã®ã‚„ã‚Šå–ã‚Šã‚’æ‹…ã†)
+    - Styles (UIã®è¦‹ãŸç›®ã‚’ä¸€æ‹¬ç®¡ç†ã™ã‚‹ãƒªã‚½ãƒ¼ã‚¹)
+    - ViewModels
+    - Views
+- DcsTranslateTool.Core (ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã®ã€Œã‚³ã‚¢æ©Ÿèƒ½ã€ã‚„ã€Œãƒ­ã‚¸ãƒƒã‚¯éƒ¨åˆ†ã€ã®ã¿ã‚’åˆ†é›¢ã—ãŸãƒ©ã‚¤ãƒ–ãƒ©ãƒªãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆ)
+    - Contracts (ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã‚„æŠ½è±¡ã‚¯ãƒ©ã‚¹)
+    - Models (ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã®ãƒ‡ãƒ¼ã‚¿æ§‹é€ ã‚„ã‚¨ãƒ³ãƒ†ã‚£ãƒ†ã‚£ã‚’è¡¨ã™ã‚¯ãƒ©ã‚¹)
+    - Services (æœ¬ãƒ©ã‚¤ãƒ–ãƒ©ãƒªãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆå†…ã§å®Œçµã™ã‚‹ã‚µãƒ¼ãƒ“ã‚¹)
+- DcsTranslateTool.Test (DcsTranslateToolã«å¯¾ã™ã‚‹ãƒ¦ãƒ‹ãƒƒãƒˆãƒ†ã‚¹ãƒˆ)
+- DcsTranslateTool.Core.Test (DcsTranslateTool.Coreã«å¯¾ã™ã‚‹ãƒ¦ãƒ‹ãƒƒãƒˆãƒ†ã‚¹ãƒˆ)
 
-## 1. ƒAƒvƒŠƒP[ƒVƒ‡ƒ“EƒG[ƒWƒFƒ“ƒgˆê——
+## ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°ã‚¹ã‚¿ã‚¤ãƒ«
 
-### 1.1. ƒtƒ@ƒCƒ‹‘€ìƒG[ƒWƒFƒ“ƒgiFileServicej
+- ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°ã‚¹ã‚¿ã‚¤ãƒ«ã¯.editorconfigã«å¾“ã£ã¦ãã ã•ã„ã€‚
+- è¡Œã®é•·ã•ã¯120æ–‡å­—ã‚’ä¸Šé™ã¨ã—ã¦ãã ã•ã„ã€‚
+- ã‚¯ãƒ©ã‚¹ã‚„é–¢æ•°ã«ã¯ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚³ãƒ¡ãƒ³ãƒˆã‚’ä½“è¨€æ­¢ã‚ã®æ—¥æœ¬èªžã§ä½œæˆã—ã¦ãã ã•ã„ã€‚
+- ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚³ãƒ¡ãƒ³ãƒˆã«ã¯summary, param(å¼•æ•°ãŒã‚ã‚‹å ´åˆ), returns(è¿”ã‚Šå€¤ãŒã‚ã‚‹å ´åˆ)ã‚’è¿½åŠ ã—ã¦ãã ã•ã„ã€‚
 
-- **Ó–±**  
-  ƒtƒ@ƒCƒ‹EƒfƒBƒŒƒNƒgƒŠ‘€ì‚Ì’ŠÛ‰»‚¨‚æ‚Ñ’ñ‹ŸB
-  - ƒ[ƒJƒ‹ƒtƒ@ƒCƒ‹‚Ì“Ç‚Ý‘‚«
-  - ƒfƒBƒŒƒNƒgƒŠƒXƒLƒƒƒ“
-  - DCS–|–óƒtƒ@ƒCƒ‹‚ÌŠÇ—
+## ãƒ†ã‚¹ãƒˆã¨å“è³ªä¿è¨¼
 
-- **Žå‚ÈŽÀ‘•**  
-  - `MyApp.Core.Services.FileService`
-  - ƒCƒ“ƒ^ƒtƒF[ƒX: `MyApp.Core.Contracts.Services.IFileService`
+t_wadaãƒ¡ã‚½ãƒƒãƒ‰ã«å¾“ã£ã¦ãƒ¦ãƒ‹ãƒƒãƒˆãƒ†ã‚¹ãƒˆã‚’ä½œæˆã—ã¦ãã ã•ã„ã€‚
 
----
+Windowså°‚ç”¨ã®ã‚³ãƒ¼ãƒ‰ãŒæœ‰ã‚‹å¯¾è±¡ã«å¯¾ã™ã‚‹ãƒ†ã‚¹ãƒˆã‚³ãƒ¼ãƒ‰ã«ã¯ `[Trait("Category", "WindowsOnly")` ã‚’è¿½åŠ ã—ã€éžWindowsç’°å¢ƒã§ã®ãƒ†ã‚¹ãƒˆã§ã¯ `dotnet test --filter "Category!=WindowsOnly"` ã¨ã—ã¦ãƒ†ã‚¹ãƒˆã‚’å®Ÿè¡Œã—ã¦ãã ã•ã„ã€‚
 
-### 1.2. Ý’èŠÇ—ƒG[ƒWƒFƒ“ƒgiSettingsServicej
+`Fact` ã‚„ `Theory` ã«ã¯ä½“è¨€æ­¢ã‚ã®æ—¥æœ¬èªžã§ `DisplayName` ã‚’è¿½åŠ ã—ã¦ãã ã•ã„ã€‚
 
-- **Ó–±**  
-  ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ÌŠeŽíÝ’èi—áFDCSƒCƒ“ƒXƒg[ƒ‹ƒpƒXAGitHubƒAƒJƒEƒ“ƒgî•ñ‚È‚Çj‚ð‰i‘±‰»EŠÇ—B
+## ãƒ“ãƒ«ãƒ‰ãƒ»ãƒ‡ãƒ—ãƒ­ã‚¤æ‰‹é †
 
-- **Žå‚ÈŽÀ‘•**  
-  - `MyApp.Services.SettingsService`
-  - ƒCƒ“ƒ^ƒtƒF[ƒX: `MyApp.Contracts.Services.ISettingsService`
+## **ã‚³ãƒŸãƒƒãƒˆãƒ»PRãƒ¡ãƒƒã‚»ãƒ¼ã‚¸è¦ç´„**
 
----
+ã‚³ãƒŸãƒƒãƒˆã¯å°ã•ãªç²’åº¦ã§ä½œæˆã—ã¦ãã ã•ã„ã€‚
 
-### 1.3. GitHub˜AŒgƒG[ƒWƒFƒ“ƒgiGitHubServicej
+ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã¯æ—¥æœ¬èªžã§ä½œæˆã—ã¦ãã ã•ã„ã€‚
 
-- **Ó–±**  
-  GitHub APIioctokit“™j‚ð—˜—p‚µ‚½ˆÈ‰º‚Ì‹@”\‚ð’ñ‹ŸB
-  - ƒŠƒ|ƒWƒgƒŠˆê——Žæ“¾
-  - –|–óƒtƒ@ƒCƒ‹‚ÌƒAƒbƒvƒ[ƒhEƒ_ƒEƒ“ƒ[ƒh
+ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã«ã¯ä»¥ä¸‹ã®ãƒ«ãƒ¼ãƒ«ã§Prefixã‚’è¿½åŠ ã—ã¦ãã ã•ã„ã€‚
 
-- **Žå‚ÈŽÀ‘•**  
-  - `MyApp.Services.GitHubService`
-  - ƒCƒ“ƒ^ƒtƒF[ƒX: `MyApp.Contracts.Services.IGitHubService`
+- feat: æ–°ã—ã„æ©Ÿèƒ½
+- fix: ãƒã‚°ã®ä¿®æ­£
+- docs: ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã®ã¿ã®å¤‰æ›´
+- style: ç©ºç™½ã€ãƒ•ã‚©ãƒ¼ãƒžãƒƒãƒˆã€ã‚»ãƒŸã‚³ãƒ­ãƒ³è¿½åŠ ãªã©
+- refactor: ä»•æ§˜ã«å½±éŸ¿ãŒãªã„ã‚³ãƒ¼ãƒ‰æ”¹å–„(ãƒªãƒ•ã‚¡ã‚¯ã‚¿)
+- perf: ãƒ‘ãƒ•ã‚©ãƒ¼ãƒžãƒ³ã‚¹å‘ä¸Šé–¢é€£
+- test: ãƒ†ã‚¹ãƒˆé–¢é€£
+- chore: ãƒ“ãƒ«ãƒ‰ã€è£œåŠ©ãƒ„ãƒ¼ãƒ«ã€ãƒ©ã‚¤ãƒ–ãƒ©ãƒªé–¢é€£
 
----
-
-### 1.4. ƒe[ƒ}Ø‚è‘Ö‚¦ƒG[ƒWƒFƒ“ƒgiThemeSelectorServicej
-
-- **Ó–±**  
-  ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ÌUIƒe[ƒ}i–¾‚é‚¢/ˆÃ‚¢‚È‚Çj‚ÌØ‚è‘Ö‚¦EŠÇ—
-
-- **Žå‚ÈŽÀ‘•**  
-  - `MyApp.Services.ThemeSelectorService`
-  - ƒCƒ“ƒ^ƒtƒF[ƒX: `MyApp.Contracts.Services.IThemeSelectorService`
-
----
-
-### 1.5. ƒVƒXƒeƒ€î•ñƒG[ƒWƒFƒ“ƒgiSystemServicej
-
-- **Ó–±**  
-  OSƒo[ƒWƒ‡ƒ“‚âƒn[ƒhƒEƒFƒA“™‚ÌƒVƒXƒeƒ€î•ñ‚ÌŽæ“¾
-
-- **Žå‚ÈŽÀ‘•**  
-  - `MyApp.Services.SystemService`
-  - ƒCƒ“ƒ^ƒtƒF[ƒX: `MyApp.Contracts.Services.ISystemService`
-
----
-
-### 1.6. ó‘Ô‰i‘±‰»ƒG[ƒWƒFƒ“ƒgiPersistAndRestoreServicej
-
-- **Ó–±**  
-  ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Ìó‘Ô•Û‘¶‚ÆƒŠƒXƒgƒA‹@”\iƒEƒBƒ“ƒhƒEˆÊ’uAƒTƒCƒY“™j
-
-- **Žå‚ÈŽÀ‘•**  
-  - `MyApp.Services.PersistAndRestoreService`
-  - ƒCƒ“ƒ^ƒtƒF[ƒX: `MyApp.Contracts.Services.IPersistAndRestoreService`
-
----
-
-### 1.7. ƒAƒvƒŠƒP[ƒVƒ‡ƒ“î•ñƒG[ƒWƒFƒ“ƒgiApplicationInfoServicej
-
-- **Ó–±**  
-  ƒAƒvƒŠ‚Ìƒo[ƒWƒ‡ƒ“‚â»•i–¼“™AƒAƒvƒŠŽ©g‚Ìî•ñ’ñ‹Ÿ
-
-- **Žå‚ÈŽÀ‘•**  
-  - `MyApp.Services.ApplicationInfoService`
-  - ƒCƒ“ƒ^ƒtƒF[ƒX: `MyApp.Contracts.Services.IApplicationInfoService`
-
----
-
-## 2. ViewModelEUIƒG[ƒWƒFƒ“ƒg
-
-Prism‚ÌMVVM\¬‚É‚æ‚èAŠe‰æ–Êiƒy[ƒWj‚²‚Æ‚ÉViewModel‚ª‘¶Ý‚µ‚Ü‚·B  
-ŠeViewModel‚Íã‹LƒT[ƒrƒXŒQ‚ðDIŒo—R‚Å—˜—p‚µAUIƒƒWƒbƒN‚ð’S“–‚µ‚Ü‚·B
-
-- —á:  
-  - `MainViewModel`
-  - `SettingsViewModel`
-  - `TranslationUploadViewModel`
-  - ‚È‚Ç
-
----
-
-## 3. ƒeƒXƒgƒG[ƒWƒFƒ“ƒg
-
-- **–Ú“I**  
-  ŠeƒT[ƒrƒXEViewModel‚Ì’P‘ÌƒeƒXƒgAŒ‹‡ƒeƒXƒg‚ð’S‚¤
-
-- **Žå‚ÈŽÀ‘•**  
-  - `MyApp.Tests`ƒvƒƒWƒFƒNƒg”z‰º  
-  - xUnit{Moq‚ÅŽÀ‘•
-
----
-
-## 4. ‚»‚Ì‘¼
-
-- **DIŠÇ—ƒG[ƒWƒFƒ“ƒg**  
-  DryIoc‚ð—p‚¢‚Ä‘SƒT[ƒrƒXEViewModel‚ÌˆË‘¶«‚ðˆêŒ³ŠÇ—
-
----
-
-## ”õl
-
-- V‹KƒG[ƒWƒFƒ“ƒg‚ð’Ç‰Á‚·‚éê‡‚ÍAŠeÓ–±‚ð–¾Šm‰»‚µAƒCƒ“ƒ^ƒtƒF[ƒX‚ð•ª—£‚µ‚ÄŽÀ‘•‚·‚é‚±‚ÆB
-- ƒT[ƒrƒX‚ÌŽÀ‘•‚ÍuContracts/Interfacesv‚ÆuServicesvƒtƒHƒ‹ƒ_‚Å•ª—£‚·‚é‚±‚Æ‚ª„§‚³‚ê‚Ü‚·B
-- ViewModel‚âƒT[ƒrƒXŠÔ‚ÌÓ–±‚Ì•ª’S‚ð–¾Šm‚É‚·‚é‚±‚Æ‚ÅA•ÛŽç«EƒeƒXƒg—eˆÕ«‚ðŒüã‚³‚¹‚Ü‚·B
-
----
-
-**ÅIXV**: 2025-07-02
+ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã¯å¤‰æ›´ã—ãŸç†ç”±ã‚„ç›®çš„ã‚’è¨˜è¿°ã—ã¦ãã ã•ã„ã€‚
