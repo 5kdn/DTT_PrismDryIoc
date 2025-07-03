@@ -5,10 +5,17 @@ using DcsTranslateTool.Contracts.Services;
 
 namespace DcsTranslateTool.Services;
 
+/// <summary>
+/// アプリケーション情報を提供するサービス
+/// </summary>
 public class ApplicationInfoService : IApplicationInfoService
 {
+    /// <summary>
+    /// 新しいインスタンスを生成する
+    /// </summary>
     public ApplicationInfoService() { }
 
+    /// <inheritdoc/>
     public Version GetVersion()
     {
         // Set the app version in DcsTranslateTool > Properties > Package > PackageVersion
