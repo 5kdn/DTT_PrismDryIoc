@@ -27,6 +27,24 @@
     <data name="SettingsPageRadioButtonWindowsDefaultTheme" xml:space="preserve">
         <value>Default</value>
     </data>
+    <data name="SettingsPageFolderSettingsTitle" xml:space="preserve">
+        <value>フォルダ設定</value>
+    </data>
+    <data name="SettingsPageSourceAircraftDirText" xml:space="preserve">
+        <value>DCSのaircraftフォルダ</value>
+    </data>
+    <data name="SettingsPageSourceDlcCampaignDirText" xml:space="preserve">
+        <value>DCSのcampaignフォルダ</value>
+    </data>
+    <data name="SettingsPageSourceUserDirText" xml:space="preserve">
+        <value>ユーザーフォルダ</value>
+    </data>
+    <data name="SettingsPageTranslateFileDirText" xml:space="preserve">
+        <value>ダウンロードフォルダ</value>
+    </data>
+    <data name="SettingsPageSelectButton" xml:space="preserve">
+        <value>参照...</value>
+    </data>
     <data name="MainPageTitle" xml:space="preserve">
 		    <value>Main</value>
     </data>

@@ -1,4 +1,6 @@
-﻿using DcsTranslateTool.ViewModels;
+﻿using Prism.Regions;
+using DcsTranslateTool.ViewModels;
+using DryIoc;
 
 using Xunit;
 
@@ -11,7 +13,7 @@ public class MainViewModelTests
     public MainViewModelTests()
     {
         _container = new Container();
-
+        _container.Register<IRegionManager, RegionManager>( Reuse.Singleton );
         // ViewModels
         _container.Register<MainViewModel>( Reuse.Singleton );
     }

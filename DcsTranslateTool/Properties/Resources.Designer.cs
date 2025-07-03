@@ -177,6 +177,72 @@ namespace DcsTranslateTool.Properties {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to フォルダ設定.
+        /// </summary>
+        public static string SettingsPageFolderSettingsTitle
+        {
+            get
+            {
+                return ResourceManager.GetString("SettingsPageFolderSettingsTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to DCSのaircraftフォルダ.
+        /// </summary>
+        public static string SettingsPageSourceAircraftDirText
+        {
+            get
+            {
+                return ResourceManager.GetString("SettingsPageSourceAircraftDirText", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to DCSのcampaignフォルダ.
+        /// </summary>
+        public static string SettingsPageSourceDlcCampaignDirText
+        {
+            get
+            {
+                return ResourceManager.GetString("SettingsPageSourceDlcCampaignDirText", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ユーザーフォルダ.
+        /// </summary>
+        public static string SettingsPageSourceUserDirText
+        {
+            get
+            {
+                return ResourceManager.GetString("SettingsPageSourceUserDirText", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ダウンロードフォルダ.
+        /// </summary>
+        public static string SettingsPageTranslateFileDirText
+        {
+            get
+            {
+                return ResourceManager.GetString("SettingsPageTranslateFileDirText", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 参照....
+        /// </summary>
+        public static string SettingsPageSelectButton
+        {
+            get
+            {
+                return ResourceManager.GetString("SettingsPageSelectButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Settings.
         /// </summary>
         public static string SettingsPageTitle

@@ -5,9 +5,12 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 
 using DcsTranslateTool.Contracts.Services;
+using DcsTranslateTool.Contracts.Providers;
 using DcsTranslateTool.Models;
 using DcsTranslateTool.Services;
 using DcsTranslateTool.ViewModels;
+using DcsTranslateTool.Providers;
+using DryIoc;
 
 using Xunit;
 
@@ -25,6 +28,8 @@ public class SettingsViewModelTests
         _container.Register<IThemeSelectorService, ThemeSelectorService>( Reuse.Singleton );
         _container.Register<ISystemService, SystemService>( Reuse.Singleton );
         _container.Register<IApplicationInfoService, ApplicationInfoService>( Reuse.Singleton );
+        _container.Register<IDialogProvider, DialogProvider>( Reuse.Singleton );
+        _container.Register<IEnvironmentProvider, EnvironmentProvider>( Reuse.Singleton );
 
         // ViewModels
         _container.Register<SettingsViewModel>( Reuse.Transient );
@@ -66,12 +71,18 @@ public class SettingsViewModelTests
         var mockAppConfig = new Mock<AppConfig>();
         var mockSystemService = new Mock<ISystemService>();
         var mockApplicationInfoService = new Mock<IApplicationInfoService>();
-
+        var mockDialogProvider = new Mock<IDialogProvider>();
+        var mockEnvironmentProvider = new Mock<IEnvironmentProvider>();
+        mockEnvironmentProvider
+            .Setup( p => p.GetUserProfilePath() )
+            .Returns( "Path/To/UserProfile" );
         var settingsVm = new SettingsViewModel(
             mockAppConfig.Object,
             mockThemeSelectorService.Object,
             mockSystemService.Object,
-            mockApplicationInfoService.Object
+            mockApplicationInfoService.Object,
+            mockDialogProvider.Object,
+            mockEnvironmentProvider.Object
         );
         settingsVm.OnNavigatedTo( null );
 
@@ -96,20 +107,27 @@ public class SettingsViewModelTests
         mockApplicationInfoService
             .Setup( mock => mock.GetVersion() )
             .Returns( testVersion );
+        var mockDialogProvider = new Mock<IDialogProvider>();
+        var mockEnvironmentProvider = new Mock<IEnvironmentProvider>();
+        mockEnvironmentProvider
+            .Setup( p => p.GetUserProfilePath() )
+            .Returns( "Path/To/UserProfile" );
 
         var settingsVm = new SettingsViewModel(
             mockAppConfig.Object,
             mockThemeSelectorService.Object,
             mockSystemService.Object,
-            mockApplicationInfoService.Object
+            mockApplicationInfoService.Object,
+            mockDialogProvider.Object,
+            mockEnvironmentProvider.Object
         );
         settingsVm.OnNavigatedTo( null );
 
         // Act
-        var version = settingsVm.VersionDescription;
+        var actual = settingsVm.VersionDescription;
 
         // Assert
-        Assert.Equal( expected, version );
+        Assert.Equal( expected, actual );
     }
 
     [Fact( DisplayName = "テーマ変更コマンドが正しく動作する" )]
@@ -122,12 +140,16 @@ public class SettingsViewModelTests
         var mockAppConfig = new Mock<AppConfig>();
         var mockSystemService = new Mock<ISystemService>();
         var mockApplicationInfoService = new Mock<IApplicationInfoService>();
+        var mockDialogProvider = new Mock<IDialogProvider>();
+        var mockEnvironmentProvider = new Mock<IEnvironmentProvider>();
 
         var settingsVm = new SettingsViewModel(
             mockAppConfig.Object,
             mockThemeSelectorService.Object,
             mockSystemService.Object,
-            mockApplicationInfoService.Object
+            mockApplicationInfoService.Object,
+            mockDialogProvider.Object,
+            mockEnvironmentProvider.Object
         );
 
         // Act

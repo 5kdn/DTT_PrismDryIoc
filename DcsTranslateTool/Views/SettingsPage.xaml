@@ -31,6 +31,61 @@
                 <TextBlock
                     Margin="{StaticResource SmallTopMargin}"
                     Style="{StaticResource SubtitleTextStyle}"
+                    Text="{x:Static properties:Resources.SettingsPageFolderSettingsTitle}" />
+
+                <StackPanel Margin="{StaticResource SmallTopBottomMargin}">
+                    <TextBlock Style="{StaticResource BodyTextStyle}" Text="{x:Static properties:Resources.SettingsPageSourceAircraftDirText}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding SourceAircraftDir, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Column="1" Content="{x:Static properties:Resources.SettingsPageSelectButton}" Command="{Binding SelectAircraftDirCommand}" />
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Margin="{StaticResource SmallTopBottomMargin}">
+                    <TextBlock Style="{StaticResource BodyTextStyle}" Text="{x:Static properties:Resources.SettingsPageSourceDlcCampaignDirText}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding SourceDlcCampaignDir, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Column="1" Content="{x:Static properties:Resources.SettingsPageSelectButton}" Command="{Binding SelectDlcCampaignDirCommand}" />
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Margin="{StaticResource SmallTopBottomMargin}">
+                    <TextBlock Style="{StaticResource BodyTextStyle}" Text="{x:Static properties:Resources.SettingsPageSourceUserDirText}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding SourceUserDir, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Column="1" Content="{x:Static properties:Resources.SettingsPageSelectButton}" Command="{Binding SelectUserDirCommand}" />
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Margin="{StaticResource SmallTopBottomMargin}">
+                    <TextBlock Style="{StaticResource BodyTextStyle}" Text="{x:Static properties:Resources.SettingsPageTranslateFileDirText}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding TranslateFileDir, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Column="1" Content="{x:Static properties:Resources.SettingsPageSelectButton}" Command="{Binding SelectTranslateFileDirCommand}" />
+                    </Grid>
+                </StackPanel>
+
+                <Separator />
+
+                <TextBlock
+                    Margin="{StaticResource SmallTopMargin}"
+                    Style="{StaticResource SubtitleTextStyle}"
                     Text="{x:Static properties:Resources.SettingsPagePersonalizationTitle}" />
                 <StackPanel Margin="{StaticResource SmallTopBottomMargin}">
                     <TextBlock
