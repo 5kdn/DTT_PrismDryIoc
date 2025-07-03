@@ -3,10 +3,11 @@
 using Microsoft.Extensions.Configuration;
 
 using Moq;
+using DryIoc;
 
-using DcsTranslateTool.Contracts.Services;
+using DcsTranslateTool.Contracts.Providers;
 using DcsTranslateTool.Models;
-using DcsTranslateTool.Services;
+using DcsTranslateTool.Providers;
 using DcsTranslateTool.ViewModels;
 
 using Xunit;
@@ -25,6 +26,8 @@ public class SettingsViewModelTests
         _container.Register<IThemeSelectorService, ThemeSelectorService>( Reuse.Singleton );
         _container.Register<ISystemService, SystemService>( Reuse.Singleton );
         _container.Register<IApplicationInfoService, ApplicationInfoService>( Reuse.Singleton );
+        _container.Register<IDialogProvider, DialogProvider>( Reuse.Singleton );
+        _container.Register<IEnvironmentProvider, EnvironmentProvider>( Reuse.Singleton );
 
         // ViewModels
         _container.Register<SettingsViewModel>( Reuse.Transient );
@@ -67,11 +70,17 @@ public class SettingsViewModelTests
         var mockSystemService = new Mock<ISystemService>();
         var mockApplicationInfoService = new Mock<IApplicationInfoService>();
 
+        var mockDialogProvider = new Mock<IDialogProvider>();
+        var mockEnvProvider = new Mock<IEnvironmentProvider>();
+        mockEnvProvider.Setup( m => m.GetUserProfile() ).Returns( string.Empty );
+
         var settingsVm = new SettingsViewModel(
             mockAppConfig.Object,
             mockThemeSelectorService.Object,
             mockSystemService.Object,
-            mockApplicationInfoService.Object
+            mockApplicationInfoService.Object,
+            mockDialogProvider.Object,
+            mockEnvProvider.Object
         );
         settingsVm.OnNavigatedTo( null );
 
@@ -97,11 +106,17 @@ public class SettingsViewModelTests
             .Setup( mock => mock.GetVersion() )
             .Returns( testVersion );
 
+        var mockDialogProvider = new Mock<IDialogProvider>();
+        var mockEnvProvider = new Mock<IEnvironmentProvider>();
+        mockEnvProvider.Setup( m => m.GetUserProfile() ).Returns( string.Empty );
+
         var settingsVm = new SettingsViewModel(
             mockAppConfig.Object,
             mockThemeSelectorService.Object,
             mockSystemService.Object,
-            mockApplicationInfoService.Object
+            mockApplicationInfoService.Object,
+            mockDialogProvider.Object,
+            mockEnvProvider.Object
         );
         settingsVm.OnNavigatedTo( null );
 
@@ -123,11 +138,17 @@ public class SettingsViewModelTests
         var mockSystemService = new Mock<ISystemService>();
         var mockApplicationInfoService = new Mock<IApplicationInfoService>();
 
+        var mockDialogProvider = new Mock<IDialogProvider>();
+        var mockEnvProvider = new Mock<IEnvironmentProvider>();
+        mockEnvProvider.Setup( m => m.GetUserProfile() ).Returns( string.Empty );
+
         var settingsVm = new SettingsViewModel(
             mockAppConfig.Object,
             mockThemeSelectorService.Object,
             mockSystemService.Object,
-            mockApplicationInfoService.Object
+            mockApplicationInfoService.Object,
+            mockDialogProvider.Object,
+            mockEnvProvider.Object
         );
 
         // Act

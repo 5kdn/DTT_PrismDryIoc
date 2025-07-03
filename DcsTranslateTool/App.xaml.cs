@@ -6,11 +6,12 @@ using System.Windows.Threading;
 using Microsoft.Extensions.Configuration;
 
 using DcsTranslateTool.Constants;
-using DcsTranslateTool.Contracts.Services;
+using DcsTranslateTool.Contracts.Providers;
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Services;
 using DcsTranslateTool.Models;
 using DcsTranslateTool.Services;
+using DcsTranslateTool.Providers;
 using DcsTranslateTool.ViewModels;
 using DcsTranslateTool.Views;
 
@@ -58,6 +59,8 @@ public partial class App : PrismApplication
         containerRegistry.Register<ISystemService, SystemService>();
         containerRegistry.Register<IPersistAndRestoreService, PersistAndRestoreService>();
         containerRegistry.Register<IThemeSelectorService, ThemeSelectorService>();
+        containerRegistry.Register<IDialogProvider, DialogProvider>();
+        containerRegistry.Register<IEnvironmentProvider, EnvironmentProvider>();
 
         // Views
         containerRegistry.RegisterForNavigation<SettingsPage, SettingsViewModel>( PageKeys.Settings );

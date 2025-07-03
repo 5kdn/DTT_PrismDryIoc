@@ -186,5 +186,60 @@ namespace DcsTranslateTool.Properties {
                 return ResourceManager.GetString("SettingsPageTitle", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Directories.
+        /// </summary>
+        public static string SettingsPageDirectorySectionTitle
+        {
+            get
+            {
+                return ResourceManager.GetString("SettingsPageDirectorySectionTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Aircraft:.
+        /// </summary>
+        public static string SettingsPageAircraftDirLabel
+        {
+            get
+            {
+                return ResourceManager.GetString("SettingsPageAircraftDirLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Campaign:.
+        /// </summary>
+        public static string SettingsPageCampaignDirLabel
+        {
+            get
+            {
+                return ResourceManager.GetString("SettingsPageCampaignDirLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to User Root:.
+        /// </summary>
+        public static string SettingsPageUserDirLabel
+        {
+            get
+            {
+                return ResourceManager.GetString("SettingsPageUserDirLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Browse....
+        /// </summary>
+        public static string SettingsPageSelectFolderButton
+        {
+            get
+            {
+                return ResourceManager.GetString("SettingsPageSelectFolderButton", resourceCulture);
+            }
+        }
     }
 }

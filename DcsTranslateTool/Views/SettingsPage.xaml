@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="DcsTranslateTool.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -27,6 +27,71 @@
                 x:Name="ContentArea"
                 Grid.Row="1"
                 Margin="{StaticResource MediumLeftRightMargin}">
+
+                <TextBlock
+                    Margin="{StaticResource SmallTopMargin}"
+                    Style="{StaticResource SubtitleTextStyle}"
+                    Text="{x:Static properties:Resources.SettingsPageDirectorySectionTitle}" />
+                <StackPanel Margin="{StaticResource SmallTopBottomMargin}">
+                    <StackPanel Margin="{StaticResource XSmallTopMargin}">
+                        <TextBlock
+                            Style="{StaticResource BodyTextStyle}"
+                            Text="{x:Static properties:Resources.SettingsPageAircraftDirLabel}" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                Margin="{StaticResource SmallLeftMargin}"
+                                Text="{Binding SourceAircraftDir}" />
+                            <Button Grid.Column="1"
+                                Margin="{StaticResource SmallLeftMargin}"
+                                Content="{x:Static properties:Resources.SettingsPageSelectFolderButton}"
+                                Command="{Binding SelectAircraftDirCommand}" />
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Margin="{StaticResource XSmallTopMargin}">
+                        <TextBlock
+                            Style="{StaticResource BodyTextStyle}"
+                            Text="{x:Static properties:Resources.SettingsPageCampaignDirLabel}" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                Margin="{StaticResource SmallLeftMargin}"
+                                Text="{Binding SourceDlcCampaignDir}" />
+                            <Button Grid.Column="1"
+                                Margin="{StaticResource SmallLeftMargin}"
+                                Content="{x:Static properties:Resources.SettingsPageSelectFolderButton}"
+                                Command="{Binding SelectDlcCampaignDirCommand}" />
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Margin="{StaticResource XSmallTopMargin}">
+                        <TextBlock
+                            Style="{StaticResource BodyTextStyle}"
+                            Text="{x:Static properties:Resources.SettingsPageUserDirLabel}" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                Margin="{StaticResource SmallLeftMargin}"
+                                Text="{Binding SourceUserDir}" />
+                            <Button Grid.Column="1"
+                                Margin="{StaticResource SmallLeftMargin}"
+                                Content="{x:Static properties:Resources.SettingsPageSelectFolderButton}"
+                                Command="{Binding SelectUserDirCommand}" />
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+
+                <Separator />
 
                 <TextBlock
                     Margin="{StaticResource SmallTopMargin}"

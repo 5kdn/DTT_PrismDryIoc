@@ -34,6 +34,22 @@
         <value>Go back</value>
     </data>
 
+    <data name="SettingsPageDirectorySectionTitle" xml:space="preserve">
+        <value>Directories</value>
+    </data>
+    <data name="SettingsPageAircraftDirLabel" xml:space="preserve">
+        <value>Aircraft:</value>
+    </data>
+    <data name="SettingsPageCampaignDirLabel" xml:space="preserve">
+        <value>Campaign:</value>
+    </data>
+    <data name="SettingsPageUserDirLabel" xml:space="preserve">
+        <value>User Root:</value>
+    </data>
+    <data name="SettingsPageSelectFolderButton" xml:space="preserve">
+        <value>Browse...</value>
+    </data>
+
 	<!--
 		Microsoft ResX Schema
 
