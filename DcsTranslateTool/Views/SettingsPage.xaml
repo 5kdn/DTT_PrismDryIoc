@@ -155,6 +155,10 @@
                             Text="{x:Static properties:Resources.SettingsPagePrivacyStatementText}" />
                     </Hyperlink>
                 </TextBlock>
+                <Button
+                    Content="{x:Static properties:Resources.SettingsPageResetButton}"
+                    Margin="{StaticResource SmallTopMargin}"
+                    Command="{Binding ResetSettingsCommand}" />
             </StackPanel>
         </Grid>
     </ScrollViewer>

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.IO;
 
 using Microsoft.Extensions.Configuration;
 
@@ -157,5 +158,84 @@ public class SettingsViewModelTests
 
         // Assert
         mockThemeSelectorService.Verify( mock => mock.SetTheme( expected ) );
+    }
+
+    [Fact( DisplayName = "プロパティ変更で設定に保存される" )]
+    public void PropertyChange_ShouldSaveSettings()
+    {
+        // Arrange
+        Properties.Settings.Default.Reset();
+        var mockThemeSelectorService = new Mock<IThemeSelectorService>();
+        var mockAppConfig = new Mock<AppConfig>();
+        var mockSystemService = new Mock<ISystemService>();
+        var mockApplicationInfoService = new Mock<IApplicationInfoService>();
+        var mockDialogProvider = new Mock<IDialogProvider>();
+        var mockEnvironmentProvider = new Mock<IEnvironmentProvider>();
+
+        var vm = new SettingsViewModel(
+            mockAppConfig.Object,
+            mockThemeSelectorService.Object,
+            mockSystemService.Object,
+            mockApplicationInfoService.Object,
+            mockDialogProvider.Object,
+            mockEnvironmentProvider.Object
+        );
+
+        // Act
+        vm.SourceAircraftDir = "A";
+        vm.SourceDlcCampaignDir = "B";
+        vm.SourceUserDir = "C";
+        vm.TranslateFileDir = "D";
+
+        // Assert
+        Assert.Equal( "A", Properties.Settings.Default.SourceAircraftDir );
+        Assert.Equal( "B", Properties.Settings.Default.SourceDlcCampaignDir );
+        Assert.Equal( "C", Properties.Settings.Default.SourceUserDir );
+        Assert.Equal( "D", Properties.Settings.Default.TranslateFileDir );
+
+        Properties.Settings.Default.Reset();
+    }
+
+    [Fact( DisplayName = "リセットコマンドで初期値に戻る" )]
+    public void ResetCommand_ShouldRestoreDefaults()
+    {
+        // Arrange
+        Properties.Settings.Default.Reset();
+        var mockThemeSelectorService = new Mock<IThemeSelectorService>();
+        var mockAppConfig = new Mock<AppConfig>();
+        var mockSystemService = new Mock<ISystemService>();
+        var mockApplicationInfoService = new Mock<IApplicationInfoService>();
+        var mockDialogProvider = new Mock<IDialogProvider>();
+        var mockEnvironmentProvider = new Mock<IEnvironmentProvider>();
+        mockEnvironmentProvider
+            .Setup( p => p.GetUserProfilePath() )
+            .Returns( "NonExist" );
+
+        var vm = new SettingsViewModel(
+            mockAppConfig.Object,
+            mockThemeSelectorService.Object,
+            mockSystemService.Object,
+            mockApplicationInfoService.Object,
+            mockDialogProvider.Object,
+            mockEnvironmentProvider.Object
+        );
+
+        vm.SourceAircraftDir = "A";
+        vm.SourceDlcCampaignDir = "B";
+        vm.SourceUserDir = "C";
+        vm.TranslateFileDir = "D";
+
+        // Act
+        vm.ResetSettingsCommand.Execute( null );
+
+        // Assert
+        Assert.Equal( string.Empty, vm.SourceAircraftDir );
+        Assert.Equal( string.Empty, vm.SourceDlcCampaignDir );
+        Assert.Equal( string.Empty, vm.SourceUserDir );
+        var exeDir = Path.GetDirectoryName( Assembly.GetEntryAssembly()?.Location );
+        var expected = Path.Combine( exeDir!, "TranslateFiles" );
+        Assert.Equal( expected, vm.TranslateFileDir );
+
+        Properties.Settings.Default.Reset();
     }
 }
