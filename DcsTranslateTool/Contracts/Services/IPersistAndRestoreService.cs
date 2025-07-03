@@ -1,8 +1,17 @@
-﻿namespace DcsTranslateTool.Contracts.Services;
+namespace DcsTranslateTool.Contracts.Services;
 
+/// <summary>
+/// 設定の保存と復元を行うサービスの契約
+/// </summary>
 public interface IPersistAndRestoreService
 {
-    void RestoreData();
-
+    /// <summary>
+    /// 設定を保存する
+    /// </summary>
     void PersistData();
+
+    /// <summary>
+    /// 保存した設定を復元する
+    /// </summary>
+    void RestoreData();
 }

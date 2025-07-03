@@ -6,8 +6,12 @@ using Newtonsoft.Json;
 
 namespace DcsTranslateTool.Core.Services;
 
+/// <summary>
+/// JSON ファイルの読み書きを行うサービス
+/// </summary>
 public class FileService : IFileService
 {
+    /// <inheritdoc/>
     public T Read<T>( string folderPath, string fileName )
     {
         var path = Path.Combine(folderPath, fileName);
@@ -20,10 +24,10 @@ public class FileService : IFileService
         return default;
     }
 
+    /// <inheritdoc/>
     public void Save<T>( string folderPath, string fileName, T content )
     {
-        if(!Directory.Exists( folderPath ))
-        {
+        if(!Directory.Exists( folderPath )) {
             Directory.CreateDirectory( folderPath );
         }
 
@@ -31,6 +35,7 @@ public class FileService : IFileService
         File.WriteAllText( Path.Combine( folderPath, fileName ), fileContent, Encoding.UTF8 );
     }
 
+    /// <inheritdoc/>
     public void Delete( string folderPath, string fileName )
     {
         if(fileName != null && File.Exists( Path.Combine( folderPath, fileName ) ))

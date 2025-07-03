@@ -3,10 +3,20 @@ using System.Windows.Data;
 
 namespace DcsTranslateTool.Converters;
 
+/// <summary>
+/// 列挙体と bool の変換を行うコンバーター
+/// </summary>
 public class EnumToBooleanConverter : IValueConverter
 {
+    /// <summary>
+    /// 対象となる列挙体の型
+    /// </summary>
     public Type EnumType { get; set; }
 
+    /// <summary>
+    /// 列挙体の値を bool へ変換する
+    /// </summary>
+    /// <inheritdoc/>
     public object Convert( object value, Type targetType, object parameter, CultureInfo culture )
     {
         if(parameter is string enumString)
@@ -22,6 +32,10 @@ public class EnumToBooleanConverter : IValueConverter
         return false;
     }
 
+    /// <summary>
+    /// bool から列挙体へ変換する
+    /// </summary>
+    /// <inheritdoc/>
     public object ConvertBack( object value, Type targetType, object parameter, CultureInfo culture )
     {
         if(parameter is string enumString)
