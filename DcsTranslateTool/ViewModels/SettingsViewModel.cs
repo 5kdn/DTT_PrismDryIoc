@@ -50,7 +50,7 @@ public class SettingsViewModel : BindableBase, INavigationAware
         {
             if(SetProperty( ref _sourceAircraftDir, value ))
             {
-                App.Current.Properties[nameof(SourceAircraftDir)] = value;
+                _appConfig.SourceAircraftDir = value;
             }
         }
     }
@@ -62,7 +62,7 @@ public class SettingsViewModel : BindableBase, INavigationAware
         {
             if(SetProperty( ref _sourceDlcCampaignDir, value ))
             {
-                App.Current.Properties[nameof(SourceDlcCampaignDir)] = value;
+                _appConfig.SourceDlcCampaignDir = value;
             }
         }
     }
@@ -74,7 +74,7 @@ public class SettingsViewModel : BindableBase, INavigationAware
         {
             if(SetProperty( ref _sourceUserDir, value ))
             {
-                App.Current.Properties[nameof(SourceUserDir)] = value;
+                _appConfig.SourceUserDir = value;
             }
         }
     }
@@ -86,7 +86,7 @@ public class SettingsViewModel : BindableBase, INavigationAware
         {
             if(SetProperty( ref _translateFileDir, value ))
             {
-                App.Current.Properties[nameof(TranslateFileDir)] = value;
+                _appConfig.TranslateFileDir = value;
             }
         }
     }
@@ -143,27 +143,27 @@ public class SettingsViewModel : BindableBase, INavigationAware
     {
         VersionDescription = $"{Properties.Resources.AppDisplayName} - {_applicationInfoService.GetVersion()}";
         Theme = _themeSelectorService.GetCurrentTheme();
-        if(App.Current.Properties.Contains(nameof(SourceAircraftDir)))
+        if(!string.IsNullOrEmpty( _appConfig.SourceAircraftDir ))
         {
-            SourceAircraftDir = App.Current.Properties[nameof(SourceAircraftDir)]?.ToString() ?? string.Empty;
+            SourceAircraftDir = _appConfig.SourceAircraftDir;
         }
         else
         {
             SourceAircraftDir = string.Empty;
         }
 
-        if(App.Current.Properties.Contains(nameof(SourceDlcCampaignDir)))
+        if(!string.IsNullOrEmpty( _appConfig.SourceDlcCampaignDir ))
         {
-            SourceDlcCampaignDir = App.Current.Properties[nameof(SourceDlcCampaignDir)]?.ToString() ?? string.Empty;
+            SourceDlcCampaignDir = _appConfig.SourceDlcCampaignDir;
         }
         else
         {
             SourceDlcCampaignDir = string.Empty;
         }
 
-        if(App.Current.Properties.Contains(nameof(SourceUserDir)))
+        if(!string.IsNullOrEmpty( _appConfig.SourceUserDir ))
         {
-            SourceUserDir = App.Current.Properties[nameof(SourceUserDir)]?.ToString() ?? string.Empty;
+            SourceUserDir = _appConfig.SourceUserDir;
         }
         else
         {
@@ -184,9 +184,9 @@ public class SettingsViewModel : BindableBase, INavigationAware
             }
         }
 
-        if(App.Current.Properties.Contains(nameof(TranslateFileDir)))
+        if(!string.IsNullOrEmpty( _appConfig.TranslateFileDir ))
         {
-            TranslateFileDir = App.Current.Properties[nameof(TranslateFileDir)]?.ToString() ?? string.Empty;
+            TranslateFileDir = _appConfig.TranslateFileDir;
         }
         else
         {

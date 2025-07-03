@@ -36,6 +36,13 @@ public class PersistAndRestoreService : IPersistAndRestoreService
             var fileName = _appConfig.AppPropertiesFileName;
             _fileService.Save( folderPath, fileName, App.Current.Properties );
         }
+
+        var configFile = _appConfig.AppConfigFileName;
+        if(!string.IsNullOrEmpty( configFile ))
+        {
+            var folderPath = Path.Combine(_localAppData, _appConfig.ConfigurationsFolder);
+            _fileService.Save( folderPath, configFile, _appConfig );
+        }
     }
 
     /// <inheritdoc/>
@@ -49,6 +56,19 @@ public class PersistAndRestoreService : IPersistAndRestoreService
             foreach(DictionaryEntry property in properties)
             {
                 App.Current.Properties.Add( property.Key, property.Value );
+            }
+        }
+
+        var configFile = _appConfig.AppConfigFileName;
+        if(!string.IsNullOrEmpty( configFile ))
+        {
+            var config = _fileService.Read<AppConfig>(folderPath, configFile);
+            if(config != null)
+            {
+                _appConfig.SourceAircraftDir = config.SourceAircraftDir;
+                _appConfig.SourceDlcCampaignDir = config.SourceDlcCampaignDir;
+                _appConfig.SourceUserDir = config.SourceUserDir;
+                _appConfig.TranslateFileDir = config.TranslateFileDir;
             }
         }
     }

@@ -9,5 +9,15 @@ public class AppConfig
 
     public string AppPropertiesFileName { get; set; }
 
+    public string AppConfigFileName { get; set; }
+
     public string PrivacyStatement { get; set; }
+
+    public string SourceAircraftDir { get; set; }
+
+    public string SourceDlcCampaignDir { get; set; }
+
+    public string SourceUserDir { get; set; }
+
+    public string TranslateFileDir { get; set; }
 }

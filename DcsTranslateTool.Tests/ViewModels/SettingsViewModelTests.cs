@@ -52,6 +52,7 @@ public class SettingsViewModelTests
     {
         // Arrange & Act
         var vm = _container.Resolve<SettingsViewModel>();
+        var config = _container.Resolve<AppConfig>();
 
         // Assert
         Assert.NotNull( vm );
@@ -164,7 +165,8 @@ public class SettingsViewModelTests
     {
         // Arrange
         var vm = _container.Resolve<SettingsViewModel>();
-
+        var config = _container.Resolve<AppConfig>();
+        
         // Act
         vm.SourceAircraftDir = "A";
         vm.SourceDlcCampaignDir = "B";
@@ -172,20 +174,21 @@ public class SettingsViewModelTests
         vm.TranslateFileDir = "D";
 
         // Assert
-        Assert.Equal( "A", App.Current.Properties[nameof(vm.SourceAircraftDir)] );
-        Assert.Equal( "B", App.Current.Properties[nameof(vm.SourceDlcCampaignDir)] );
-        Assert.Equal( "C", App.Current.Properties[nameof(vm.SourceUserDir)] );
-        Assert.Equal( "D", App.Current.Properties[nameof(vm.TranslateFileDir)] );
+        Assert.Equal( "A", config.SourceAircraftDir );
+        Assert.Equal( "B", config.SourceDlcCampaignDir );
+        Assert.Equal( "C", config.SourceUserDir );
+        Assert.Equal( "D", config.TranslateFileDir );
     }
 
     [Fact( DisplayName = "ナビゲーション時に保存済みプロパティを読み込む" )]
     public void TestSettingsViewModel_RestoreProperties()
     {
         // Arrange
-        App.Current.Properties[nameof(SettingsViewModel.SourceAircraftDir)] = "A";
-        App.Current.Properties[nameof(SettingsViewModel.SourceDlcCampaignDir)] = "B";
-        App.Current.Properties[nameof(SettingsViewModel.SourceUserDir)] = "C";
-        App.Current.Properties[nameof(SettingsViewModel.TranslateFileDir)] = "D";
+        var config2 = _container.Resolve<AppConfig>();
+        config2.SourceAircraftDir = "A";
+        config2.SourceDlcCampaignDir = "B";
+        config2.SourceUserDir = "C";
+        config2.TranslateFileDir = "D";
 
         var vm = _container.Resolve<SettingsViewModel>();
 
@@ -204,12 +207,12 @@ public class SettingsViewModelTests
     {
         // Arrange
         var vm = _container.Resolve<SettingsViewModel>();
-        App.Current.Properties.Clear();
+        var config3 = _container.Resolve<AppConfig>();
         vm.OnNavigatedTo( null );
-        App.Current.Properties[nameof(vm.SourceAircraftDir)] = "tmp";
-        App.Current.Properties[nameof(vm.SourceDlcCampaignDir)] = "tmp";
-        App.Current.Properties[nameof(vm.SourceUserDir)] = "tmp";
-        App.Current.Properties[nameof(vm.TranslateFileDir)] = "tmp";
+        config3.SourceAircraftDir = "tmp";
+        config3.SourceDlcCampaignDir = "tmp";
+        config3.SourceUserDir = "tmp";
+        config3.TranslateFileDir = "tmp";
 
         // Act
         vm.ResetSettingsCommand.Execute( null );
