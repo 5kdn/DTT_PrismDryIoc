@@ -1,9 +1,9 @@
-namespace DcsTranslateTool.Core.Contracts.Services;
+namespace DcsTranslateTool.Contracts.Services;
 
 /// <summary>
 /// GitHub リポジトリ操作の契約を提供する
 /// </summary>
-public interface IGitHubService
+public interface IRepositoryService
 {
     /// <summary>
     /// リポジトリ情報を取得する

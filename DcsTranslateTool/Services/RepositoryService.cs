@@ -1,12 +1,13 @@
 using Octokit;
-using DcsTranslateTool.Core.Contracts.Services;
 
-namespace DcsTranslateTool.Core.Services;
+using DcsTranslateTool.Contracts.Services;
+
+namespace DcsTranslateTool.Services;
 
 /// <summary>
 /// GitHub を操作するサービス
 /// </summary>
-public class GitHubService : IGitHubService
+public class RepositoryService : IRepositoryService
 {
     private const string Owner = "5kdn";
     private const string Repo = "test_DCS";
@@ -17,7 +18,7 @@ public class GitHubService : IGitHubService
     /// <summary>
     /// コンストラクタ
     /// </summary>
-    public GitHubService()
+    public RepositoryService()
     {
         _client = new GitHubClient(new ProductHeaderValue("DcsTranslateTool"));
     }
