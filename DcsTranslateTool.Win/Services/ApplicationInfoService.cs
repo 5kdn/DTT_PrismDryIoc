@@ -16,9 +16,9 @@ public class ApplicationInfoService : IApplicationInfoService {
 
     /// <inheritdoc/>
     public Version GetVersion() {
-        // Set the app version in DcsTranslateTool > Properties > Package > PackageVersion
+        // Set the app version in DcsTranslateTool.Win > Properties > Package > PackageVersion
         string assemblyLocation = Assembly.GetExecutingAssembly().Location;
         var version = FileVersionInfo.GetVersionInfo(assemblyLocation).FileVersion;
-        return new Version( version );
+        return new Version( version! );
     }
 }

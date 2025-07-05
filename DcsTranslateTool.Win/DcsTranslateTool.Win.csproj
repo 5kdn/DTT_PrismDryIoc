@@ -6,7 +6,7 @@
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DcsTranslateTool.Core\DcsTranslateTool.Core.csproj" />
+    <ProjectReference Include="..\DcsTranslateTool.Share\DcsTranslateTool.Share.csproj" />
   </ItemGroup>
 
   <ItemGroup>
