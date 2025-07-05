@@ -1,20 +1,18 @@
-﻿using Newtonsoft.Json;
+﻿using DcsTranslateTool.Core.Services;
 
-using DcsTranslateTool.Core.Services;
+using Newtonsoft.Json;
 
 using Xunit;
 
 namespace DcsTranslateTool.Core.Tests.XUnit;
 
-public class FileServiceTests : IDisposable
-{
+public class FileServiceTests : IDisposable {
     private readonly string _folderPath;
     private readonly string _fileName;
     private readonly string _fileData;
     private readonly string _filePath;
 
-    public FileServiceTests()
-    {
+    public FileServiceTests() {
         _folderPath = Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData ), "UnitTests" );
         _fileName = "Tests.json";
         _fileData = "Lorem ipsum dolor sit amet";
@@ -22,30 +20,25 @@ public class FileServiceTests : IDisposable
     }
 
     [Fact]
-    public void TestSaveFile()
-    {
+    public void TestSaveFile() {
         var fileService = new FileService();
 
         fileService.Save( _folderPath, _fileName, _fileData );
 
-        if(File.Exists( _filePath ))
-        {
+        if(File.Exists( _filePath )) {
             var jsonContentFile = File.ReadAllText(_filePath);
             var contentFile = JsonConvert.DeserializeObject<string>(jsonContentFile);
             Assert.Equal( _fileData, contentFile );
         }
-        else
-        {
+        else {
             Assert.Fail( $"File not exist: {_filePath}" );
         }
     }
 
     [Fact]
-    public void TestReadFile()
-    {
+    public void TestReadFile() {
         var fileService = new FileService();
-        if(!Directory.Exists( _folderPath ))
-        {
+        if(!Directory.Exists( _folderPath )) {
             Directory.CreateDirectory( _folderPath );
         }
 
@@ -57,11 +50,9 @@ public class FileServiceTests : IDisposable
     }
 
     [Fact]
-    public void TestDeleteFile()
-    {
+    public void TestDeleteFile() {
         var fileService = new FileService();
-        if(!Directory.Exists( _folderPath ))
-        {
+        if(!Directory.Exists( _folderPath )) {
             Directory.CreateDirectory( _folderPath );
         }
 
@@ -72,10 +63,8 @@ public class FileServiceTests : IDisposable
         Assert.False( File.Exists( _filePath ) );
     }
 
-    public void Dispose()
-    {
-        if(File.Exists( _filePath ))
-        {
+    public void Dispose() {
+        if(File.Exists( _filePath )) {
             File.Delete( _filePath );
         }
     }
