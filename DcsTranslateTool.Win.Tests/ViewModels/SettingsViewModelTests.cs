@@ -9,7 +9,7 @@ using Moq;
 
 using Xunit;
 
-namespace DcsTranslateTool.Tests.ViewModels;
+namespace DcsTranslateTool.Win.Tests.ViewModels;
 
 public class SettingsViewModelTests {
     [Fact( DisplayName = "SettingsViewModelが正常に生成できる" )]
