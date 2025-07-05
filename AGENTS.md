@@ -57,6 +57,10 @@
 6. その他
 Windows専用のコードが有る対象に対するテストコードには `[Trait("Category", "WindowsOnly")` を追加し、非Windows環境でのテストでは `dotnet test --filter "Category!=WindowsOnly"` としてテストを実行してください。
 
+t_wadaメソッドに従ってユニットテストを作成してください。
+
+Windows専用のコードが有る対象に対するテストコードには `[Trait("Category", "WindowsOnly")` を追加し、非Windows環境でのテストでは `dotnet test --filter "Category!=WindowsOnly"` としてテストを実行してください。
+
 ## ビルド・デプロイ手順
 
 ## **コミット・PRメッセージ規約**
@@ -66,6 +70,7 @@ Windows専用のコードが有る対象に対するテストコードには `[T
 メッセージは日本語で作成してください。
 
 メッセージには以下のルールでPrefixを追加してください。
+
 - feat: 新しい機能
 - fix: バグの修正
 - docs: ドキュメントのみの変更
