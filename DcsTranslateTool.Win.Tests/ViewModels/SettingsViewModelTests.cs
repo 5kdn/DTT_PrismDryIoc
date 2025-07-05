@@ -9,7 +9,7 @@ using Moq;
 
 using Xunit;
 
-namespace DcsTranslateTool.Tests.ViewModels;
+namespace DcsTranslateTool.Win.Tests.ViewModels;
 
 public class SettingsViewModelTests {
     [Fact( DisplayName = "SettingsViewModelが正常に生成できる" )]
@@ -65,7 +65,7 @@ public class SettingsViewModelTests {
     public void TestSettingsViewModel_SetCurrentVersion() {
         // Arrange
         var testVersion = new Version(1, 2, 3, 4);
-        var expected = $"DcsTranslateTool - {testVersion}";
+        var expected = $"DCS Translate Tool - {testVersion}";
 
         var mockThemeSelectorService = new Mock<IThemeSelectorService>();
         var mockApplicationInfoService = new Mock<IApplicationInfoService>();
