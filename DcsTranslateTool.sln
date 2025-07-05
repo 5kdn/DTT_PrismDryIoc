@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36203.30 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcsTranslateTool", "DcsTranslateTool\DcsTranslateTool.csproj", "{94E53A54-0F0B-16CA-4B22-6EBFB480E011}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcsTranslateTool.Win", "DcsTranslateTool.Win\DcsTranslateTool.Win.csproj", "{94E53A54-0F0B-16CA-4B22-6EBFB480E011}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcsTranslateTool.Core", "DcsTranslateTool.Core\DcsTranslateTool.Core.csproj", "{426AD5D1-BEA6-4A8F-A7F2-8F3145C2CE84}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcsTranslateTool.Tests", "DcsTranslateTool.Tests\DcsTranslateTool.Tests.csproj", "{59D2CC4B-8E32-1C6A-64E5-C544D335F157}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcsTranslateTool.Win.Tests", "DcsTranslateTool.Win.Tests\DcsTranslateTool.Win.Tests.csproj", "{59D2CC4B-8E32-1C6A-64E5-C544D335F157}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcsTranslateTool.Core.Tests", "DcsTranslateTool.Core.Tests\DcsTranslateTool.Core.Tests.csproj", "{40D94029-BDA4-66E1-83DB-DD029D3FF7B7}"
 EndProject
