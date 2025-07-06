@@ -81,9 +81,6 @@ public class GitHubApiClient : IGitHubApiClient {
 
         Reference reference = await client.Git.Reference.Get(_owner, _repo, $"heads/{branchName}");
         Commit latestCommit = await client.Git.Commit.Get(_owner, _repo, reference.Object.Sha);
-        Dictionary<string, string> moveDict = files
-            .Where(f => f.Operation == CommitOperation.Move)
-            .ToDictionary(f => f.LocalPath!, f => f.RepoPath);
 
         // AddOrUpdate処理
         List<CommitFile> addOrUpdateFiles = files.Where( f => f.Operation == CommitOperation.AddOrUpdate & f.LocalPath != null ).ToList();
@@ -146,7 +143,7 @@ public class GitHubApiClient : IGitHubApiClient {
 
     private async Task<IGitHubClient> InstallationClientGenerator() {
         var generator = new GitHubJwt.GitHubJwtFactory(
-            new GitHubJwt.EnvironmentVariablePrivateKeySource("GITHUB_APP_PRIVATE_KEY"),
+            new GitHubJwt.EnvironmentVariablePrivateKeySource("PRIVATE_KEY"),
             new GitHubJwt.GitHubJwtFactoryOptions
             {
                 AppIntegrationId = _appId,
