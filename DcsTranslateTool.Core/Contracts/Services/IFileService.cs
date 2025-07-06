@@ -3,8 +3,7 @@ namespace DcsTranslateTool.Core.Contracts.Services;
 /// <summary>
 /// ファイル操作の契約を提供する
 /// </summary>
-public interface IFileService
-{
+public interface IFileService {
     /// <summary>
     /// JSON ファイルからオブジェクトを読み込む
     /// </summary>

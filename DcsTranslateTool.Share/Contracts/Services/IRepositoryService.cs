@@ -1,0 +1,52 @@
+﻿using DcsTranslateTool.Share.Models;
+
+namespace DcsTranslateTool.Share.Contracts.Services;
+
+/// <summary>
+/// GitHub リポジトリ操作のサービスを提供する
+/// </summary>
+public interface IRepositoryService {
+    /// <summary>
+    /// リポジトリツリーを取得する
+    /// </summary>
+    /// <returns>リポジトリツリー</returns>
+    Task<List<RepoTree>> GetRepositoryTreeAsync();
+
+    /// <summary>
+    /// ファイルをバイナリ形式で取得する
+    /// </summary>
+    /// <param name="path">ファイルパス</param>
+    /// <returns>ファイルのバイト列</returns>
+    Task<byte[]> GetFileAsync( string path );
+
+    /// <summary>
+    /// ブランチを作成する
+    /// </summary>
+    /// <param name="branchName">作成するブランチ名</param>
+    Task CreateBranchAsync( string branchName );
+
+    /// <summary>
+    /// ファイルをコミットする
+    /// </summary>
+    /// <param name="branchName">コミット先ブランチ名</param>
+    /// <param name="paths">コミットするローカルパス一覧</param>
+    /// <param name="message">コミットメッセージ</param>
+    Task CommitAsync( string branchName, IEnumerable<CommitFile> files, string message );
+
+    /// <summary>
+    /// ファイルをコミットする
+    /// </summary>
+    /// <param name="branchName">コミット先ブランチ名</param>
+    /// <param name="path">コミットするローカルパス</param>
+    /// <param name="message">コミットメッセージ</param>
+    Task CommitAsync( string branchName, CommitFile file, string message );
+
+    /// <summary>
+    /// プルリクエストを作成する
+    /// </summary>
+    /// <param name="branchName">PR のブランチ名</param>
+    /// <param name="title">PR タイトル</param>
+    /// <param name="body">PR 本文</param>
+    /// <returns>作成されたプルリクエスト</returns>
+    Task CreatePullRequestAsync( string branchName, string title, string message );
+}
