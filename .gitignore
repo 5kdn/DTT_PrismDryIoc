@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/DcsTranslateTool.Share/Properties/launchSettings.json
+/DcsTranslateTool.Win/Properties/launchSettings.json
