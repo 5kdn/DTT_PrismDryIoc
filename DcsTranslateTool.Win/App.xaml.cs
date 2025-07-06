@@ -5,6 +5,8 @@ using System.Windows.Threading;
 
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Services;
+using DcsTranslateTool.Share.Contracts.Services;
+using DcsTranslateTool.Share.Services;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Providers;
 using DcsTranslateTool.Win.Contracts.Services;
@@ -51,6 +53,9 @@ public partial class App : PrismApplication {
         // Core Services
         containerRegistry.Register<IFileService, FileService>();
 
+        // Share Service
+        containerRegistry.Register<IRepositoryService, RepositoryService>();
+
         // App Services
         containerRegistry.Register<IApplicationInfoService, ApplicationInfoService>();
         containerRegistry.Register<ISystemService, SystemService>();
@@ -74,6 +79,12 @@ public partial class App : PrismApplication {
         // Register configurations to IoC
         containerRegistry.RegisterInstance<IConfiguration>( configuration );
         containerRegistry.RegisterInstance<AppConfig>( appConfig );
+
+        // カスタム引数
+        var dryIoc = containerRegistry.GetContainer();
+        dryIoc.RegisterDelegate<IRepositoryService>(
+            r => new RepositoryService( new GitHubApiClient( "5kdn", "test_DCS", "DCS Translate Tool", 1510695, 74330212 ) ),
+            DryIoc.Reuse.Transient );
     }
 
     private IConfiguration BuildConfiguration() {
