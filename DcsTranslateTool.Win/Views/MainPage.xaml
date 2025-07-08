@@ -46,7 +46,18 @@
                     <TreeView x:Name="LocalAircraftTree" ItemsSource="{Binding LocalAircraftRoot.Children}">
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                <TextBlock Text="{Binding Name}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="0,0,4,0" />
+                                    <TextBlock Text="{Binding Name}" />
+                                </StackPanel>
+                                <HierarchicalDataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsDirectory}" Value="False">
+                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
+                                    </DataTrigger>
+                                </HierarchicalDataTemplate.Triggers>
                             </HierarchicalDataTemplate>
                         </TreeView.ItemTemplate>
                         <i:Interaction.Triggers>
@@ -63,7 +74,18 @@
                     <TreeView Grid.Column="2" ItemsSource="{Binding RepoAircraftTree.Children}">
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                <TextBlock Text="{Binding Name}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="0,0,4,0" />
+                                    <TextBlock Text="{Binding Name}" />
+                                </StackPanel>
+                                <HierarchicalDataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsDirectory}" Value="False">
+                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
+                                    </DataTrigger>
+                                </HierarchicalDataTemplate.Triggers>
                             </HierarchicalDataTemplate>
                         </TreeView.ItemTemplate>
                     </TreeView>

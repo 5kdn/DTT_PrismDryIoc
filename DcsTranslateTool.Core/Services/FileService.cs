@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Linq;
 
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
@@ -49,12 +50,14 @@ public class FileService : IFileService {
             Name = Path.GetFileName( directoryPath ),
             AbsolutePath = directoryPath,
             IsDirectory = true,
-            Children = Directory.EnumerateFileSystemEntries( directoryPath ).Select( f => new FileTree()
-            {
-                Name = Path.GetFileName( f ),
-                AbsolutePath = f,
-                IsDirectory = Directory.Exists( f ),
-            } ).ToList()
+            Children = Directory.EnumerateFileSystemEntries( directoryPath )
+                .Select( f => new FileTree {
+                    Name = Path.GetFileName( f ),
+                    AbsolutePath = f,
+                    IsDirectory = Directory.Exists( f ),
+                } )
+                .OrderBy( f => f.Name )
+                .ToList()
         };
     }
 }
