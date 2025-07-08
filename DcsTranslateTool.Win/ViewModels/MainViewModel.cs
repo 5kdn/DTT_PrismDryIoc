@@ -1,9 +1,9 @@
 using System.IO;
-using System.Linq;
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Share.Contracts.Services;
 using DcsTranslateTool.Share.Models;
+using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Constants;
 
 namespace DcsTranslateTool.Win.ViewModels;
@@ -11,7 +11,7 @@ namespace DcsTranslateTool.Win.ViewModels;
 /// <summary>
 /// メイン画面の表示ロジックを保持する ViewModel
 /// </summary>
-public class MainViewModel : BindableBase {
+public class MainViewModel : BindableBase, INavigationAware {
     private readonly IRegionManager _regionManager;
     private readonly IRepositoryService _repositoryService;
     private readonly IFileService _fileService;
@@ -94,8 +94,10 @@ public class MainViewModel : BindableBase {
             IsDirectory = true,
             Children = trees
         };
-        RepoAircraftTree = FindRepoTree( root, "DCSWorld/Mods/aircraft" ) ?? new RepoTree{ Name="", AbsolutePath="", IsDirectory=true };
-        RepoDlcCampaignTree = FindRepoTree( root, "DCSWorld/Mods/campaigns" ) ?? new RepoTree{ Name="", AbsolutePath="", IsDirectory=true };
+        RepoAircraftTree = FindRepoTree( root, "DCSWorld/Mods/aircraft" )
+            ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
+        RepoDlcCampaignTree = FindRepoTree( root, "DCSWorld/Mods/campaigns" )
+            ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
         RefreshLocalAircraftTree();
     }
 
@@ -107,22 +109,55 @@ public class MainViewModel : BindableBase {
     private void RefreshLocalAircraftTree() {
         var path = _appSettingsService.SourceAircraftDir;
         if(string.IsNullOrEmpty( path ) || !Directory.Exists( path )) {
-            LocalAircraftRoot = new FileTreeItemViewModel( new FileTree{ Name=path, AbsolutePath=path, IsDirectory=true } );
+            var emptyRoot = new FileTree { Name = path, AbsolutePath = path, IsDirectory = true };
+            LocalAircraftRoot = new FileTreeItemViewModel( emptyRoot );
             return;
         }
         FileTree tree = _fileService.GetFileTree( path );
-        LocalAircraftRoot = new FileTreeItemViewModel( tree );
+        var root = new FileTreeItemViewModel( tree );
+        root.UpdateChildren( _fileService );
+        LocalAircraftRoot = root;
     }
 
     private static RepoTree? FindRepoTree( RepoTree root, string path ) {
         var parts = path.Split( '/' );
         var current = root;
         foreach(string part in parts) {
-            current = current.Children.FirstOrDefault( c => c.Name == part );
-            if(current == null) return null;
+            RepoTree? next = null;
+            foreach(var child in current.Children) {
+                if(child.Name == part) {
+                    next = child;
+                    break;
+                }
+            }
+            if(next == null) {
+                return null;
+            }
+            current = next;
         }
         return current;
     }
+
+    /// <summary>
+    /// ナビゲーション後の処理を行う
+    /// </summary>
+    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
+    public void OnNavigatedTo( NavigationContext navigationContext )
+        => RefreshLocalAircraftTree();
+
+    /// <summary>
+    /// ナビゲーション前の処理を行う
+    /// </summary>
+    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
+    public void OnNavigatedFrom( NavigationContext navigationContext ) { }
+
+    /// <summary>
+    /// ナビゲーションターゲットかどうかを示す
+    /// </summary>
+    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
+    /// <returns>常に true</returns>
+    public bool IsNavigationTarget( NavigationContext navigationContext )
+        => true;
 
     private void OnOpenSettings()
         => _regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
