@@ -24,6 +24,7 @@ public class MainViewModel : BindableBase, INavigationAware {
     private RepoTree _repoAircraftTree;
     private RepoTree _repoDlcCampaignTree;
     private FileTreeItemViewModel _localAircraftRoot;
+    private FileTreeItemViewModel _localDlcCampaignRoot;
 
     /// <summary>
     /// 設定画面を開くコマンド
@@ -68,6 +69,14 @@ public class MainViewModel : BindableBase, INavigationAware {
     }
 
     /// <summary>
+    /// ローカルのDLCキャンペーンフォルダツリー
+    /// </summary>
+    public FileTreeItemViewModel LocalDlcCampaignRoot {
+        get => _localDlcCampaignRoot;
+        set => SetProperty( ref _localDlcCampaignRoot, value );
+    }
+
+    /// <summary>
     /// ViewModel の新しいインスタンスを生成する
     /// </summary>
     /// <param name="regionManager">ナビゲーション管理用の IRegionManager</param>
@@ -99,6 +108,7 @@ public class MainViewModel : BindableBase, INavigationAware {
         RepoDlcCampaignTree = FindRepoTree( root, "DCSWorld/Mods/campaigns" )
             ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
         RefreshLocalAircraftTree();
+        RefreshLocalDlcCampaignTree();
     }
 
     private void OnLoadLocalTree( FileTreeItemViewModel node ) {
@@ -117,6 +127,19 @@ public class MainViewModel : BindableBase, INavigationAware {
         var root = new FileTreeItemViewModel( tree );
         root.UpdateChildren( _fileService );
         LocalAircraftRoot = root;
+    }
+
+    private void RefreshLocalDlcCampaignTree() {
+        var path = _appSettingsService.SourceDlcCampaignDir;
+        if(string.IsNullOrEmpty( path ) || !Directory.Exists( path )) {
+            var emptyRoot = new FileTree { Name = path, AbsolutePath = path, IsDirectory = true };
+            LocalDlcCampaignRoot = new FileTreeItemViewModel( emptyRoot );
+            return;
+        }
+        FileTree tree = _fileService.GetFileTree( path );
+        var root = new FileTreeItemViewModel( tree );
+        root.UpdateChildren( _fileService );
+        LocalDlcCampaignRoot = root;
     }
 
     private static RepoTree? FindRepoTree( RepoTree root, string path ) {
@@ -142,8 +165,10 @@ public class MainViewModel : BindableBase, INavigationAware {
     /// ナビゲーション後の処理を行う
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
-    public void OnNavigatedTo( NavigationContext navigationContext )
-        => RefreshLocalAircraftTree();
+    public void OnNavigatedTo( NavigationContext navigationContext ) {
+        RefreshLocalAircraftTree();
+        RefreshLocalDlcCampaignTree();
+    }
 
     /// <summary>
     /// ナビゲーション前の処理を行う

@@ -91,7 +91,61 @@
                     </TreeView>
                 </Grid>
             </mah:MetroTabItem>
-            <mah:MetroTabItem Header="DLC Campaign" />
+            <mah:MetroTabItem Header="DLC Campaign">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TreeView x:Name="LocalDlcCampaignTree" ItemsSource="{Binding LocalDlcCampaignRoot.Children}">
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="0,0,4,0" />
+                                    <TextBlock Text="{Binding Name}" />
+                                </StackPanel>
+                                <HierarchicalDataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsDirectory}" Value="False">
+                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
+                                    </DataTrigger>
+                                </HierarchicalDataTemplate.Triggers>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectedItemChanged">
+                                <i:InvokeCommandAction Command="{Binding LoadLocalTreeCommand}" CommandParameter="{Binding SelectedItem, ElementName=LocalDlcCampaignTree}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </TreeView>
+                    <UniformGrid Grid.Column="1" Rows="3" Width="64">
+                        <Button Height="32" Margin="0,16" Content="Download" />
+                        <Button Height="32" Margin="0,16" Content="Apply" />
+                        <Button Height="32" Margin="0,16" Content="Upload" />
+                    </UniformGrid>
+                    <TreeView Grid.Column="2" ItemsSource="{Binding RepoDlcCampaignTree.Children}">
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="0,0,4,0" />
+                                    <TextBlock Text="{Binding Name}" />
+                                </StackPanel>
+                                <HierarchicalDataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsDirectory}" Value="False">
+                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
+                                    </DataTrigger>
+                                </HierarchicalDataTemplate.Triggers>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </Grid>
+            </mah:MetroTabItem>
         </mah:MetroTabControl>
     </Grid>
 </UserControl>
