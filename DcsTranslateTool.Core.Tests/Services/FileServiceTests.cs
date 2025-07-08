@@ -7,24 +7,34 @@ using Xunit;
 namespace DcsTranslateTool.Core.Tests.XUnit;
 
 public class FileServiceTests : IDisposable {
-    private readonly string _folderPath;
+    private readonly string _tempDir;
     private readonly string _fileName;
     private readonly string _fileData;
     private readonly string _filePath;
 
     public FileServiceTests() {
-        _folderPath = Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData ), "UnitTests" );
+        _tempDir = Path.Combine( Path.GetTempPath(), Guid.NewGuid().ToString() );
+        Directory.CreateDirectory( _tempDir );
+
         _fileName = "Tests.json";
         _fileData = "Lorem ipsum dolor sit amet";
-        _filePath = Path.Combine( _folderPath, _fileName );
+        _filePath = Path.Combine( _tempDir, _fileName );
     }
 
-    [Fact]
+    public void Dispose() {
+        if(Directory.Exists( _tempDir )) Directory.Delete( _tempDir, true );
+    }
+
+
+    [Fact( DisplayName = "Save関数は正常にファイルを書き出せる" )]
     public void TestSaveFile() {
+        // Arrange
         var fileService = new FileService();
 
-        fileService.Save( _folderPath, _fileName, _fileData );
+        // Act
+        fileService.Save( _tempDir, _fileName, _fileData );
 
+        // Assert
         if(File.Exists( _filePath )) {
             var jsonContentFile = File.ReadAllText(_filePath);
             var contentFile = JsonConvert.DeserializeObject<string>(jsonContentFile);
@@ -35,37 +45,61 @@ public class FileServiceTests : IDisposable {
         }
     }
 
-    [Fact]
+    [Fact( DisplayName = "Read関数は正常にファイルを読み込める" )]
     public void TestReadFile() {
-        var fileService = new FileService();
-        if(!Directory.Exists( _folderPath )) {
-            Directory.CreateDirectory( _folderPath );
-        }
-
+        // Arrange
         File.WriteAllText( _filePath, JsonConvert.SerializeObject( _fileData ) );
+        var fileService = new FileService();
 
-        var cacheData = fileService.Read<string>(_folderPath, _fileName);
+        // Act
+        var cacheData = fileService.Read<string>(_tempDir, _fileName);
 
+        // Assert
         Assert.Equal( _fileData, cacheData );
     }
 
-    [Fact]
+    [Fact( DisplayName = "Delete関数は正常にファイルを削除する" )]
     public void TestDeleteFile() {
-        var fileService = new FileService();
-        if(!Directory.Exists( _folderPath )) {
-            Directory.CreateDirectory( _folderPath );
-        }
-
+        // Arrange
         File.WriteAllText( _filePath, _fileData );
+        var fileService = new FileService();
 
-        fileService.Delete( _folderPath, _fileName );
+        // Act
+        fileService.Delete( _tempDir, _fileName );
 
+        // Assert
         Assert.False( File.Exists( _filePath ) );
     }
 
-    public void Dispose() {
-        if(File.Exists( _filePath )) {
-            File.Delete( _filePath );
-        }
+    [Fact( DisplayName = "GetFileTree関数は正常にFileTreeを返す" )]
+    public void GetFileTree_Returns_FileTree() {
+        Directory.CreateDirectory( Path.Combine( _tempDir, "b", "d" ) );
+        File.WriteAllText( Path.Combine( _tempDir, "a.txt" ), "" );
+        File.WriteAllText( Path.Combine( _tempDir, "b", "c.txt" ), "" );
+        var service = new FileService();
+        // Act
+        var actual = service.GetFileTree( _tempDir );
+        // Assert
+        Assert.NotNull( actual );
+        Assert.Equal( Path.GetFileName( _tempDir ), actual.Name );
+        Assert.Equal( _tempDir, actual.AbsolutePath );
+        Assert.True( actual.IsDirectory );
+        Assert.Equal( 2, actual.Children.Count );
+
+        var child0 = actual.Children[0];
+        Assert.NotNull( child0 );
+        Assert.Equal( "a.txt", child0.Name );
+        Assert.Equal( Path.Combine( _tempDir, "a.txt" ), child0.AbsolutePath );
+        Assert.False( child0.IsDirectory );
+        Assert.Empty( child0.Children );
+
+        var child1 = actual.Children[1];
+        Assert.NotNull( child1 );
+        Assert.Equal( "b", child1.Name );
+        Assert.Equal( Path.Combine( _tempDir, "b" ), child1.AbsolutePath );
+        Assert.True( child1.IsDirectory );
+        Assert.Empty( child1.Children );
+
+
     }
 }

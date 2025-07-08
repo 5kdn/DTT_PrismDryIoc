@@ -1,3 +1,5 @@
+using DcsTranslateTool.Core.Models;
+
 namespace DcsTranslateTool.Core.Contracts.Services;
 
 /// <summary>
@@ -28,4 +30,13 @@ public interface IFileService {
     /// <param name="folderPath">フォルダパス</param>
     /// <param name="fileName">ファイル名</param>
     void Delete( string folderPath, string fileName );
+
+    /// <summary>
+    /// 指定したパス直下のファイルとディレクトリの階層構造を取得します。
+    /// 再帰的に取得しないことに注意してください。
+    /// </summary>
+    /// <param name="directoryPath">ファイルツリーを生成するディレクトリパス。アクセス可能な有効なディレクトリパスでなければなりません。</param>
+    /// <returns><see cref="FileTree"/> オブジェクトを返します。ディレクトリが空の場合、返される <see cref="FileTree"/> には子ノードは含まれません。</returns>
+    /// <exception cref="DirectoryNotFoundException">directoryPathが存在するディレクトリではなかった時のエラー</exception>
+    FileTree GetFileTree( string directoryPath );
 }
