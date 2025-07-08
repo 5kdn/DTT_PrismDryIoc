@@ -1,6 +1,7 @@
 ﻿using System.Text;
 
 using DcsTranslateTool.Core.Contracts.Services;
+using DcsTranslateTool.Core.Models;
 
 using Newtonsoft.Json;
 
@@ -36,5 +37,24 @@ public class FileService : IFileService {
         if(fileName != null && File.Exists( Path.Combine( folderPath, fileName ) )) {
             File.Delete( Path.Combine( folderPath, fileName ) );
         }
+    }
+
+    /// <inheritdoc/>
+    public FileTree GetFileTree( string directoryPath ) {
+        if(!Directory.Exists( directoryPath )) throw new DirectoryNotFoundException( $"不正なディレクトリパスが指定されました: {directoryPath}" );
+
+        var trimmedPath = directoryPath.TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar );
+        return new FileTree()
+        {
+            Name = Path.GetFileName( directoryPath ),
+            AbsolutePath = directoryPath,
+            IsDirectory = true,
+            Children = Directory.EnumerateFileSystemEntries( directoryPath ).Select( f => new FileTree()
+            {
+                Name = Path.GetFileName( f ),
+                AbsolutePath = f,
+                IsDirectory = Directory.Exists( f ),
+            } ).ToList()
+        };
     }
 }
