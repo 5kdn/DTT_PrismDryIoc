@@ -83,7 +83,7 @@ public partial class App : PrismApplication {
         // カスタム引数
         var dryIoc = containerRegistry.GetContainer();
         dryIoc.RegisterDelegate<IRepositoryService>(
-            r => new RepositoryService( new GitHubApiClient( "5kdn", "test_DCS", "DCS Translate Tool", 1510695, 74330212 ) ),
+            r => new RepositoryService( new GitHubApiClient( "5kdn", "test_DCS", "DCSTranslateTool", 1510695, 74330212 ) ),
             DryIoc.Reuse.Transient );
     }
 

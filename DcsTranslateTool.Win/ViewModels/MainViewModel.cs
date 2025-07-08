@@ -1,3 +1,9 @@
+using System.IO;
+using DcsTranslateTool.Core.Contracts.Services;
+using DcsTranslateTool.Core.Models;
+using DcsTranslateTool.Share.Contracts.Services;
+using DcsTranslateTool.Share.Models;
+using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Constants;
 
 namespace DcsTranslateTool.Win.ViewModels;
@@ -5,9 +11,20 @@ namespace DcsTranslateTool.Win.ViewModels;
 /// <summary>
 /// メイン画面の表示ロジックを保持する ViewModel
 /// </summary>
-public class MainViewModel : BindableBase {
+public class MainViewModel : BindableBase, INavigationAware {
     private readonly IRegionManager _regionManager;
+    private readonly IRepositoryService _repositoryService;
+    private readonly IFileService _fileService;
+    private readonly IAppSettingsService _appSettingsService;
+
     private DelegateCommand _openSettingsCommand;
+    private DelegateCommand _fetchCommand;
+    private DelegateCommand<FileTreeItemViewModel> _loadLocalTreeCommand;
+
+    private RepoTree _repoAircraftTree;
+    private RepoTree _repoDlcCampaignTree;
+    private FileTreeItemViewModel _localAircraftRoot;
+    private FileTreeItemViewModel _localDlcCampaignRoot;
 
     /// <summary>
     /// 設定画面を開くコマンド
@@ -16,12 +33,156 @@ public class MainViewModel : BindableBase {
         _openSettingsCommand ??= new DelegateCommand( OnOpenSettings );
 
     /// <summary>
+    /// リポジトリツリーを取得するコマンド
+    /// </summary>
+    public DelegateCommand FetchCommand =>
+        _fetchCommand ??= new DelegateCommand( OnFetch );
+
+    /// <summary>
+    /// ローカルツリーを読み込むコマンド
+    /// </summary>
+    public DelegateCommand<FileTreeItemViewModel> LoadLocalTreeCommand =>
+        _loadLocalTreeCommand ??= new DelegateCommand<FileTreeItemViewModel>( OnLoadLocalTree );
+
+    /// <summary>
+    /// リポジトリの機体フォルダツリー
+    /// </summary>
+    public RepoTree RepoAircraftTree {
+        get => _repoAircraftTree;
+        set => SetProperty( ref _repoAircraftTree, value );
+    }
+
+    /// <summary>
+    /// リポジトリのDLCキャンペーンフォルダツリー
+    /// </summary>
+    public RepoTree RepoDlcCampaignTree {
+        get => _repoDlcCampaignTree;
+        set => SetProperty( ref _repoDlcCampaignTree, value );
+    }
+
+    /// <summary>
+    /// ローカルの機体フォルダツリー
+    /// </summary>
+    public FileTreeItemViewModel LocalAircraftRoot {
+        get => _localAircraftRoot;
+        set => SetProperty( ref _localAircraftRoot, value );
+    }
+
+    /// <summary>
+    /// ローカルのDLCキャンペーンフォルダツリー
+    /// </summary>
+    public FileTreeItemViewModel LocalDlcCampaignRoot {
+        get => _localDlcCampaignRoot;
+        set => SetProperty( ref _localDlcCampaignRoot, value );
+    }
+
+    /// <summary>
     /// ViewModel の新しいインスタンスを生成する
     /// </summary>
     /// <param name="regionManager">ナビゲーション管理用の IRegionManager</param>
-    public MainViewModel( IRegionManager regionManager ) {
+    /// <param name="repositoryService">リポジトリサービス</param>
+    /// <param name="fileService">ファイルサービス</param>
+    /// <param name="appSettingsService">アプリ設定サービス</param>
+    public MainViewModel(
+        IRegionManager regionManager,
+        IRepositoryService repositoryService,
+        IFileService fileService,
+        IAppSettingsService appSettingsService
+    ) {
         _regionManager = regionManager;
+        _repositoryService = repositoryService;
+        _fileService = fileService;
+        _appSettingsService = appSettingsService;
     }
+
+    private async void OnFetch() {
+        var trees = await _repositoryService.GetRepositoryTreeAsync();
+        var root = new RepoTree {
+            Name = string.Empty,
+            AbsolutePath = string.Empty,
+            IsDirectory = true,
+            Children = trees
+        };
+        RepoAircraftTree = FindRepoTree( root, "DCSWorld/Mods/aircraft" )
+            ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
+        RepoDlcCampaignTree = FindRepoTree( root, "DCSWorld/Mods/campaigns" )
+            ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
+        RefreshLocalAircraftTree();
+        RefreshLocalDlcCampaignTree();
+    }
+
+    private void OnLoadLocalTree( FileTreeItemViewModel node ) {
+        if(node == null) return;
+        node.UpdateChildren( _fileService );
+    }
+
+    private void RefreshLocalAircraftTree() {
+        var path = _appSettingsService.SourceAircraftDir;
+        if(string.IsNullOrEmpty( path ) || !Directory.Exists( path )) {
+            var emptyRoot = new FileTree { Name = path, AbsolutePath = path, IsDirectory = true };
+            LocalAircraftRoot = new FileTreeItemViewModel( emptyRoot );
+            return;
+        }
+        FileTree tree = _fileService.GetFileTree( path );
+        var root = new FileTreeItemViewModel( tree );
+        root.UpdateChildren( _fileService );
+        LocalAircraftRoot = root;
+    }
+
+    private void RefreshLocalDlcCampaignTree() {
+        var path = _appSettingsService.SourceDlcCampaignDir;
+        if(string.IsNullOrEmpty( path ) || !Directory.Exists( path )) {
+            var emptyRoot = new FileTree { Name = path, AbsolutePath = path, IsDirectory = true };
+            LocalDlcCampaignRoot = new FileTreeItemViewModel( emptyRoot );
+            return;
+        }
+        FileTree tree = _fileService.GetFileTree( path );
+        var root = new FileTreeItemViewModel( tree );
+        root.UpdateChildren( _fileService );
+        LocalDlcCampaignRoot = root;
+    }
+
+    private static RepoTree? FindRepoTree( RepoTree root, string path ) {
+        var parts = path.Split( '/' );
+        var current = root;
+        foreach(string part in parts) {
+            RepoTree? next = null;
+            foreach(var child in current.Children) {
+                if(child.Name == part) {
+                    next = child;
+                    break;
+                }
+            }
+            if(next == null) {
+                return null;
+            }
+            current = next;
+        }
+        return current;
+    }
+
+    /// <summary>
+    /// ナビゲーション後の処理を行う
+    /// </summary>
+    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
+    public void OnNavigatedTo( NavigationContext navigationContext ) {
+        RefreshLocalAircraftTree();
+        RefreshLocalDlcCampaignTree();
+    }
+
+    /// <summary>
+    /// ナビゲーション前の処理を行う
+    /// </summary>
+    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
+    public void OnNavigatedFrom( NavigationContext navigationContext ) { }
+
+    /// <summary>
+    /// ナビゲーションターゲットかどうかを示す
+    /// </summary>
+    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
+    /// <returns>常に true</returns>
+    public bool IsNavigationTarget( NavigationContext navigationContext )
+        => true;
 
     private void OnOpenSettings()
         => _regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
