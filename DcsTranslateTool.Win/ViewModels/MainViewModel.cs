@@ -1,11 +1,12 @@
+using System.Diagnostics;
 using System.IO;
+
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Share.Contracts.Services;
 using DcsTranslateTool.Share.Models;
-using DcsTranslateTool.Win.ViewModels;
-using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Constants;
+using DcsTranslateTool.Win.Contracts.Services;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
@@ -121,7 +122,8 @@ public class MainViewModel : BindableBase, INavigationAware {
 
     private async void OnFetch() {
         var trees = await _repositoryService.GetRepositoryTreeAsync();
-        var root = new RepoTree {
+        var root = new RepoTree
+        {
             Name = string.Empty,
             AbsolutePath = string.Empty,
             IsDirectory = true,
@@ -197,14 +199,29 @@ public class MainViewModel : BindableBase, INavigationAware {
     }
 
     private async void OnDownload() {
-        var root = SelectedTabIndex == 0 ? RepoAircraftTree : RepoDlcCampaignTree;
-        if(root == null) return;
+        RepoTreeItemViewModel root;
+        if(SelectedTabIndex == 0) {
+            // Aircraft tab
+            root = RepoAircraftTree;
+        }
+        else if(SelectedTabIndex == 1) {
+            // DLC Campaign tab
+            root = RepoDlcCampaignTree;
+        }
+        else {
+            return;
+        }
+
+        if(root == null) {
+            return;
+        }
+
+        var items = root.GetCheckedFiles();
         foreach(var item in root.GetCheckedFiles()) {
             byte[] data = await _repositoryService.GetFileAsync( item.AbsolutePath );
             var savePath = Path.Combine( _appSettingsService.TranslateFileDir, item.AbsolutePath );
-            var dir = Path.GetDirectoryName( savePath );
-            if(!Directory.Exists( dir )) Directory.CreateDirectory( dir! );
-            File.WriteAllBytes( savePath, data );
+            await _fileService.SaveAsync( savePath, data );
+            Debug.WriteLine( $"書き込み完了: {savePath}" );
         }
     }
 
