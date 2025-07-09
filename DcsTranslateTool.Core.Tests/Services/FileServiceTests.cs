@@ -32,7 +32,7 @@ public class FileServiceTests : IDisposable {
         var fileService = new FileService();
 
         // Act
-        fileService.Save( _tempDir, _fileName, _fileData );
+        fileService.SaveToJson( _tempDir, _fileName, _fileData );
 
         // Assert
         if(File.Exists( _filePath )) {
@@ -52,7 +52,7 @@ public class FileServiceTests : IDisposable {
         var fileService = new FileService();
 
         // Act
-        var cacheData = fileService.Read<string>(_tempDir, _fileName);
+        var cacheData = fileService.ReadFromJson<string>(_tempDir, _fileName);
 
         // Assert
         Assert.Equal( _fileData, cacheData );
