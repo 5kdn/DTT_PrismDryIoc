@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using System.Linq;
 
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
@@ -13,7 +12,7 @@ namespace DcsTranslateTool.Core.Services;
 /// </summary>
 public class FileService : IFileService {
     /// <inheritdoc/>
-    public T Read<T>( string folderPath, string fileName ) {
+    public T ReadFromJson<T>( string folderPath, string fileName ) {
         var path = Path.Combine(folderPath, fileName);
         if(File.Exists( path )) {
             var json = File.ReadAllText(path);
@@ -24,7 +23,7 @@ public class FileService : IFileService {
     }
 
     /// <inheritdoc/>
-    public void Save<T>( string folderPath, string fileName, T content ) {
+    public void SaveToJson<T>( string folderPath, string fileName, T content ) {
         if(!Directory.Exists( folderPath )) {
             Directory.CreateDirectory( folderPath );
         }
@@ -51,7 +50,8 @@ public class FileService : IFileService {
             AbsolutePath = directoryPath,
             IsDirectory = true,
             Children = Directory.EnumerateFileSystemEntries( directoryPath )
-                .Select( f => new FileTree {
+                .Select( f => new FileTree
+                {
                     Name = Path.GetFileName( f ),
                     AbsolutePath = f,
                     IsDirectory = Directory.Exists( f ),
@@ -59,5 +59,17 @@ public class FileService : IFileService {
                 .OrderBy( f => f.Name )
                 .ToList()
         };
+    }
+
+    /// <inheritdoc/>
+    public async Task SaveAsync( string path, string content ) {
+        Directory.CreateDirectory( Path.GetDirectoryName( path ) );
+        await File.WriteAllTextAsync( path, content );
+    }
+
+    /// <inheritdoc/>
+    public async Task SaveAsync( string path, byte[] content ) {
+        Directory.CreateDirectory( Path.GetDirectoryName( path ) );
+        await File.WriteAllBytesAsync( path, content );
     }
 }

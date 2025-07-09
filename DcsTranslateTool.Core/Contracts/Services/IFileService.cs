@@ -13,7 +13,7 @@ public interface IFileService {
     /// <param name="folderPath">フォルダパス</param>
     /// <param name="fileName">ファイル名</param>
     /// <returns>読み込んだオブジェクト。存在しない場合は default</returns>
-    T Read<T>( string folderPath, string fileName );
+    T ReadFromJson<T>( string folderPath, string fileName );
 
     /// <summary>
     /// オブジェクトを JSON ファイルとして保存する
@@ -22,7 +22,7 @@ public interface IFileService {
     /// <param name="folderPath">フォルダパス</param>
     /// <param name="fileName">ファイル名</param>
     /// <param name="content">保存する内容</param>
-    void Save<T>( string folderPath, string fileName, T content );
+    void SaveToJson<T>( string folderPath, string fileName, T content );
 
     /// <summary>
     /// 指定ファイルを削除する
@@ -39,4 +39,8 @@ public interface IFileService {
     /// <returns><see cref="FileTree"/> オブジェクトを返します。ディレクトリが空の場合、返される <see cref="FileTree"/> には子ノードは含まれません。</returns>
     /// <exception cref="DirectoryNotFoundException">directoryPathが存在するディレクトリではなかった時のエラー</exception>
     FileTree GetFileTree( string directoryPath );
+
+    Task SaveAsync( string path, string content );
+
+    Task SaveAsync( string path, byte[] content );
 }
