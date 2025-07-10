@@ -1,6 +1,6 @@
 ﻿namespace DcsTranslateTool.Win.Constants;
 
-public class PageKeys {
+public static class PageKeys {
     public const string Main = "Main";
     public const string Settings = "Settings";
 }

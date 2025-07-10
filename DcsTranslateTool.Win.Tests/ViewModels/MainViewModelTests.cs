@@ -6,6 +6,7 @@ using DcsTranslateTool.Win.Services;
 using DcsTranslateTool.Win.ViewModels;
 
 using Moq;
+
 using Xunit;
 
 namespace DcsTranslateTool.Win.Tests.ViewModels;
