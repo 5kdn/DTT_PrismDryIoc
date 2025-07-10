@@ -8,7 +8,6 @@ using DcsTranslateTool.Core.Services;
 using DcsTranslateTool.Share.Contracts.Services;
 using DcsTranslateTool.Share.Services;
 using DcsTranslateTool.Win.Constants;
-using DcsTranslateTool.Win.Services;
 using DcsTranslateTool.Win.Contracts.Providers;
 using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Models;
