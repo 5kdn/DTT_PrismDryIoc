@@ -1,0 +1,16 @@
+*/Doc/**/*.pdf
+*/l10n/jp/LC_MESSAGES/messages.mo
+*/Missions/Campaigns/**/*.miz
+*/Missions/Campaigns/**/*.cmp
+*/Missions/Campaigns/**/*.txt
+*/Missions/Campaigns/**/*.{jpeg,jpg,png,gif,bmp}
+*/Missions/Campaigns/**/*.miz
+*/Missions/FC2/**/*.miz
+*/Missions/{Multiplayer,Multi}/*.miz
+*/Missions/QuickStart/**/quickstart.lua
+*/Missions/QuickStart/**/*.miz
+*/Missions/Single/*.miz
+*/Missions/Single/localization.lua
+*/Missions/Training/**/*.miz
+*/Missions/Training/**/lessons.lua
+*/entry.lua
