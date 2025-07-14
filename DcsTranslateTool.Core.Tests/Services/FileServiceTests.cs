@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 using Xunit;
 
-namespace DcsTranslateTool.Core.Tests.XUnit;
+namespace DcsTranslateTool.Core.Tests.Services;
 
 public class FileServiceTests : IDisposable {
     private readonly string _tempDir;
@@ -17,7 +17,7 @@ public class FileServiceTests : IDisposable {
         Directory.CreateDirectory( _tempDir );
 
         _fileName = "Tests.json";
-        _fileData = "Lorem ipsum dolor sit amet";
+        _fileData = "dummyData";
         _filePath = Path.Combine( _tempDir, _fileName );
     }
 
@@ -52,10 +52,10 @@ public class FileServiceTests : IDisposable {
         var fileService = new FileService();
 
         // Act
-        var cacheData = fileService.ReadFromJson<string>(_tempDir, _fileName);
+        var actual = fileService.ReadFromJson<string>(_tempDir, _fileName);
 
         // Assert
-        Assert.Equal( _fileData, cacheData );
+        Assert.Equal( _fileData, actual );
     }
 
     [Fact( DisplayName = "Delete関数は正常にファイルを削除する" )]
