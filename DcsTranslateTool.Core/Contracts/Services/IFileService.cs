@@ -13,6 +13,9 @@ public interface IFileService {
     /// <param name="folderPath">フォルダパス</param>
     /// <param name="fileName">ファイル名</param>
     /// <returns>読み込んだオブジェクト。存在しない場合は default</returns>
+    /// <exception cref="ArgumentException">folderPath または fileName が null もしくは空の場合</exception>
+    /// <exception cref="IOException">ファイルの読み込みに失敗した場合</exception>
+    /// <exception cref="JsonException">JSON の解析に失敗した場合</exception>
     T ReadFromJson<T>( string folderPath, string fileName );
 
     /// <summary>
@@ -22,6 +25,8 @@ public interface IFileService {
     /// <param name="folderPath">フォルダパス</param>
     /// <param name="fileName">ファイル名</param>
     /// <param name="content">保存する内容</param>
+    /// <exception cref="ArgumentException">folderPath または fileName が null もしくは空の場合</exception>
+    /// <exception cref="IOException">ファイルの保存に失敗した場合</exception>
     void SaveToJson<T>( string folderPath, string fileName, T content );
 
     /// <summary>
@@ -29,6 +34,8 @@ public interface IFileService {
     /// </summary>
     /// <param name="folderPath">フォルダパス</param>
     /// <param name="fileName">ファイル名</param>
+    /// <exception cref="ArgumentException">folderPath または fileName が null もしくは空の場合</exception>
+    /// <exception cref="IOException">ファイルの削除に失敗した場合</exception>
     void Delete( string folderPath, string fileName );
 
     /// <summary>
@@ -37,10 +44,15 @@ public interface IFileService {
     /// </summary>
     /// <param name="directoryPath">ファイルツリーを生成するディレクトリパス。アクセス可能な有効なディレクトリパスでなければなりません。</param>
     /// <returns><see cref="FileTree"/> オブジェクトを返します。ディレクトリが空の場合、返される <see cref="FileTree"/> には子ノードは含まれません。</returns>
-    /// <exception cref="DirectoryNotFoundException">directoryPathが存在するディレクトリではなかった時のエラー</exception>
+    /// <exception cref="DirectoryNotFoundException">directoryPath が存在するディレクトリではなかった場合</exception>
+    /// <exception cref="IOException">ファイルツリーの取得に失敗した場合</exception>
     FileTree GetFileTree( string directoryPath );
 
+    /// <exception cref="ArgumentException">path が null もしくは空の場合</exception>
+    /// <exception cref="IOException">ファイルの保存に失敗した場合</exception>
     Task SaveAsync( string path, string content );
 
+    /// <exception cref="ArgumentException">path が null もしくは空の場合</exception>
+    /// <exception cref="IOException">ファイルの保存に失敗した場合</exception>
     Task SaveAsync( string path, byte[] content );
 }

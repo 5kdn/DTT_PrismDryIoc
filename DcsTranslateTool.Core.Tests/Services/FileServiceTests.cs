@@ -71,6 +71,24 @@ public class FileServiceTests : IDisposable {
         Assert.False( File.Exists( _filePath ) );
     }
 
+    [Fact( DisplayName = "folderPathがnullでSaveToJsonを実行したときArgumentExceptionが送出される" )]
+    public void SaveToJson_FolderPathNull_Throws() {
+        // Arrange
+        var fileService = new FileService();
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>( () => fileService.SaveToJson<string>( null!, _fileName, _fileData ) );
+    }
+
+    [Fact( DisplayName = "fileNameが空でSaveToJsonを実行したときArgumentExceptionが送出される" )]
+    public void SaveToJson_FileNameEmpty_Throws() {
+        // Arrange
+        var fileService = new FileService();
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>( () => fileService.SaveToJson<string>( _tempDir, string.Empty, _fileData ) );
+    }
+
     [Fact( DisplayName = "GetFileTree関数は正常にFileTreeを返す" )]
     public void GetFileTree_Returns_FileTree() {
         Directory.CreateDirectory( Path.Combine( _tempDir, "b", "d" ) );
