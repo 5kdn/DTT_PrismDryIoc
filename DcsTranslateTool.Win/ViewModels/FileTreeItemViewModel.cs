@@ -1,4 +1,3 @@
-using System;
 using System.Collections.ObjectModel;
 
 using DcsTranslateTool.Core.Contracts.Services;
@@ -24,14 +23,6 @@ public class FileTreeItemViewModel : BindableBase {
     /// ディレクトリかどうか
     /// </summary>
     public bool IsDirectory { get; }
-
-    /// <summary>
-    /// .miz または .pdf ファイルかどうかを取得する
-    /// </summary>
-    public bool IsHighlightedFile =>
-        !IsDirectory &&
-        (Name.EndsWith( ".miz", StringComparison.OrdinalIgnoreCase ) ||
-         Name.EndsWith( ".pdf", StringComparison.OrdinalIgnoreCase ));
 
     /// <summary>
     /// 子ノード
