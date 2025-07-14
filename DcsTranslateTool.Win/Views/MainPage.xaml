@@ -46,7 +46,7 @@
                     <TreeView x:Name="LocalAircraftTree" ItemsSource="{Binding LocalAircraftRoot.Children}">
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                <StackPanel Orientation="Horizontal">
+                                <StackPanel x:Name="ItemPanel" Orientation="Horizontal">
                                     <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="0,0,4,0" />
                                     <TextBlock Text="{Binding Name}" />
                                 </StackPanel>
@@ -56,6 +56,9 @@
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding IsDirectory}" Value="False">
                                         <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsHighlightedFile}" Value="True">
+                                        <Setter TargetName="ItemPanel" Property="Background" Value="LightYellow" />
                                     </DataTrigger>
                                 </HierarchicalDataTemplate.Triggers>
                             </HierarchicalDataTemplate>
