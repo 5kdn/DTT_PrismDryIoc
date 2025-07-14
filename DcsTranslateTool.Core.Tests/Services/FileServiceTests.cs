@@ -120,4 +120,26 @@ public class FileServiceTests : IDisposable {
 
 
     }
+    [Fact( DisplayName = "存在しないディレクトリでGetFileTreeを実行したときDirectoryNotFoundExceptionが送出される" )]
+    public void GetFileTree_InvalidPath_Throws() {
+        // Arrange
+        var service = new FileService();
+        string invalidPath = Path.Combine(_tempDir, "no_exist");
+        // Act & Assert
+        Assert.Throws<DirectoryNotFoundException>( () => {
+            service.GetFileTree( invalidPath );
+        } );
+    }
+
+    [Fact( DisplayName = "存在しないファイルをReadFromJsonで読み込んだときnullが返る" )]
+    public void ReadFromJson_NoFile_ReturnsNull() {
+        // Arrange
+        var service = new FileService();
+        string noFileName = "no_file.json";
+        // Act
+        var actual = service.ReadFromJson<string>(_tempDir, noFileName);
+        // Assert
+        Assert.Null( actual );
+    }
+
 }
