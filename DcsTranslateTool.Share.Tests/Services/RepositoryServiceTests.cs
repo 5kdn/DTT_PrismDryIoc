@@ -166,4 +166,84 @@ public class RepositoryServiceTests {
             c.CreatePullRequestAsync( "new-branch", "master", "PR title", "message" ),
             Times.Once );
     }
+
+    [Fact( DisplayName = "ツリー取得時にAPIが失敗すると例外が送出される" )]
+    public async Task GetRepositoryTreeAsync_ApiError_ThrowsException() {
+        // Arrange
+        var mockClient = new Mock<IGitHubApiClient>();
+        mockClient
+            .Setup( c => c.GetRepositoryTreeAsync( It.IsAny<string>() ) )
+            .ThrowsAsync( new Exception( "api error" ) );
+        var service = new RepositoryService( mockClient.Object );
+
+        // Act & Assert
+        await Assert.ThrowsAsync<Exception>( async () => {
+            await service.GetRepositoryTreeAsync();
+        } );
+    }
+
+    [Fact( DisplayName = "ファイル取得時にAPIが失敗すると例外が送出される" )]
+    public async Task GetFileAsync_ApiError_ThrowsException() {
+        // Arrange
+        var mockClient = new Mock<IGitHubApiClient>();
+        mockClient
+            .Setup( c => c.GetFileAsync( It.IsAny<string>(), It.IsAny<string>() ) )
+            .ThrowsAsync( new Exception( "api error" ) );
+        var service = new RepositoryService( mockClient.Object );
+
+        // Act & Assert
+        await Assert.ThrowsAsync<Exception>( async () => {
+            await service.GetFileAsync( "path" );
+        } );
+    }
+
+    [Fact( DisplayName = "ブランチ作成時にAPIが失敗すると例外が送出される" )]
+    public async Task CreateBranchAsync_ApiError_ThrowsException() {
+        // Arrange
+        var mockClient = new Mock<IGitHubApiClient>();
+        mockClient
+            .Setup( c => c.CreateBranchAsync( It.IsAny<string>(), It.IsAny<string>() ) )
+            .ThrowsAsync( new Exception( "api error" ) );
+        var service = new RepositoryService( mockClient.Object );
+
+        // Act & Assert
+        await Assert.ThrowsAsync<Exception>( async () => {
+            await service.CreateBranchAsync( "branch" );
+        } );
+    }
+
+    [Fact( DisplayName = "コミット時にAPIが失敗すると例外が送出される" )]
+    public async Task CommitAsync_ApiError_ThrowsException() {
+        // Arrange
+        var mockClient = new Mock<IGitHubApiClient>();
+        mockClient
+            .Setup( c => c.CommitAsync( It.IsAny<string>(), It.IsAny<IEnumerable<CommitFile>>(), It.IsAny<string>() ) )
+            .ThrowsAsync( new Exception( "api error" ) );
+        var service = new RepositoryService( mockClient.Object );
+        var commitFile = new CommitFile {
+            LocalPath = "C://dummy.txt",
+            RepoPath = "dummy.txt",
+            Operation = CommitOperation.AddOrUpdate
+        };
+
+        // Act & Assert
+        await Assert.ThrowsAsync<Exception>( async () => {
+            await service.CommitAsync( "branch", commitFile, "message" );
+        } );
+    }
+
+    [Fact( DisplayName = "プルリクエスト作成時にAPIが失敗すると例外が送出される" )]
+    public async Task CreatePullRequestAsync_ApiError_ThrowsException() {
+        // Arrange
+        var mockClient = new Mock<IGitHubApiClient>();
+        mockClient
+            .Setup( c => c.CreatePullRequestAsync( It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>() ) )
+            .ThrowsAsync( new Exception( "api error" ) );
+        var service = new RepositoryService( mockClient.Object );
+
+        // Act & Assert
+        await Assert.ThrowsAsync<Exception>( async () => {
+            await service.CreatePullRequestAsync( "branch", "title", "message" );
+        } );
+    }
 }
