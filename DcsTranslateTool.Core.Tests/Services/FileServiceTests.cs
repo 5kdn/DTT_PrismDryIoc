@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 using Xunit;
 
-namespace DcsTranslateTool.Core.Tests.XUnit;
+namespace DcsTranslateTool.Core.Tests.Services;
 
 public class FileServiceTests : IDisposable {
     private readonly string _tempDir;
@@ -17,7 +17,7 @@ public class FileServiceTests : IDisposable {
         Directory.CreateDirectory( _tempDir );
 
         _fileName = "Tests.json";
-        _fileData = "Lorem ipsum dolor sit amet";
+        _fileData = "dummyData";
         _filePath = Path.Combine( _tempDir, _fileName );
     }
 
@@ -52,10 +52,10 @@ public class FileServiceTests : IDisposable {
         var fileService = new FileService();
 
         // Act
-        var cacheData = fileService.ReadFromJson<string>(_tempDir, _fileName);
+        var actual = fileService.ReadFromJson<string>(_tempDir, _fileName);
 
         // Assert
-        Assert.Equal( _fileData, cacheData );
+        Assert.Equal( _fileData, actual );
     }
 
     [Fact( DisplayName = "Delete関数は正常にファイルを削除する" )]
@@ -69,6 +69,24 @@ public class FileServiceTests : IDisposable {
 
         // Assert
         Assert.False( File.Exists( _filePath ) );
+    }
+
+    [Fact( DisplayName = "folderPathがnullでSaveToJsonを実行したときArgumentExceptionが送出される" )]
+    public void SaveToJson_FolderPathNull_Throws() {
+        // Arrange
+        var fileService = new FileService();
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>( () => fileService.SaveToJson<string>( null!, _fileName, _fileData ) );
+    }
+
+    [Fact( DisplayName = "fileNameが空でSaveToJsonを実行したときArgumentExceptionが送出される" )]
+    public void SaveToJson_FileNameEmpty_Throws() {
+        // Arrange
+        var fileService = new FileService();
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>( () => fileService.SaveToJson<string>( _tempDir, string.Empty, _fileData ) );
     }
 
     [Fact( DisplayName = "GetFileTree関数は正常にFileTreeを返す" )]
