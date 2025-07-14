@@ -10,8 +10,8 @@ namespace DcsTranslateTool.Share.Services;
 public class ZipService : IZipService {
     /// <inheritdoc />
     public IReadOnlyList<string> GetEntries( string zipFilePath ) {
+        if(string.IsNullOrWhiteSpace( zipFilePath )) throw new ArgumentException( "zip ファイルパスが null または空です", nameof( zipFilePath ) );
         if(!File.Exists( zipFilePath )) throw new FileNotFoundException( "ファイルが存在しません", zipFilePath );
-        if(!File.Exists( zipFilePath )) return new List<string>();
 
         try {
             using FileStream fs = new(zipFilePath, FileMode.Open, FileAccess.Read);
@@ -21,13 +21,18 @@ public class ZipService : IZipService {
         catch(InvalidDataException ex) {
             throw new InvalidDataException( "zip ファイルが壊れている可能性がある", ex );
         }
+        catch(IOException ex) {
+            throw new IOException( "zip ファイル読み込み中に入出力エラーが発生した", ex );
+        }
     }
 
     /// <inheritdoc />
     public void AddEntry( string zipFilePath, string entryPath, string filePath ) {
+        if(string.IsNullOrWhiteSpace( zipFilePath )) throw new ArgumentException( "zip ファイルパスが null または空です", nameof( zipFilePath ) );
         if(!File.Exists( zipFilePath )) throw new FileNotFoundException( "ファイルが存在しません", zipFilePath );
+        if(string.IsNullOrWhiteSpace( filePath )) throw new ArgumentException( "追加するファイルパスが null または空です", nameof( filePath ) );
         if(!File.Exists( filePath )) throw new FileNotFoundException( "ファイルが存在しません", filePath );
-        if(string.IsNullOrEmpty( entryPath )) throw new ArgumentException( "値が null または空です", entryPath );
+        if(string.IsNullOrWhiteSpace( entryPath )) throw new ArgumentException( "値が null または空です", nameof( entryPath ) );
 
         try {
             using FileStream fs = new(zipFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
@@ -38,12 +43,17 @@ public class ZipService : IZipService {
         catch(InvalidDataException ex) {
             throw new InvalidDataException( "zip ファイルが壊れている可能性があります", ex );
         }
+        catch(IOException ex) {
+            throw new IOException( "zip ファイル書き込み中に入出力エラーが発生した", ex );
+        }
     }
 
     /// <inheritdoc />
     public void AddEntry( string zipFilePath, string entryPath, byte[] data ) {
+        if(string.IsNullOrWhiteSpace( zipFilePath )) throw new ArgumentException( "zip ファイルパスが null または空です", nameof( zipFilePath ) );
         if(!File.Exists( zipFilePath )) throw new FileNotFoundException( "ファイルが存在しません", zipFilePath );
-        if(string.IsNullOrEmpty( entryPath )) throw new ArgumentException( "エントリーが null または空です", entryPath );
+        if(string.IsNullOrWhiteSpace( entryPath )) throw new ArgumentException( "エントリーが null または空です", nameof( entryPath ) );
+        if(data == null || data.Length == 0) throw new ArgumentException( "追加するデータが null または空です", nameof( data ) );
 
         try {
             using FileStream fs = new(zipFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
@@ -56,13 +66,16 @@ public class ZipService : IZipService {
         catch(InvalidDataException ex) {
             throw new InvalidDataException( "zip ファイルが壊れている可能性があります", ex );
         }
+        catch(IOException ex) {
+            throw new IOException( "zip ファイル書き込み中に入出力エラーが発生した", ex );
+        }
     }
 
     /// <inheritdoc />
     public void DeleteEntry( string zipFilePath, string entryPath ) {
+        if(string.IsNullOrWhiteSpace( zipFilePath )) throw new ArgumentException( "zip ファイルパスが null または空です", nameof( zipFilePath ) );
         if(!File.Exists( zipFilePath )) throw new FileNotFoundException( "ファイルが存在しません", zipFilePath );
-        if(string.IsNullOrEmpty( entryPath )) throw new ArgumentException( "エントリーが null または空です", entryPath );
-        if(!File.Exists( zipFilePath )) return;
+        if(string.IsNullOrWhiteSpace( entryPath )) throw new ArgumentException( "エントリーが null または空です", nameof( entryPath ) );
 
         try {
             using FileStream stream = new(zipFilePath, FileMode.Open, FileAccess.ReadWrite);
@@ -76,6 +89,9 @@ public class ZipService : IZipService {
         }
         catch(InvalidDataException ex) {
             throw new InvalidDataException( "zip ファイルが壊れている可能性がある", ex );
+        }
+        catch(IOException ex) {
+            throw new IOException( "zip ファイル操作中に入出力エラーが発生した", ex );
         }
     }
 }

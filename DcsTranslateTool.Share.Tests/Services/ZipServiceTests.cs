@@ -50,6 +50,17 @@ public class ZipServiceTests : IDisposable {
         } );
     }
 
+    [Fact( DisplayName = "zipファイルパスが空のときArgumentExceptionが送出される" )]
+    public void GetEntries_EmptyPath_Throws() {
+        // Arrange
+        var service = new ZipService();
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>( () => {
+            service.GetEntries( string.Empty );
+        } );
+    }
+
     [Fact( DisplayName = "ファイルパスを指定して追加したとき指定パスのエントリが作成される" )]
     public void AddEntry_AddsFile() {
         // Arrange
@@ -149,6 +160,32 @@ public class ZipServiceTests : IDisposable {
         } );
     }
 
+    [Fact( DisplayName = "zipファイルパスが空のときArgumentExceptionが送出される" )]
+    public void AddEntry_EmptyZipPath_Throws() {
+        // Arrange
+        string filePath = Path.Combine(_tempDir, "file.txt");
+        File.WriteAllText( filePath, "sample" );
+        var service = new ZipService();
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>( () => {
+            service.AddEntry( string.Empty, "entry/file.txt", filePath );
+        } );
+    }
+
+    [Fact( DisplayName = "AddEntryBytesでデータが空のときArgumentExceptionが送出される" )]
+    public void AddEntryBytes_EmptyData_Throws() {
+        // Arrange
+        string zipPath = Path.Combine(_tempDir, "test.zip");
+        using(var zip = ZipFile.Open( zipPath, ZipArchiveMode.Create )) { }
+        var service = new ZipService();
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>( () => {
+            service.AddEntry( zipPath, "entry.bin", Array.Empty<byte>() );
+        } );
+    }
+
     [Fact( DisplayName = "ファイルのパスを指定して削除したとき該当エントリが削除される" )]
     public void DeleteEntry_FilePath() {
         // Arrange
@@ -192,5 +229,16 @@ public class ZipServiceTests : IDisposable {
         Assert.Single( actualEntries );
         Assert.DoesNotContain( "dir/", actualEntries );
         Assert.Contains( "other.txt", actualEntries );
+    }
+
+    [Fact( DisplayName = "zipファイルパスが空のときArgumentExceptionが送出される" )]
+    public void DeleteEntry_EmptyZipPath_Throws() {
+        // Arrange
+        var service = new ZipService();
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>( () => {
+            service.DeleteEntry( string.Empty, "entry.txt" );
+        } );
     }
 }
