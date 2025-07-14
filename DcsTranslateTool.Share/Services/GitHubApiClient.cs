@@ -1,5 +1,4 @@
-﻿using DcsTranslateTool.Share.Models;
-
+using DcsTranslateTool.Share.Models;
 using Octokit;
 
 namespace DcsTranslateTool.Share.Services;
@@ -14,6 +13,7 @@ public interface IGitHubApiClient {
     /// </summary>
     /// <param name="branch">取得対象のブランチ名。省略時は "master"。</param>
     /// <returns><see cref="TreeItem"/> のリストを返す。</returns>
+    /// <exception cref="Exception">GitHub API の呼び出しに失敗した場合に送出する。</exception>
     Task<IReadOnlyList<TreeItem>> GetRepositoryTreeAsync( string branch = "master" );
 
     /// <summary>
@@ -22,6 +22,7 @@ public interface IGitHubApiClient {
     /// <param name="path">取得するファイルのリポジトリ内パス。</param>
     /// <param name="branch">取得対象のブランチ名。省略時は "master"。</param>
     /// <returns>ファイルの内容を <see cref="byte"/> 配列で返す。</returns>
+    /// <exception cref="Exception">GitHub API の呼び出しに失敗した場合に送出する。</exception>
     Task<byte[]> GetFileAsync( string path, string branch = "master" );
 
     /// <summary>
@@ -29,6 +30,7 @@ public interface IGitHubApiClient {
     /// </summary>
     /// <param name="sourceBranch">元となるブランチ名。</param>
     /// <param name="newBranch">作成する新しいブランチ名。</param>
+    /// <exception cref="Exception">GitHub API の呼び出しに失敗した場合に送出する。</exception>
     Task CreateBranchAsync( string sourceBranch, string newBranch );
 
     /// <summary>
@@ -37,6 +39,8 @@ public interface IGitHubApiClient {
     /// <param name="branchName">コミット対象のブランチ名。</param>
     /// <param name="files">コミット対象のファイル情報一覧。</param>
     /// <param name="message">コミットメッセージ。</param>
+    /// <exception cref="FileNotFoundException">コミット対象ファイルが存在しない場合に送出する。</exception>
+    /// <exception cref="Exception">GitHub API の呼び出しに失敗した場合に送出する。</exception>
     Task CommitAsync( string branchName, IEnumerable<CommitFile> files, string message );
 
     /// <summary>
@@ -46,6 +50,7 @@ public interface IGitHubApiClient {
     /// <param name="targetBranch">プルリクエストのターゲットブランチ名。</param>
     /// <param name="title">プルリクエストのタイトル。</param>
     /// <param name="body">プルリクエストの本文。</param>
+    /// <exception cref="Exception">GitHub API の呼び出しに失敗した場合に送出する。</exception>
     Task CreatePullRequestAsync( string sourceBranch, string targetBranch, string title, string body );
 }
 
@@ -77,42 +82,53 @@ public class GitHubApiClient : IGitHubApiClient {
 
     /// <inheritdoc/>
     public async Task CommitAsync( string branchName, IEnumerable<CommitFile> files, string message ) {
-        IGitHubClient client = await InstallationClientGenerator();
+        try {
+            IGitHubClient client = await InstallationClientGenerator();
 
-        Reference reference = await client.Git.Reference.Get(_owner, _repo, $"heads/{branchName}");
-        Commit latestCommit = await client.Git.Commit.Get(_owner, _repo, reference.Object.Sha);
+            Reference reference = await client.Git.Reference.Get(_owner, _repo, $"heads/{branchName}");
+            Commit latestCommit = await client.Git.Commit.Get(_owner, _repo, reference.Object.Sha);
 
-        // AddOrUpdate処理
-        List<CommitFile> addOrUpdateFiles = files.Where( f => f.Operation == CommitOperation.AddOrUpdate & f.LocalPath != null ).ToList();
-        List<Task<NewTreeItem>> newTreeItemTasks = addOrUpdateFiles.Select( async file => {
-            string content = await File.ReadAllTextAsync(file.LocalPath!);
-            NewBlob newBlob = new NewBlob{Content= content, Encoding = EncodingType.Utf8};
-            BlobReference blobRef = await client.Git.Blob.Create(_owner, _repo, newBlob);
-            return new NewTreeItem
-            {
-                Path = file.RepoPath,
-                Mode = "100644",
-                Type = TreeType.Blob,
-                Sha = blobRef.Sha
-            };
-        } ).ToList();
-        List<NewTreeItem> newTreeItems = (await Task.WhenAll(newTreeItemTasks)).ToList();
+            // AddOrUpdate処理
+            List<CommitFile> addOrUpdateFiles = files.Where( f => f.Operation == CommitOperation.AddOrUpdate & f.LocalPath != null ).ToList();
+            List<Task<NewTreeItem>> newTreeItemTasks = addOrUpdateFiles.Select( async file => {
+                if(!File.Exists( file.LocalPath! )) throw new FileNotFoundException( "ファイルが存在しません", file.LocalPath );
+                string content = await File.ReadAllTextAsync(file.LocalPath!);
+                NewBlob newBlob = new() { Content = content, Encoding = EncodingType.Utf8 };
+                BlobReference blobRef = await client.Git.Blob.Create(_owner, _repo, newBlob);
+                return new NewTreeItem
+                {
+                    Path = file.RepoPath,
+                    Mode = "100644",
+                    Type = TreeType.Blob,
+                    Sha = blobRef.Sha
+                };
+            } ).ToList();
+            List<NewTreeItem> newTreeItems = (await Task.WhenAll(newTreeItemTasks)).ToList();
 
-        NewTree newTree = new NewTree { BaseTree = latestCommit.Tree.Sha };
-        foreach(NewTreeItem item in newTreeItems) newTree.Tree.Add( item );
+            NewTree newTree = new() { BaseTree = latestCommit.Tree.Sha };
+            foreach(NewTreeItem item in newTreeItems) newTree.Tree.Add( item );
 
-        TreeResponse createdTreeRes = await client.Git.Tree.Create(_owner, _repo, newTree);
-        NewCommit newCommit = new NewCommit(message, createdTreeRes.Sha, latestCommit.Sha);
-        Commit commit = await client.Git.Commit.Create(_owner, _repo, newCommit);
-        await client.Git.Reference.Update( _owner, _repo, $"heads/{branchName}", new ReferenceUpdate( commit.Sha ) );
+            TreeResponse createdTreeRes = await client.Git.Tree.Create(_owner, _repo, newTree);
+            NewCommit newCommit = new(message, createdTreeRes.Sha, latestCommit.Sha);
+            Commit commit = await client.Git.Commit.Create(_owner, _repo, newCommit);
+            await client.Git.Reference.Update( _owner, _repo, $"heads/{branchName}", new ReferenceUpdate( commit.Sha ) );
+        }
+        catch(ApiException ex) {
+            throw new Exception( "GitHub API の呼び出しに失敗しました", ex );
+        }
     }
 
     /// <inheritdoc/>
     public async Task CreateBranchAsync( string sourceBranch, string newBranch ) {
-        IGitHubClient client = await InstallationClientGenerator();
-        var gitRef = await client.Git.Reference.Get(_owner, _repo, $"heads/{sourceBranch}");
-        var newRef =  new NewReference( $"refs/heads/{newBranch}", gitRef.Object.Sha );
-        await client.Git.Reference.Create( _owner, _repo, newRef );
+        try {
+            IGitHubClient client = await InstallationClientGenerator();
+            var gitRef = await client.Git.Reference.Get(_owner, _repo, $"heads/{sourceBranch}");
+            var newRef =  new NewReference( $"refs/heads/{newBranch}", gitRef.Object.Sha );
+            await client.Git.Reference.Create( _owner, _repo, newRef );
+        }
+        catch(ApiException ex) {
+            throw new Exception( "GitHub API の呼び出しに失敗しました", ex );
+        }
     }
 
     /// <inheritdoc/>
@@ -121,24 +137,39 @@ public class GitHubApiClient : IGitHubApiClient {
         string targetBranch,
         string title,
         string message ) {
-        IGitHubClient client = await InstallationClientGenerator();
-        var newPR = new NewPullRequest(title, sourceBranch, targetBranch){Body = message};
-        var pr = await client.PullRequest.Create(_owner,_repo, newPR);
+        try {
+            IGitHubClient client = await InstallationClientGenerator();
+            var newPR = new NewPullRequest(title, sourceBranch, targetBranch){Body = message};
+            await client.PullRequest.Create(_owner, _repo, newPR);
+        }
+        catch(ApiException ex) {
+            throw new Exception( "GitHub API の呼び出しに失敗しました", ex );
+        }
     }
 
     /// <inheritdoc/>
     public async Task<byte[]> GetFileAsync( string path, string branch = "master" ) {
-        IGitHubClient client = await InstallationClientGenerator();
-        var files = await client.Repository.Content.GetAllContentsByRef(_owner, _repo, path, branch);
-        return System.Text.Encoding.UTF8.GetBytes( files[0].Content );
+        try {
+            IGitHubClient client = await InstallationClientGenerator();
+            var files = await client.Repository.Content.GetAllContentsByRef(_owner, _repo, path, branch);
+            return System.Text.Encoding.UTF8.GetBytes( files[0].Content );
+        }
+        catch(ApiException ex) {
+            throw new Exception( "GitHub API の呼び出しに失敗しました", ex );
+        }
     }
 
     /// <inheritdoc/>
     public async Task<IReadOnlyList<TreeItem>> GetRepositoryTreeAsync( string branch = "master" ) {
-        IGitHubClient client = await InstallationClientGenerator();
-        var gitRef = await client.Git.Reference.Get(_owner, _repo, $"heads/{branch}");
-        var tree = await client.Git.Tree.GetRecursive(_owner, _repo, gitRef.Object.Sha);
-        return tree.Tree;
+        try {
+            IGitHubClient client = await InstallationClientGenerator();
+            var gitRef = await client.Git.Reference.Get(_owner, _repo, $"heads/{branch}");
+            var tree = await client.Git.Tree.GetRecursive(_owner, _repo, gitRef.Object.Sha);
+            return tree.Tree;
+        }
+        catch(ApiException ex) {
+            throw new Exception( "GitHub API の呼び出しに失敗しました", ex );
+        }
     }
 
     private async Task<IGitHubClient> InstallationClientGenerator() {
