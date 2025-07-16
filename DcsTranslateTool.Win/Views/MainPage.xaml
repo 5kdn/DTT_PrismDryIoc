@@ -58,8 +58,8 @@
                     Height="{Binding ActualHeight, ElementName=ButtonArea, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.8}"
                     MinHeight="100"
                     MaxHeight="600">
-                    <StackPanel>
-                        <iconPacks:PackIconMaterial Kind="Download">
+                    <StackPanel Orientation="Vertical">
+                        <iconPacks:PackIconMaterial Kind="Download" HorizontalAlignment="Center">
                             <iconPacks:PackIconMaterial.Width>
                                 <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.6">
                                     <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualWidth" />
@@ -92,8 +92,8 @@
                     Height="{Binding ActualHeight, ElementName=ButtonArea, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.8}"
                     MinHeight="100"
                     MaxHeight="600">
-                    <StackPanel>
-                        <iconPacks:PackIconMaterial Kind="Upload">
+                    <StackPanel Orientation="Vertical">
+                        <iconPacks:PackIconMaterial Kind="Upload" HorizontalAlignment="Center">
                             <iconPacks:PackIconMaterial.Width>
                                 <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.6">
                                     <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualWidth" />
@@ -126,8 +126,8 @@
                     Height="{Binding ActualHeight, ElementName=ButtonArea, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.8}"
                     MinHeight="100"
                     MaxHeight="600">
-                    <StackPanel>
-                        <iconPacks:PackIconMaterial Kind="Cog">
+                    <StackPanel Orientation="Vertical">
+                        <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center">
                             <iconPacks:PackIconMaterial.Width>
                                 <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.6">
                                     <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualWidth" />
