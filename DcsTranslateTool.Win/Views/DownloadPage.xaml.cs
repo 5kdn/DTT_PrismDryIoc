@@ -2,8 +2,8 @@
 
 namespace DcsTranslateTool.Win.Views;
 
-public partial class MainPage : UserControl {
-    public MainPage() {
+public partial class DownloadPage : UserControl {
+    public DownloadPage() {
         InitializeComponent();
     }
 }
