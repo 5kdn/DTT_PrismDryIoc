@@ -1,5 +1,7 @@
 ﻿namespace DcsTranslateTool.Win.Constants;
 
-public class Regions {
+public static class Regions {
     public const string Main = "MainRegion";
+    public const string Download = "DownloadRegion";
+    public const string Upload = "UploadRegion";
 }

@@ -3,11 +3,11 @@ using DcsTranslateTool.Win.Contracts.Services;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
-public class MainViewModel : BindableBase, INavigationAware {
+public class UploadViewModel : BindableBase, INavigationAware {
     private readonly IRegionManager _regionManager;
     private readonly IAppSettingsService _appSettingsService;
 
-    public MainViewModel(
+    public UploadViewModel(
         IRegionManager regionManager,
         IAppSettingsService appSettingsService
     ) {
@@ -34,7 +34,5 @@ public class MainViewModel : BindableBase, INavigationAware {
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedTo( NavigationContext navigationContext ) { }
 
-    private void OnOpenSettings()
-        => _regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
-
+    private void OnOpenSettings() => _regionManager.RequestNavigate( Regions.Upload, PageKeys.Settings );
 }

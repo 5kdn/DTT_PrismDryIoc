@@ -66,8 +66,10 @@ public partial class App : PrismApplication {
         containerRegistry.Register<IAppSettingsService, AppSettingsService>();
 
         // Views
-        containerRegistry.RegisterForNavigation<SettingsPage, SettingsViewModel>( PageKeys.Settings );
         containerRegistry.RegisterForNavigation<MainPage, MainViewModel>( PageKeys.Main );
+        containerRegistry.RegisterForNavigation<DownloadPage, DownloadViewModel>( PageKeys.Download );
+        containerRegistry.RegisterForNavigation<UploadPage, UploadViewModel>( PageKeys.Upload );
+        containerRegistry.RegisterForNavigation<SettingsPage, SettingsViewModel>( PageKeys.Settings );
         containerRegistry.RegisterForNavigation<ShellWindow, ShellViewModel>();
 
         // Configuration

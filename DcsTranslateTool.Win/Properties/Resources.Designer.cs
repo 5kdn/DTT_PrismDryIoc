@@ -70,6 +70,15 @@ namespace DcsTranslateTool.Win.Properties {
         }
         
         /// <summary>
+        ///   Download に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DownloadPageTitle {
+            get {
+                return ResourceManager.GetString("DownloadPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Main に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string MainPageTitle {
@@ -228,6 +237,15 @@ namespace DcsTranslateTool.Win.Properties {
         public static string ShellGoBackButton {
             get {
                 return ResourceManager.GetString("ShellGoBackButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Upload に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string UploadPageTitle {
+            get {
+                return ResourceManager.GetString("UploadPageTitle", resourceCulture);
             }
         }
     }
