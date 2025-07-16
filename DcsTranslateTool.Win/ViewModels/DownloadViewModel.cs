@@ -13,7 +13,7 @@ namespace DcsTranslateTool.Win.ViewModels;
 /// <summary>
 /// メイン画面の表示ロジックを保持する ViewModel
 /// </summary>
-public class MainViewModel : BindableBase, INavigationAware {
+public class DownloadViewModel : BindableBase, INavigationAware {
     private readonly IRegionManager _regionManager;
     private readonly IRepositoryService _repositoryService;
     private readonly IFileService _fileService;
@@ -108,7 +108,7 @@ public class MainViewModel : BindableBase, INavigationAware {
     /// <param name="repositoryService">リポジトリサービス</param>
     /// <param name="fileService">ファイルサービス</param>
     /// <param name="appSettingsService">アプリ設定サービス</param>
-    public MainViewModel(
+    public DownloadViewModel(
         IRegionManager regionManager,
         IRepositoryService repositoryService,
         IFileService fileService,
@@ -245,5 +245,5 @@ public class MainViewModel : BindableBase, INavigationAware {
         => true;
 
     private void OnOpenSettings()
-        => _regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
+        => _regionManager.RequestNavigate( Regions.Download, PageKeys.Settings );
 }
