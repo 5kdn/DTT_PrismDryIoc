@@ -53,12 +53,15 @@
 
                 <Button
                     HorizontalAlignment="Center"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
                     VerticalAlignment="Center"
                     Width="{Binding ActualWidth, ElementName=ButtonsGrid, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.3}"
                     Height="{Binding ActualHeight, ElementName=ButtonArea, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.8}"
                     MinHeight="100"
-                    MaxHeight="600">
-                    <StackPanel Orientation="Vertical">
+                    MaxHeight="600"
+                    Foreground="{DynamicResource Theme.PrimaryAccentBrush}">
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                         <iconPacks:PackIconMaterial Kind="Download" HorizontalAlignment="Center">
                             <iconPacks:PackIconMaterial.Width>
                                 <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.6">
@@ -87,12 +90,15 @@
                 <Button
                     Grid.Column="1"
                     HorizontalAlignment="Center"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
                     VerticalAlignment="Center"
                     Width="{Binding ActualWidth, ElementName=ButtonsGrid, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.3}"
                     Height="{Binding ActualHeight, ElementName=ButtonArea, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.8}"
                     MinHeight="100"
-                    MaxHeight="600">
-                    <StackPanel Orientation="Vertical">
+                    MaxHeight="600"
+                    Foreground="{DynamicResource Theme.PrimaryAccentBrush}">
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                         <iconPacks:PackIconMaterial Kind="Upload" HorizontalAlignment="Center">
                             <iconPacks:PackIconMaterial.Width>
                                 <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.6">
@@ -121,12 +127,15 @@
                 <Button
                     Grid.Column="2"
                     HorizontalAlignment="Center"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
                     VerticalAlignment="Center"
                     Width="{Binding ActualWidth, ElementName=ButtonsGrid, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.3}"
                     Height="{Binding ActualHeight, ElementName=ButtonArea, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.8}"
                     MinHeight="100"
-                    MaxHeight="600">
-                    <StackPanel Orientation="Vertical">
+                    MaxHeight="600"
+                    Foreground="{DynamicResource Theme.PrimaryAccentBrush}">
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                         <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center">
                             <iconPacks:PackIconMaterial.Width>
                                 <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.6">
