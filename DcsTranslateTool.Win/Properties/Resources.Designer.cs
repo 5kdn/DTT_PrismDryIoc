@@ -239,5 +239,14 @@ namespace DcsTranslateTool.Win.Properties {
                 return ResourceManager.GetString("ShellGoBackButton", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Upload に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string UploadPageTitle {
+            get {
+                return ResourceManager.GetString("UploadPageTitle", resourceCulture);
+            }
+        }
     }
 }

@@ -3,6 +3,6 @@
 public static class PageKeys {
     public const string Main = "Main";
     public const string Download = "Download";
-    public const string Translate = "Upload";
+    public const string Upload = "Upload";
     public const string Settings = "Settings";
 }
