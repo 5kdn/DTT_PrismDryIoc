@@ -70,6 +70,15 @@ namespace DcsTranslateTool.Win.Properties {
         }
         
         /// <summary>
+        ///   Download に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DownloadPageTitle {
+            get {
+                return ResourceManager.GetString("DownloadPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Main に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string MainPageTitle {

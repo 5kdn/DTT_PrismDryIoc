@@ -174,4 +174,7 @@
   <data name="AppDisplayName" xml:space="preserve">
     <value>DCS Translate Tool</value>
   </data>
+  <data name="DownloadPageTitle" xml:space="preserve">
+    <value>Download</value>
+  </data>
 </root>
