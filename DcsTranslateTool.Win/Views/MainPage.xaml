@@ -5,8 +5,14 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:conv="clr-namespace:DcsTranslateTool.Win.Converters"
     Style="{StaticResource BaseUserControlStyle}"
     mc:Ignorable="d">
+    <UserControl.Resources>
+        <conv:MultiplyConverter x:Key="MultiplyConverter" />
+        <conv:IconSizeConverter x:Key="IconSizeConverter" />
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="48" />
@@ -23,47 +29,96 @@
                 Margin="{StaticResource MediumLeftMargin}"
                 Text="{x:Static properties:Resources.MainPageTitle}" />
             <Button
-              Grid.Column="1"
+              Grid.Column="1" Width="64"
               Margin="{StaticResource SmallLeftMargin}"
-              Content="{x:Static properties:Resources.SettingsPageTitle}"
-              Command="{Binding OpenSettingsCommand}" />
+              Command="{Binding OpenSettingsCommand}">
+                <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+            </Button>
         </Grid>
         <!-- The content area where the main content will be placed -->
         <Grid
+            x:Name="ButtonArea"
             Grid.Row="1"
-            Margin="{StaticResource MediumLeftRightMargin}"
-            Background="{DynamicResource MahApps.Brushes.Gray10}">
-            <!--
-            The Mahapps Gray10 color represents where you should place your content.
-            Place your content here.
-            -->
-            <Grid>
+            Margin="{StaticResource MediumLeftRightMargin}">
+            <Grid x:Name="ButtonsGrid">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Button>
-                    <StackPanel>
-                        <TextBlock Text="{x:Static properties:Resources.DownloadPageTitle}"/>
+                <Button
+                    HorizontalAlignment="Center"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    VerticalAlignment="Center"
+                    Width="{Binding ActualWidth, ElementName=ButtonsGrid, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.45}"
+                    Height="{Binding ActualHeight, ElementName=ButtonArea, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.8}"
+                    MinHeight="100"
+                    MaxHeight="600"
+                    Foreground="{DynamicResource MahApps.Brushes.Accent}">
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                        <iconPacks:PackIconMaterial Kind="Download" HorizontalAlignment="Center">
+                            <iconPacks:PackIconMaterial.Width>
+                                <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.6">
+                                    <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualWidth" />
+                                    <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualHeight" />
+                                </MultiBinding>
+                            </iconPacks:PackIconMaterial.Width>
+                            <iconPacks:PackIconMaterial.Height>
+                                <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.6">
+                                    <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualWidth" />
+                                    <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualHeight" />
+                                </MultiBinding>
+                            </iconPacks:PackIconMaterial.Height>
+                        </iconPacks:PackIconMaterial>
+                        <TextBlock HorizontalAlignment="Center" Text="{x:Static properties:Resources.DownloadPageTitle}">
+                            <TextBlock.FontSize>
+                                <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.2">
+                                    <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualWidth" />
+                                    <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualHeight" />
+                                </MultiBinding>
+                            </TextBlock.FontSize>
+                        </TextBlock>
                     </StackPanel>
                 </Button>
 
-                <Button Grid.Column="1">
-                    <StackPanel>
-                        <TextBlock Text="{x:Static properties:Resources.UploadPageTitle}"/>
+                <Button
+                    Grid.Column="1"
+                    HorizontalAlignment="Center"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    VerticalAlignment="Center"
+                    Width="{Binding ActualWidth, ElementName=ButtonsGrid, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.45}"
+                    Height="{Binding ActualHeight, ElementName=ButtonArea, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.8}"
+                    MinHeight="100"
+                    MaxHeight="600"
+                    Foreground="{DynamicResource MahApps.Brushes.Accent}">
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                        <iconPacks:PackIconMaterial Kind="Upload" HorizontalAlignment="Center">
+                            <iconPacks:PackIconMaterial.Width>
+                                <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.6">
+                                    <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualWidth" />
+                                    <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualHeight" />
+                                </MultiBinding>
+                            </iconPacks:PackIconMaterial.Width>
+                            <iconPacks:PackIconMaterial.Height>
+                                <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.6">
+                                    <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualWidth" />
+                                    <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualHeight" />
+                                </MultiBinding>
+                            </iconPacks:PackIconMaterial.Height>
+                        </iconPacks:PackIconMaterial>
+                        <TextBlock HorizontalAlignment="Center" Text="{x:Static properties:Resources.UploadPageTitle}">
+                            <TextBlock.FontSize>
+                                <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.2">
+                                    <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualWidth" />
+                                    <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualHeight" />
+                                </MultiBinding>
+                            </TextBlock.FontSize>
+                        </TextBlock>
                     </StackPanel>
                 </Button>
-
-                <Button Grid.Column="2">
-                    <StackPanel>
-                        <TextBlock Text="{x:Static properties:Resources.SettingsPageTitle}"/>
-                    </StackPanel>
-                </Button>            
             </Grid>
-          
-          
         </Grid>
     </Grid>
 </UserControl>
