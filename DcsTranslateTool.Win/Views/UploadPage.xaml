@@ -23,7 +23,7 @@
                 Margin="{StaticResource MediumLeftMargin}"
                 Text="{x:Static properties:Resources.UploadPageTitle}" />
             <Button
-              Grid.Column="1"
+              Grid.Column="1" Width="64"
               Margin="{StaticResource SmallLeftMargin}"
               Command="{Binding OpenSettingsCommand}">
                 <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>

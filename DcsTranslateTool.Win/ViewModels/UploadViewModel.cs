@@ -42,5 +42,8 @@ public class UploadViewModel : BindableBase, INavigationAware {
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedTo( NavigationContext navigationContext ) { }
 
-    private void OnOpenSettings() => _regionManager.RequestNavigate( Regions.Upload, PageKeys.Settings );
+    /// <summary>
+    /// 設定ページに遷移する
+    /// </summary>
+    private void OnOpenSettings() => _regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
 }

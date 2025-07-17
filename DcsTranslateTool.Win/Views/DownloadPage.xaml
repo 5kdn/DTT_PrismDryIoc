@@ -30,7 +30,7 @@
                 Content="Fetch"
                 Command="{Binding FetchCommand}" />
             <Button
-                Grid.Column="2"
+                Grid.Column="2" Width="64"
                 Margin="{StaticResource SmallLeftMargin}"
                 Command="{Binding OpenSettingsCommand}">
                 <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>

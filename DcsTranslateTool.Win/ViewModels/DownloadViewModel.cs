@@ -243,5 +243,8 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     public bool IsNavigationTarget( NavigationContext navigationContext )
         => true;
 
-    private void OnOpenSettings() => _regionManager.RequestNavigate( Regions.Download, PageKeys.Settings );
+    /// <summary>
+    /// 設定ページに遷移する
+    /// </summary>
+    private void OnOpenSettings() => _regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
 }
