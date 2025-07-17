@@ -7,6 +7,13 @@ public class MainViewModel : BindableBase, INavigationAware {
     private readonly IRegionManager _regionManager;
     private readonly IAppSettingsService _appSettingsService;
 
+    private DelegateCommand _openSettingsCommand;
+
+    /// <summary>
+    /// 設定画面を開くコマンド
+    /// </summary>
+    public DelegateCommand OpenSettingsCommand => _openSettingsCommand ??= new DelegateCommand( OnOpenSettings );
+
     public MainViewModel(
         IRegionManager regionManager,
         IAppSettingsService appSettingsService
