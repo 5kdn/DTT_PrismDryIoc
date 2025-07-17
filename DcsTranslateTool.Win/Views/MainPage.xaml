@@ -53,9 +53,9 @@
                     VerticalAlignment="Center"
                     Width="{Binding ActualWidth, ElementName=ButtonsGrid, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.45}"
                     Height="{Binding ActualHeight, ElementName=ButtonArea, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.8}"
-                    MinHeight="100"
-                    MaxHeight="600"
-                    Foreground="{DynamicResource MahApps.Brushes.Accent}">
+                    MinHeight="100" MaxHeight="600"
+                    Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                    Command="{Binding OpenDownloadCommand}">
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                         <iconPacks:PackIconMaterial Kind="Download" HorizontalAlignment="Center">
                             <iconPacks:PackIconMaterial.Width>
@@ -90,9 +90,9 @@
                     VerticalAlignment="Center"
                     Width="{Binding ActualWidth, ElementName=ButtonsGrid, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.45}"
                     Height="{Binding ActualHeight, ElementName=ButtonArea, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.8}"
-                    MinHeight="100"
-                    MaxHeight="600"
-                    Foreground="{DynamicResource MahApps.Brushes.Accent}">
+                    MinHeight="100" MaxHeight="600"
+                    Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                    Command="{Binding OpenUploadCommand}">
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                         <iconPacks:PackIconMaterial Kind="Upload" HorizontalAlignment="Center">
                             <iconPacks:PackIconMaterial.Width>
