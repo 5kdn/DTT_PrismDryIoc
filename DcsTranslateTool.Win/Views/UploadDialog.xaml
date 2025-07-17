@@ -1,0 +1,10 @@
+<controls:MetroWindow
+    x:Class="DcsTranslateTool.Win.Views.UploadDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+    Style="{StaticResource CustomMetroWindow}">
+    <Grid>
+        <!-- TODO: dialog content -->
+    </Grid>
+</controls:MetroWindow>

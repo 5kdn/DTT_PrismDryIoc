@@ -3,6 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
     Style="{StaticResource BaseUserControlStyle}"
     mc:Ignorable="d">
@@ -32,13 +33,41 @@
             Grid.Row="1"
             Margin="{StaticResource MediumLeftRightMargin}"
             Background="{DynamicResource MahApps.Brushes.Gray10}">
-            <!--
-            The Mahapps Gray10 color represents where you should place your content.
-            Place your content here.
-            -->
-
-
-
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TreeView x:Name="TranslateTree" ItemsSource="{Binding TranslateRoot.Children}">
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                        <StackPanel x:Name="ItemPanel" Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding IsChecked}" Margin="0,0,4,0" />
+                            <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="0,0,4,0" />
+                            <TextBlock Text="{Binding Name}" />
+                        </StackPanel>
+                        <HierarchicalDataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                                <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsDirectory}" Value="False">
+                                <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                <Setter TargetName="ItemPanel" Property="Background" Value="Bisque" />
+                            </DataTrigger>
+                        </HierarchicalDataTemplate.Triggers>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectedItemChanged">
+                        <i:InvokeCommandAction Command="{Binding LoadLocalTreeCommand}" CommandParameter="{Binding SelectedItem, ElementName=TranslateTree}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </TreeView>
+            <UniformGrid Grid.Column="1" Rows="2" Width="64">
+                <Button Height="32" Margin="0,16" Content="Upload" Command="{Binding UploadCommand}" />
+                <Button Height="32" Margin="0,16" Content="Reset" Command="{Binding ResetCheckCommand}" />
+            </UniformGrid>
         </Grid>
     </Grid>
 </UserControl>

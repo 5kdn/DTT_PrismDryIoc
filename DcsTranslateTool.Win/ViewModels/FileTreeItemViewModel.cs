@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
@@ -9,6 +10,7 @@ namespace DcsTranslateTool.Win.ViewModels;
 /// ファイルツリー表示用の ViewModel
 /// </summary>
 public class FileTreeItemViewModel : BindableBase {
+    private bool _isChecked;
     /// <summary>
     /// 名前
     /// </summary>
@@ -23,6 +25,20 @@ public class FileTreeItemViewModel : BindableBase {
     /// ディレクトリかどうか
     /// </summary>
     public bool IsDirectory { get; }
+
+    /// <summary>
+    /// チェック状態
+    /// </summary>
+    public bool IsChecked {
+        get => _isChecked;
+        set {
+            if(SetProperty(ref _isChecked, value) && IsDirectory) {
+                foreach(var child in Children) {
+                    child.SetCheckedRecursive(value);
+                }
+            }
+        }
+    }
 
     /// <summary>
     /// 子ノード
@@ -49,6 +65,33 @@ public class FileTreeItemViewModel : BindableBase {
         Children.Clear();
         foreach(FileTree child in tree.Children) {
             Children.Add( new FileTreeItemViewModel( child ) );
+        }
+    }
+
+    /// <summary>
+    /// チェック状態を再帰的に設定する
+    /// </summary>
+    /// <param name="value">設定する値</param>
+    public void SetCheckedRecursive( bool value ) {
+        _isChecked = value;
+        RaisePropertyChanged( nameof( IsChecked ) );
+        foreach(var child in Children) {
+            child.SetCheckedRecursive( value );
+        }
+    }
+
+    /// <summary>
+    /// チェックされたファイル要素を列挙する
+    /// </summary>
+    /// <returns>チェック済みファイルの列挙</returns>
+    public IEnumerable<FileTreeItemViewModel> GetCheckedFiles() {
+        if(IsChecked && !IsDirectory) {
+            yield return this;
+        }
+        foreach(var child in Children) {
+            foreach(var c in child.GetCheckedFiles()) {
+                yield return c;
+            }
         }
     }
 }
