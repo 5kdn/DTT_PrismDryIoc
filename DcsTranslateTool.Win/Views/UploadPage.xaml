@@ -5,6 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     Style="{StaticResource BaseUserControlStyle}"
     mc:Ignorable="d">
     <Grid>
@@ -38,9 +40,39 @@
             The Mahapps Gray10 color represents where you should place your content.
             Place your content here.
             -->
-
-
-
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TreeView x:Name="LocalTree" ItemsSource="{Binding LocalRoot.Children}" MinHeight="300" Background="AliceBlue">
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="0,0,4,0" />
+                            <TextBlock Text="{Binding Name}" />
+                        </StackPanel>
+                        <HierarchicalDataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                                <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsDirectory}" Value="False">
+                                <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
+                            </DataTrigger>
+                        </HierarchicalDataTemplate.Triggers>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectedItemChanged">
+                        <i:InvokeCommandAction Command="{Binding LoadLocalTreeCommand}" CommandParameter="{Binding SelectedItem, ElementName=LocalAircraftTree}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </TreeView>
+                <Button Grid.Row="1"
+                        Content="Create PR"
+                        IsEnabled="{Binding IsCreatePullRequestDialogButtonEnabled}"
+                        Command="{Binding OpenCreatePullRequestDialogCommand}"/>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>
