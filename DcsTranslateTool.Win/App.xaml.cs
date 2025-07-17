@@ -64,6 +64,7 @@ public partial class App : PrismApplication {
         containerRegistry.Register<IDialogProvider, DialogProvider>();
         containerRegistry.Register<IEnvironmentProvider, EnvironmentProvider>();
         containerRegistry.Register<IAppSettingsService, AppSettingsService>();
+        containerRegistry.Register<IUploadDialogService, UploadDialogService>();
 
         // Views
         containerRegistry.RegisterForNavigation<MainPage, MainViewModel>( PageKeys.Main );
