@@ -4,6 +4,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     Style="{StaticResource BaseUserControlStyle}"
     mc:Ignorable="d">
     <Grid>
@@ -24,8 +25,9 @@
             <Button
               Grid.Column="1"
               Margin="{StaticResource SmallLeftMargin}"
-              Content="{x:Static properties:Resources.SettingsPageTitle}"
-              Command="{Binding OpenSettingsCommand}" />
+              Command="{Binding OpenSettingsCommand}">
+                <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+            </Button>
         </Grid>
         <!-- The content area where the main content will be placed -->
         <Grid

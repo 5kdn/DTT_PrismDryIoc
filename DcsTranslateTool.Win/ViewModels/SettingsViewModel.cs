@@ -222,6 +222,5 @@ public class SettingsViewModel : BindableBase, INavigationAware {
         return Path.Combine( exeDir!, "TranslateFiles" );
     }
 
-    public bool IsNavigationTarget( NavigationContext navigationContext )
-        => true;
+    public bool IsNavigationTarget( NavigationContext navigationContext ) => true;
 }

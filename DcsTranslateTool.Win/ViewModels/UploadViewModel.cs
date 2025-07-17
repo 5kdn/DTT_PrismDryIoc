@@ -4,15 +4,23 @@ using DcsTranslateTool.Win.Contracts.Services;
 namespace DcsTranslateTool.Win.ViewModels;
 
 public class UploadViewModel : BindableBase, INavigationAware {
-    private readonly IRegionManager _regionManager;
     private readonly IAppSettingsService _appSettingsService;
+    private readonly IRegionManager _regionManager;
+
+    private DelegateCommand _openSettingsCommand;
+
+    /// <summary>
+    /// 設定画面を開くコマンド
+    /// </summary>
+    public DelegateCommand OpenSettingsCommand => _openSettingsCommand ??= new DelegateCommand( OnOpenSettings );
+
 
     public UploadViewModel(
-        IRegionManager regionManager,
-        IAppSettingsService appSettingsService
+        IAppSettingsService appSettingsService,
+        IRegionManager regionManager
     ) {
-        _regionManager = regionManager;
         _appSettingsService = appSettingsService;
+        _regionManager = regionManager;
     }
 
     /// <summary>

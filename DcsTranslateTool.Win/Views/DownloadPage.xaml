@@ -5,6 +5,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     Style="{StaticResource BaseUserControlStyle}"
@@ -31,8 +32,9 @@
             <Button
                 Grid.Column="2"
                 Margin="{StaticResource SmallLeftMargin}"
-                Content="{x:Static properties:Resources.SettingsPageTitle}"
-                Command="{Binding OpenSettingsCommand}" />
+                Command="{Binding OpenSettingsCommand}">
+                <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+            </Button>
         </Grid>
         <mah:MetroTabControl Grid.Row="1" Margin="{StaticResource MediumLeftRightMargin}" SelectedIndex="{Binding SelectedTabIndex}">
             <mah:MetroTabItem Header="Aircraft">

@@ -14,15 +14,15 @@ namespace DcsTranslateTool.Win.ViewModels;
 /// メイン画面の表示ロジックを保持する ViewModel
 /// </summary>
 public class DownloadViewModel : BindableBase, INavigationAware {
+    private readonly IAppSettingsService _appSettingsService;
     private readonly IRegionManager _regionManager;
     private readonly IRepositoryService _repositoryService;
     private readonly IFileService _fileService;
-    private readonly IAppSettingsService _appSettingsService;
 
     private DelegateCommand _openSettingsCommand;
     private DelegateCommand _fetchCommand;
-    private DelegateCommand<FileTreeItemViewModel> _loadLocalTreeCommand;
     private DelegateCommand _downloadCommand;
+    private DelegateCommand<FileTreeItemViewModel> _loadLocalTreeCommand;
     private DelegateCommand _resetCheckCommand;
 
     private RepoTreeItemViewModel _repoAircraftTree;
@@ -34,8 +34,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// <summary>
     /// 設定画面を開くコマンド
     /// </summary>
-    public DelegateCommand OpenSettingsCommand =>
-        _openSettingsCommand ??= new DelegateCommand( OnOpenSettings );
+    public DelegateCommand OpenSettingsCommand => _openSettingsCommand ??= new DelegateCommand( OnOpenSettings );
 
     /// <summary>
     /// リポジトリツリーを取得するコマンド
@@ -109,15 +108,15 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// <param name="fileService">ファイルサービス</param>
     /// <param name="appSettingsService">アプリ設定サービス</param>
     public DownloadViewModel(
+        IAppSettingsService appSettingsService,
         IRegionManager regionManager,
         IRepositoryService repositoryService,
-        IFileService fileService,
-        IAppSettingsService appSettingsService
+        IFileService fileService
     ) {
+        _appSettingsService = appSettingsService;
         _regionManager = regionManager;
         _repositoryService = repositoryService;
         _fileService = fileService;
-        _appSettingsService = appSettingsService;
     }
 
     private async void OnFetch() {
@@ -189,15 +188,6 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         return current;
     }
 
-    /// <summary>
-    /// ナビゲーション後の処理を行う
-    /// </summary>
-    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
-    public void OnNavigatedTo( NavigationContext navigationContext ) {
-        RefreshLocalAircraftTree();
-        RefreshLocalDlcCampaignTree();
-    }
-
     private async void OnDownload() {
         RepoTreeItemViewModel root;
         if(SelectedTabIndex == 0) {
@@ -237,6 +227,15 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     public void OnNavigatedFrom( NavigationContext navigationContext ) { }
 
     /// <summary>
+    /// ナビゲーション後の処理を行う
+    /// </summary>
+    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
+    public void OnNavigatedTo( NavigationContext navigationContext ) {
+        RefreshLocalAircraftTree();
+        RefreshLocalDlcCampaignTree();
+    }
+
+    /// <summary>
     /// ナビゲーションターゲットかどうかを示す
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
@@ -244,6 +243,5 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     public bool IsNavigationTarget( NavigationContext navigationContext )
         => true;
 
-    private void OnOpenSettings()
-        => _regionManager.RequestNavigate( Regions.Download, PageKeys.Settings );
+    private void OnOpenSettings() => _regionManager.RequestNavigate( Regions.Download, PageKeys.Settings );
 }

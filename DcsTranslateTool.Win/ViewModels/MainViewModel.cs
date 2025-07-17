@@ -1,11 +1,9 @@
 ﻿using DcsTranslateTool.Win.Constants;
-using DcsTranslateTool.Win.Contracts.Services;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
 public class MainViewModel : BindableBase, INavigationAware {
     private readonly IRegionManager _regionManager;
-    private readonly IAppSettingsService _appSettingsService;
 
     private DelegateCommand _openSettingsCommand;
     private DelegateCommand _openDownloadCommand;
@@ -27,12 +25,8 @@ public class MainViewModel : BindableBase, INavigationAware {
     public DelegateCommand OpenUploadCommand => _openUploadCommand ??= new DelegateCommand( OnOpenUpload );
 
 
-    public MainViewModel(
-        IRegionManager regionManager,
-        IAppSettingsService appSettingsService
-    ) {
+    public MainViewModel( IRegionManager regionManager ) {
         _regionManager = regionManager;
-        _appSettingsService = appSettingsService;
     }
 
     /// <summary>
