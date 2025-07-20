@@ -10,14 +10,15 @@ public class EnumToBooleanConverter : IValueConverter {
     /// <summary>
     /// 対象となる列挙体の型
     /// </summary>
-    public Type EnumType { get; set; }
+    public required Type EnumType { get; set; }
 
     /// <summary>
     /// 列挙体の値を bool へ変換する
     /// </summary>
     /// <inheritdoc/>
-    public object Convert( object value, Type targetType, object parameter, CultureInfo culture ) {
-        if(parameter is string enumString) {
+    public object Convert( object? value, Type? targetType, object? parameter, CultureInfo? culture ) {
+        if(EnumType is null) return false;
+        if(parameter is string enumString && value is not null) {
             if(Enum.IsDefined( EnumType, value )) {
                 var enumValue = Enum.Parse(EnumType, enumString);
 
@@ -32,11 +33,9 @@ public class EnumToBooleanConverter : IValueConverter {
     /// bool から列挙体へ変換する
     /// </summary>
     /// <inheritdoc/>
-    public object ConvertBack( object value, Type targetType, object parameter, CultureInfo culture ) {
-        if(parameter is string enumString) {
-            return Enum.Parse( EnumType, enumString );
-        }
-
+    public object? ConvertBack( object? value, Type? targetType, object? parameter, CultureInfo culture ) {
+        if(EnumType is null) return null;
+        if(parameter is string enumString) return Enum.Parse( EnumType, enumString );
         return null;
     }
 }
