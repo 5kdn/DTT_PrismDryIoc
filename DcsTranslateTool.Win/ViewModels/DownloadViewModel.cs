@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.IO;
 
 using DcsTranslateTool.Core.Contracts.Services;
@@ -19,17 +18,17 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     private readonly IRepositoryService _repositoryService;
     private readonly IFileService _fileService;
 
-    private DelegateCommand _openSettingsCommand;
-    private DelegateCommand _fetchCommand;
-    private DelegateCommand _downloadCommand;
-    private DelegateCommand<FileTreeItemViewModel> _loadLocalTreeCommand;
-    private DelegateCommand _resetCheckCommand;
-
-    private RepoTreeItemViewModel _repoAircraftTree;
-    private RepoTreeItemViewModel _repoDlcCampaignTree;
-    private FileTreeItemViewModel _localAircraftRoot;
-    private FileTreeItemViewModel _localDlcCampaignRoot;
+    private RepoTreeItemViewModel? _repoAircraftTree;
+    private RepoTreeItemViewModel? _repoDlcCampaignTree;
+    private FileTreeItemViewModel? _localAircraftRoot;
+    private FileTreeItemViewModel? _localDlcCampaignRoot;
     private int _selectedTabIndex;
+
+    private DelegateCommand? _openSettingsCommand;
+    private DelegateCommand? _fetchCommand;
+    private DelegateCommand? _downloadCommand;
+    private DelegateCommand<FileTreeItemViewModel>? _loadLocalTreeCommand;
+    private DelegateCommand? _resetCheckCommand;
 
     /// <summary>
     /// 設定画面を開くコマンド
@@ -39,8 +38,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// <summary>
     /// リポジトリツリーを取得するコマンド
     /// </summary>
-    public DelegateCommand FetchCommand =>
-        _fetchCommand ??= new DelegateCommand( OnFetch );
+    public DelegateCommand FetchCommand => _fetchCommand ??= new DelegateCommand( OnFetch );
 
     /// <summary>
     /// ローカルツリーを読み込むコマンド
@@ -51,19 +49,17 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// <summary>
     /// ファイルをダウンロードするコマンド
     /// </summary>
-    public DelegateCommand DownloadCommand =>
-        _downloadCommand ??= new DelegateCommand( OnDownload );
+    public DelegateCommand DownloadCommand => _downloadCommand ??= new DelegateCommand( OnDownload );
 
     /// <summary>
     /// チェック状態をリセットするコマンド
     /// </summary>
-    public DelegateCommand ResetCheckCommand =>
-        _resetCheckCommand ??= new DelegateCommand( OnResetCheck );
+    public DelegateCommand ResetCheckCommand => _resetCheckCommand ??= new DelegateCommand( OnResetCheck );
 
     /// <summary>
     /// リポジトリの機体フォルダツリー
     /// </summary>
-    public RepoTreeItemViewModel RepoAircraftTree {
+    public RepoTreeItemViewModel? RepoAircraftTree {
         get => _repoAircraftTree;
         set => SetProperty( ref _repoAircraftTree, value );
     }
@@ -71,7 +67,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// <summary>
     /// リポジトリのDLCキャンペーンフォルダツリー
     /// </summary>
-    public RepoTreeItemViewModel RepoDlcCampaignTree {
+    public RepoTreeItemViewModel? RepoDlcCampaignTree {
         get => _repoDlcCampaignTree;
         set => SetProperty( ref _repoDlcCampaignTree, value );
     }
@@ -79,7 +75,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// <summary>
     /// ローカルの機体フォルダツリー
     /// </summary>
-    public FileTreeItemViewModel LocalAircraftRoot {
+    public FileTreeItemViewModel? LocalAircraftRoot {
         get => _localAircraftRoot;
         set => SetProperty( ref _localAircraftRoot, value );
     }
@@ -87,7 +83,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// <summary>
     /// ローカルのDLCキャンペーンフォルダツリー
     /// </summary>
-    public FileTreeItemViewModel LocalDlcCampaignRoot {
+    public FileTreeItemViewModel? LocalDlcCampaignRoot {
         get => _localDlcCampaignRoot;
         set => SetProperty( ref _localDlcCampaignRoot, value );
     }
@@ -189,29 +185,25 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     }
 
     private async void OnDownload() {
-        RepoTreeItemViewModel root;
-        if(SelectedTabIndex == 0) {
+        RepoTreeItemViewModel? root;
+        switch(SelectedTabIndex) {
             // Aircraft tab
-            root = RepoAircraftTree;
-        }
-        else if(SelectedTabIndex == 1) {
+            case 0:
+                root = RepoAircraftTree;
+                break;
             // DLC Campaign tab
-            root = RepoDlcCampaignTree;
+            case 1:
+                root = RepoDlcCampaignTree;
+                break;
+            default:
+                return;
         }
-        else {
-            return;
-        }
-
-        if(root == null) {
-            return;
-        }
-
+        if(root == null) return;
         var items = root.GetCheckedFiles();
         foreach(var item in root.GetCheckedFiles()) {
             byte[] data = await _repositoryService.GetFileAsync( item.AbsolutePath );
             var savePath = Path.Combine( _appSettingsService.TranslateFileDir, item.AbsolutePath );
             await _fileService.SaveAsync( savePath, data );
-            Debug.WriteLine( $"書き込み完了: {savePath}" );
         }
     }
 

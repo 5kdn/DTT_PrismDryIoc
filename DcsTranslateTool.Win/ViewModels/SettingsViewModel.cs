@@ -20,18 +20,18 @@ public class SettingsViewModel : BindableBase, INavigationAware {
     private readonly IEnvironmentProvider _environmentProvider;
     private readonly IAppSettingsService _appSettingsService;
     private AppTheme _theme;
-    private string _versionDescription;
-    private string _sourceAircraftDir;
-    private string _sourceDlcCampaignDir;
-    private string _sourceUserDir;
-    private string _translateFileDir;
-    private ICommand _setThemeCommand;
-    private ICommand _privacyStatementCommand;
-    private ICommand _selectAircraftDirCommand;
-    private ICommand _selectDlcCampaignDirCommand;
-    private ICommand _selectUserDirCommand;
-    private ICommand _selectTranslateFileDirCommand;
-    private ICommand _resetSettingsCommand;
+    private string _versionDescription = string.Empty;
+    private string _sourceAircraftDir = string.Empty;
+    private string _sourceDlcCampaignDir = string.Empty;
+    private string _sourceUserDir = string.Empty;
+    private string _translateFileDir = string.Empty;
+    private ICommand? _setThemeCommand;
+    private ICommand? _privacyStatementCommand;
+    private ICommand? _selectAircraftDirCommand;
+    private ICommand? _selectDlcCampaignDirCommand;
+    private ICommand? _selectUserDirCommand;
+    private ICommand? _selectTranslateFileDirCommand;
+    private ICommand? _resetSettingsCommand;
 
     public AppTheme Theme {
         get { return _theme; }

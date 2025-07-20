@@ -13,19 +13,19 @@ public class UploadViewModel : BindableBase, INavigationAware {
     private readonly IDialogService _dialogService;
     private readonly IFileService _fileService;
 
-    private FileTreeItemViewModel _localAircraftRoot;
-    private FileTreeItemViewModel _localDlcCampaignsRoot;
+    private FileTreeItemViewModel? _localAircraftRoot;
+    private FileTreeItemViewModel? _localDlcCampaignsRoot;
     private int _selectedTabIndex;
     private bool _isCreatePullRequestDialogButtonEnabled = true;
 
-    private DelegateCommand _openSettingsCommand;
-    private DelegateCommand _openCreatePullRequestDialogCommand;
-    private DelegateCommand<FileTreeItemViewModel> _loadLocalTreeCommand;
+    private DelegateCommand? _openSettingsCommand;
+    private DelegateCommand? _openCreatePullRequestDialogCommand;
+    private DelegateCommand<FileTreeItemViewModel>? _loadLocalTreeCommand;
 
     /// <summary>
     /// ローカルのAircraftsフォルダツリー
     /// </summary>
-    public FileTreeItemViewModel LocalAircraftRoot {
+    public FileTreeItemViewModel? LocalAircraftRoot {
         get => _localAircraftRoot;
         set => SetProperty( ref _localAircraftRoot, value );
     }
@@ -33,7 +33,7 @@ public class UploadViewModel : BindableBase, INavigationAware {
     /// <summary>
     /// ローカルのDLC Campaignsフォルダツリー
     /// </summary>
-    public FileTreeItemViewModel LocalDlcCampaignsRoot {
+    public FileTreeItemViewModel? LocalDlcCampaignsRoot {
         get => _localDlcCampaignsRoot;
         set => SetProperty( ref _localDlcCampaignsRoot, value );
     }
@@ -53,8 +53,6 @@ public class UploadViewModel : BindableBase, INavigationAware {
         get => _isCreatePullRequestDialogButtonEnabled;
         set => SetProperty( ref _isCreatePullRequestDialogButtonEnabled, value );
     }
-
-
 
     /// <summary>
     /// ローカルツリーを読み込むコマンド
