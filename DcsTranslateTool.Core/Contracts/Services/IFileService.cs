@@ -48,10 +48,20 @@ public interface IFileService {
     /// <exception cref="IOException">ファイルツリーの取得に失敗した場合</exception>
     FileTree GetFileTree( string directoryPath );
 
+    /// <summary>
+    /// ファイルに指定した内容を非同期で保存します。
+    /// </summary>
+    /// <param name="path">保存先のファイルパス</param>
+    /// <param name="content">保存する内容</param>
     /// <exception cref="ArgumentException">path が null もしくは空の場合</exception>
     /// <exception cref="IOException">ファイルの保存に失敗した場合</exception>
     Task SaveAsync( string path, string content );
 
+    /// <summary>
+    /// ファイルに指定した内容を非同期で保存します。
+    /// </summary>
+    /// <param name="path">保存先のファイルパス</param>
+    /// <param name="content">保存する内容</param>
     /// <exception cref="ArgumentException">path が null もしくは空の場合</exception>
     /// <exception cref="IOException">ファイルの保存に失敗した場合</exception>
     Task SaveAsync( string path, byte[] content );
