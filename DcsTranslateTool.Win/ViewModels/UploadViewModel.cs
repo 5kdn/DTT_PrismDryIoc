@@ -145,7 +145,6 @@ public class UploadViewModel : BindableBase, INavigationAware {
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedTo( NavigationContext navigationContext ) {
-        // TODO: Remove RefreshLocalRoot();
         RefreshLocalAircraftTree();
         RefreshLocalDlcCampaignTree();
     }
