@@ -9,28 +9,25 @@ namespace DcsTranslateTool.Win.ViewModels;
 /// </summary>
 public class ShellViewModel : BindableBase {
     private readonly IRegionManager _regionManager;
-    private IRegionNavigationService _navigationService;
-    private DelegateCommand _goBackCommand;
-    private ICommand _loadedCommand;
-    private ICommand _unloadedCommand;
+    private IRegionNavigationService? _navigationService;
+    private DelegateCommand? _goBackCommand;
+    private ICommand? _loadedCommand;
+    private ICommand? _unloadedCommand;
 
     /// <summary>
     /// 戻るボタン用のコマンド
     /// </summary>
-    public DelegateCommand GoBackCommand =>
-        _goBackCommand ?? (_goBackCommand = new DelegateCommand( OnGoBack, CanGoBack ));
+    public DelegateCommand GoBackCommand => _goBackCommand ??= new DelegateCommand( OnGoBack, CanGoBack );
 
     /// <summary>
     /// ウィンドウロード時に呼び出されるコマンド
     /// </summary>
-    public ICommand LoadedCommand =>
-        _loadedCommand ?? (_loadedCommand = new DelegateCommand( OnLoaded ));
+    public ICommand LoadedCommand => _loadedCommand ??= new DelegateCommand( OnLoaded );
 
     /// <summary>
     /// ウィンドウアンロード時に呼び出されるコマンド
     /// </summary>
-    public ICommand UnloadedCommand =>
-        _unloadedCommand ?? (_unloadedCommand = new DelegateCommand( OnUnloaded ));
+    public ICommand UnloadedCommand => _unloadedCommand ??= new DelegateCommand( OnUnloaded );
 
     /// <summary>
     /// 新しいインスタンスを生成する
@@ -54,12 +51,9 @@ public class ShellViewModel : BindableBase {
         _regionManager.Regions.Remove( Regions.Main );
     }
 
-    private bool CanGoBack()
-        => _navigationService != null && _navigationService.Journal.CanGoBack;
+    private bool CanGoBack() => _navigationService != null && _navigationService.Journal.CanGoBack;
 
-    private void OnGoBack()
-        => _navigationService.Journal.GoBack();
+    private void OnGoBack() => _navigationService?.Journal.GoBack();
 
-    private void OnNavigated( object sender, RegionNavigationEventArgs e )
-        => _goBackCommand?.RaiseCanExecuteChanged();
+    private void OnNavigated( object? sender, RegionNavigationEventArgs e ) => _goBackCommand?.RaiseCanExecuteChanged();
 }
