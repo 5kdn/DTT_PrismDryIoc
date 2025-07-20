@@ -12,7 +12,7 @@ namespace DcsTranslateTool.Core.Services;
 /// </summary>
 public class FileService : IFileService {
     /// <inheritdoc/>
-    public T ReadFromJson<T>( string folderPath, string fileName ) {
+    public T? ReadFromJson<T>( string folderPath, string fileName ) {
         if(string.IsNullOrWhiteSpace( folderPath ))
             throw new ArgumentException( "値が null または空です", nameof( folderPath ) );
         if(string.IsNullOrWhiteSpace( fileName ))

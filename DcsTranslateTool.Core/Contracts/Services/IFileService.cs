@@ -16,7 +16,7 @@ public interface IFileService {
     /// <exception cref="ArgumentException">folderPath または fileName が null もしくは空の場合</exception>
     /// <exception cref="IOException">ファイルの読み込みに失敗した場合</exception>
     /// <exception cref="JsonException">JSON の解析に失敗した場合</exception>
-    T ReadFromJson<T>( string folderPath, string fileName );
+    T? ReadFromJson<T>( string folderPath, string fileName );
 
     /// <summary>
     /// オブジェクトを JSON ファイルとして保存する
