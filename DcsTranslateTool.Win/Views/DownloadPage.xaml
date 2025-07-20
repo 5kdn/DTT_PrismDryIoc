@@ -137,9 +137,9 @@
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                 <StackPanel x:Name="ItemPanel" Orientation="Horizontal">
-                                    <CheckBox IsChecked="{Binding IsChecked}" Margin="0,0,4,0" />
-                                    <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="0,0,4,0" />
-                                    <TextBlock Text="{Binding Name}" />
+                                    <CheckBox IsChecked="{Binding IsChecked}"/>
+                                    <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
+                                    <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
                                 </StackPanel>
                                 <HierarchicalDataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding IsDirectory}" Value="True">
@@ -147,9 +147,6 @@
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding IsDirectory}" Value="False">
                                         <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsChecked}" Value="True">
-                                        <Setter TargetName="ItemPanel" Property="Background" Value="Bisque" />
                                     </DataTrigger>
                                 </HierarchicalDataTemplate.Triggers>
                             </HierarchicalDataTemplate>

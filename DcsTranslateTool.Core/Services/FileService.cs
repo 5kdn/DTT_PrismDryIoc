@@ -14,9 +14,9 @@ public class FileService : IFileService {
     /// <inheritdoc/>
     public T ReadFromJson<T>( string folderPath, string fileName ) {
         if(string.IsNullOrWhiteSpace( folderPath ))
-            throw new ArgumentException( "値が null または空です", nameof(folderPath) );
+            throw new ArgumentException( "値が null または空です", nameof( folderPath ) );
         if(string.IsNullOrWhiteSpace( fileName ))
-            throw new ArgumentException( "値が null または空です", nameof(fileName) );
+            throw new ArgumentException( "値が null または空です", nameof( fileName ) );
 
         var path = Path.Combine( folderPath, fileName );
         if(!File.Exists( path )) return default;
@@ -36,9 +36,9 @@ public class FileService : IFileService {
     /// <inheritdoc/>
     public void SaveToJson<T>( string folderPath, string fileName, T content ) {
         if(string.IsNullOrWhiteSpace( folderPath ))
-            throw new ArgumentException( "値が null または空です", nameof(folderPath) );
+            throw new ArgumentException( "値が null または空です", nameof( folderPath ) );
         if(string.IsNullOrWhiteSpace( fileName ))
-            throw new ArgumentException( "値が null または空です", nameof(fileName) );
+            throw new ArgumentException( "値が null または空です", nameof( fileName ) );
 
         try {
             if(!Directory.Exists( folderPath )) {
@@ -59,9 +59,9 @@ public class FileService : IFileService {
     /// <inheritdoc/>
     public void Delete( string folderPath, string fileName ) {
         if(string.IsNullOrWhiteSpace( folderPath ))
-            throw new ArgumentException( "値が null または空です", nameof(folderPath) );
+            throw new ArgumentException( "値が null または空です", nameof( folderPath ) );
         if(string.IsNullOrWhiteSpace( fileName ))
-            throw new ArgumentException( "値が null または空です", nameof(fileName) );
+            throw new ArgumentException( "値が null または空です", nameof( fileName ) );
 
         var path = Path.Combine( folderPath, fileName );
         if(!File.Exists( path )) return;
@@ -105,10 +105,11 @@ public class FileService : IFileService {
     /// <inheritdoc/>
     public async Task SaveAsync( string path, string content ) {
         if(string.IsNullOrWhiteSpace( path ))
-            throw new ArgumentException( "値が null または空です", nameof(path) );
+            throw new ArgumentException( "保存先のパスが空です", nameof( path ) );
 
+        string? dirName = Path.GetDirectoryName( path );
         try {
-            Directory.CreateDirectory( Path.GetDirectoryName( path ) );
+            if(!string.IsNullOrEmpty( dirName )) Directory.CreateDirectory( dirName );
             await File.WriteAllTextAsync( path, content );
         }
         catch(IOException ex) {
@@ -119,10 +120,10 @@ public class FileService : IFileService {
     /// <inheritdoc/>
     public async Task SaveAsync( string path, byte[] content ) {
         if(string.IsNullOrWhiteSpace( path ))
-            throw new ArgumentException( "値が null または空です", nameof(path) );
-
+            throw new ArgumentException( "保存先のパスが空です", nameof( path ) );
+        string? dirName = Path.GetDirectoryName( path );
         try {
-            Directory.CreateDirectory( Path.GetDirectoryName( path ) );
+            if(!string.IsNullOrEmpty( dirName )) Directory.CreateDirectory( dirName );
             await File.WriteAllBytesAsync( path, content );
         }
         catch(IOException ex) {

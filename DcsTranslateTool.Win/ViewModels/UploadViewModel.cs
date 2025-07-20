@@ -1,4 +1,7 @@
-﻿using DcsTranslateTool.Core.Contracts.Services;
+﻿using System.IO;
+
+using DcsTranslateTool.Core.Contracts.Services;
+using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
 
@@ -10,16 +13,47 @@ public class UploadViewModel : BindableBase, INavigationAware {
     private readonly IDialogService _dialogService;
     private readonly IFileService _fileService;
 
+    private FileTreeItemViewModel _localAircraftRoot;
+    private FileTreeItemViewModel _localDlcCampaignsRoot;
+    private int _selectedTabIndex;
+    private bool _isCreatePullRequestDialogButtonEnabled = true;
+
     private DelegateCommand _openSettingsCommand;
     private DelegateCommand _openCreatePullRequestDialogCommand;
     private DelegateCommand<FileTreeItemViewModel> _loadLocalTreeCommand;
 
-    private FileTreeItemViewModel _localRoot;
-    //private FileTreeItemViewModel _localAircraftRoot;
-    //private FileTreeItemViewModel _localDlcCampaignsRoot;
-    //private int _selectedTabIndex;
+    /// <summary>
+    /// ローカルのAircraftsフォルダツリー
+    /// </summary>
+    public FileTreeItemViewModel LocalAircraftRoot {
+        get => _localAircraftRoot;
+        set => SetProperty( ref _localAircraftRoot, value );
+    }
 
-    private bool _isCreatePullRequestDialogButtonEnabled = true;
+    /// <summary>
+    /// ローカルのDLC Campaignsフォルダツリー
+    /// </summary>
+    public FileTreeItemViewModel LocalDlcCampaignsRoot {
+        get => _localDlcCampaignsRoot;
+        set => SetProperty( ref _localDlcCampaignsRoot, value );
+    }
+
+    /// <summary>
+    /// 選択中のタブインデックス
+    /// </summary>
+    public int SelectedTabIndex {
+        get => _selectedTabIndex;
+        set => SetProperty( ref _selectedTabIndex, value );
+    }
+
+    /// <summary>
+    /// Pull Request 作成ダイアログを開くボタンが有効かどうかを示す
+    /// </summary>
+    public bool IsCreatePullRequestDialogButtonEnabled {
+        get => _isCreatePullRequestDialogButtonEnabled;
+        set => SetProperty( ref _isCreatePullRequestDialogButtonEnabled, value );
+    }
+
 
 
     /// <summary>
@@ -28,7 +62,6 @@ public class UploadViewModel : BindableBase, INavigationAware {
     public DelegateCommand<FileTreeItemViewModel> LoadLocalTreeCommand =>
         _loadLocalTreeCommand ??= new DelegateCommand<FileTreeItemViewModel>( OnLoadLocalTree );
 
-
     /// <summary>
     /// 設定画面を開くコマンド
     /// </summary>
@@ -36,6 +69,13 @@ public class UploadViewModel : BindableBase, INavigationAware {
 
     public DelegateCommand OpenCreatePullRequestDialogCommand =>
         _openCreatePullRequestDialogCommand ??= new DelegateCommand( OnOpenCreatePullRequestDialog );
+
+    /// <summary>
+    /// ナビゲーションターゲットかどうかを示す
+    /// </summary>
+    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
+    /// <returns>常に true</returns>
+    public bool IsNavigationTarget( NavigationContext navigationContext ) => true;
 
     public UploadViewModel(
         IAppSettingsService appSettingsService,
@@ -55,27 +95,46 @@ public class UploadViewModel : BindableBase, INavigationAware {
     }
 
     /// <summary>
-    /// ローカルのフォルダツリー
+    /// LocalAircraftRootをTranslateFileDirから初期化
     /// </summary>
-    public FileTreeItemViewModel LocalRoot {
-        get => _localRoot;
-        set => SetProperty( ref _localRoot, value );
+    private void RefreshLocalAircraftTree() {
+        var path = Path.Join(
+            _appSettingsService.TranslateFileDir,
+            "DCSWorld",
+            "Mods",
+            "aircraft"
+        );
+        if(string.IsNullOrEmpty( path ) || !Directory.Exists( path )) {
+            var emptyRoot = new FileTree { Name = path, AbsolutePath = path, IsDirectory = true };
+            LocalAircraftRoot = new FileTreeItemViewModel( emptyRoot );
+            return;
+        }
+        FileTree tree = _fileService.GetFileTree( path );
+        var root = new FileTreeItemViewModel( tree );
+        root.UpdateChildren( _fileService );
+        LocalAircraftRoot = root;
     }
 
     /// <summary>
-    /// Pull Request 作成ダイアログを開くボタンが有効かどうかを示す
+    /// LocalDlcCampaignRootをTranslateFileDirから初期化
     /// </summary>
-    public bool IsCreatePullRequestDialogButtonEnabled {
-        get => _isCreatePullRequestDialogButtonEnabled;
-        set => SetProperty( ref _isCreatePullRequestDialogButtonEnabled, value );
+    private void RefreshLocalDlcCampaignTree() {
+        var path = Path.Join(
+            _appSettingsService.TranslateFileDir,
+            "DCSWorld",
+            "Mods",
+            "campaigns"
+        );
+        if(string.IsNullOrEmpty( path ) || !Directory.Exists( path )) {
+            var emptyRoot = new FileTree { Name = path, AbsolutePath = path, IsDirectory = true };
+            LocalDlcCampaignsRoot = new FileTreeItemViewModel( emptyRoot );
+            return;
+        }
+        FileTree tree = _fileService.GetFileTree( path );
+        var root = new FileTreeItemViewModel( tree );
+        root.UpdateChildren( _fileService );
+        LocalDlcCampaignsRoot = root;
     }
-
-    /// <summary>
-    /// ナビゲーションターゲットかどうかを示す
-    /// </summary>
-    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
-    /// <returns>常に true</returns>
-    public bool IsNavigationTarget( NavigationContext navigationContext ) => true;
 
     /// <summary>
     /// ナビゲーション前の処理を行う
@@ -87,7 +146,11 @@ public class UploadViewModel : BindableBase, INavigationAware {
     /// ナビゲーション後の処理を行う
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
-    public void OnNavigatedTo( NavigationContext navigationContext ) { }
+    public void OnNavigatedTo( NavigationContext navigationContext ) {
+        // TODO: Remove RefreshLocalRoot();
+        RefreshLocalAircraftTree();
+        RefreshLocalDlcCampaignTree();
+    }
 
     /// <summary>
     /// 設定ページに遷移する
