@@ -23,5 +23,5 @@ public class FileTree {
     /// <summary>
     /// 子要素となる <see cref="FileTree"/> のリストを設定する。
     /// </summary>
-    public List<FileTree> Children { get; set; } = new();
+    public List<FileTree> Children { get; set; } = [];
 }

@@ -10,13 +10,19 @@ using DcsTranslateTool.Win.Contracts.Services;
 namespace DcsTranslateTool.Win.ViewModels;
 
 /// <summary>
-/// メイン画面の表示ロジックを保持する ViewModel
+/// DownloadPageの表示ロジックを保持する ViewModel
 /// </summary>
-public class DownloadViewModel : BindableBase, INavigationAware {
-    private readonly IAppSettingsService _appSettingsService;
-    private readonly IRegionManager _regionManager;
-    private readonly IRepositoryService _repositoryService;
-    private readonly IFileService _fileService;
+/// <param name="appSettingsService">アプリ設定サービス</param>
+/// <param name="regionManager">ナビゲーション管理用の IRegionManager</param>
+/// <param name="repositoryService">リポジトリサービス</param>
+/// <param name="fileService">ファイルサービス</param>
+public class DownloadViewModel(
+    IAppSettingsService appSettingsService,
+    IRegionManager regionManager,
+    IRepositoryService repositoryService,
+    IFileService fileService
+    ) : BindableBase, INavigationAware {
+    #region Fields
 
     private RepoTreeItemViewModel? _repoAircraftTree;
     private RepoTreeItemViewModel? _repoDlcCampaignTree;
@@ -30,31 +36,9 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     private DelegateCommand<FileTreeItemViewModel>? _loadLocalTreeCommand;
     private DelegateCommand? _resetCheckCommand;
 
-    /// <summary>
-    /// 設定画面を開くコマンド
-    /// </summary>
-    public DelegateCommand OpenSettingsCommand => _openSettingsCommand ??= new DelegateCommand( OnOpenSettings );
+    #endregion
 
-    /// <summary>
-    /// リポジトリツリーを取得するコマンド
-    /// </summary>
-    public DelegateCommand FetchCommand => _fetchCommand ??= new DelegateCommand( OnFetch );
-
-    /// <summary>
-    /// ローカルツリーを読み込むコマンド
-    /// </summary>
-    public DelegateCommand<FileTreeItemViewModel> LoadLocalTreeCommand =>
-        _loadLocalTreeCommand ??= new DelegateCommand<FileTreeItemViewModel>( OnLoadLocalTree );
-
-    /// <summary>
-    /// ファイルをダウンロードするコマンド
-    /// </summary>
-    public DelegateCommand DownloadCommand => _downloadCommand ??= new DelegateCommand( OnDownload );
-
-    /// <summary>
-    /// チェック状態をリセットするコマンド
-    /// </summary>
-    public DelegateCommand ResetCheckCommand => _resetCheckCommand ??= new DelegateCommand( OnResetCheck );
+    #region Properties
 
     /// <summary>
     /// リポジトリの機体フォルダツリー
@@ -96,122 +80,43 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         set => SetProperty( ref _selectedTabIndex, value );
     }
 
+    #endregion
+
+    #region Commands
+
     /// <summary>
-    /// ViewModel の新しいインスタンスを生成する
+    /// 設定画面を開くコマンド
     /// </summary>
-    /// <param name="regionManager">ナビゲーション管理用の IRegionManager</param>
-    /// <param name="repositoryService">リポジトリサービス</param>
-    /// <param name="fileService">ファイルサービス</param>
-    /// <param name="appSettingsService">アプリ設定サービス</param>
-    public DownloadViewModel(
-        IAppSettingsService appSettingsService,
-        IRegionManager regionManager,
-        IRepositoryService repositoryService,
-        IFileService fileService
-    ) {
-        _appSettingsService = appSettingsService;
-        _regionManager = regionManager;
-        _repositoryService = repositoryService;
-        _fileService = fileService;
-    }
+    public DelegateCommand OpenSettingsCommand => _openSettingsCommand ??= new DelegateCommand( OnOpenSettings );
 
-    private async void OnFetch() {
-        var trees = await _repositoryService.GetRepositoryTreeAsync();
-        var root = new RepoTree
-        {
-            Name = string.Empty,
-            AbsolutePath = string.Empty,
-            IsDirectory = true,
-            Children = trees
-        };
-        var aircraft = FindRepoTree( root, "DCSWorld/Mods/aircraft" )
-            ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
-        var dlc = FindRepoTree( root, "DCSWorld/Mods/campaigns" )
-            ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
-        RepoAircraftTree = new RepoTreeItemViewModel( aircraft );
-        RepoDlcCampaignTree = new RepoTreeItemViewModel( dlc );
-        RefreshLocalAircraftTree();
-        RefreshLocalDlcCampaignTree();
-    }
+    /// <summary>
+    /// リポジトリツリーを取得するコマンド
+    /// </summary>
+    public DelegateCommand FetchCommand => _fetchCommand ??= new DelegateCommand( OnFetch );
 
-    private void OnLoadLocalTree( FileTreeItemViewModel node ) {
-        if(node == null) return;
-        node.UpdateChildren( _fileService );
-    }
+    /// <summary>
+    /// ファイルをダウンロードするコマンド
+    /// </summary>
+    public DelegateCommand DownloadCommand => _downloadCommand ??= new DelegateCommand( OnDownload );
 
-    private void RefreshLocalAircraftTree() {
-        var path = _appSettingsService.SourceAircraftDir;
-        if(string.IsNullOrEmpty( path ) || !Directory.Exists( path )) {
-            var emptyRoot = new FileTree { Name = path, AbsolutePath = path, IsDirectory = true };
-            LocalAircraftRoot = new FileTreeItemViewModel( emptyRoot );
-            return;
-        }
-        FileTree tree = _fileService.GetFileTree( path );
-        var root = new FileTreeItemViewModel( tree );
-        root.UpdateChildren( _fileService );
-        LocalAircraftRoot = root;
-    }
+    /// <summary>
+    /// ローカルツリーを読み込むコマンド
+    /// </summary>
+    public DelegateCommand<FileTreeItemViewModel> LoadLocalTreeCommand =>
+        _loadLocalTreeCommand ??= new DelegateCommand<FileTreeItemViewModel>( OnLoadLocalTree );
 
-    private void RefreshLocalDlcCampaignTree() {
-        var path = _appSettingsService.SourceDlcCampaignDir;
-        if(string.IsNullOrEmpty( path ) || !Directory.Exists( path )) {
-            var emptyRoot = new FileTree { Name = path, AbsolutePath = path, IsDirectory = true };
-            LocalDlcCampaignRoot = new FileTreeItemViewModel( emptyRoot );
-            return;
-        }
-        FileTree tree = _fileService.GetFileTree( path );
-        var root = new FileTreeItemViewModel( tree );
-        root.UpdateChildren( _fileService );
-        LocalDlcCampaignRoot = root;
-    }
+    /// <summary>
+    /// チェック状態をリセットするコマンド
+    /// </summary>
+    public DelegateCommand ResetCheckCommand => _resetCheckCommand ??= new DelegateCommand( OnResetCheck );
 
-    private static RepoTree? FindRepoTree( RepoTree root, string path ) {
-        var parts = path.Split( '/' );
-        var current = root;
-        foreach(string part in parts) {
-            RepoTree? next = null;
-            foreach(var child in current.Children) {
-                if(child.Name == part) {
-                    next = child;
-                    break;
-                }
-            }
-            if(next == null) {
-                return null;
-            }
-            current = next;
-        }
-        return current;
-    }
+    #endregion
 
-    private async void OnDownload() {
-        RepoTreeItemViewModel? root;
-        switch(SelectedTabIndex) {
-            // Aircraft tab
-            case 0:
-                root = RepoAircraftTree;
-                break;
-            // DLC Campaign tab
-            case 1:
-                root = RepoDlcCampaignTree;
-                break;
-            default:
-                return;
-        }
-        if(root == null) return;
-        var items = root.GetCheckedFiles();
-        foreach(var item in root.GetCheckedFiles()) {
-            byte[] data = await _repositoryService.GetFileAsync( item.AbsolutePath );
-            var savePath = Path.Combine( _appSettingsService.TranslateFileDir, item.AbsolutePath );
-            await _fileService.SaveAsync( savePath, data );
-        }
-    }
+    #region Methods
 
-    private void OnResetCheck() {
-        RepoAircraftTree?.SetCheckedRecursive( false );
-        RepoDlcCampaignTree?.SetCheckedRecursive( false );
-    }
-
+    /// <summary>
+    /// 設定ページに遷移する
+    /// </summary>
     /// <summary>
     /// ナビゲーション前の処理を行う
     /// </summary>
@@ -235,8 +140,103 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     public bool IsNavigationTarget( NavigationContext navigationContext )
         => true;
 
-    /// <summary>
-    /// 設定ページに遷移する
-    /// </summary>
-    private void OnOpenSettings() => _regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
+    private void OnOpenSettings() => regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
+
+    private async void OnFetch() {
+        var trees = await repositoryService.GetRepositoryTreeAsync();
+        var root = new RepoTree
+        {
+            Name = string.Empty,
+            AbsolutePath = string.Empty,
+            IsDirectory = true,
+            Children = trees
+        };
+        var aircraft = FindRepoTree( root, "DCSWorld/Mods/aircraft" )
+            ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
+        var dlc = FindRepoTree( root, "DCSWorld/Mods/campaigns" )
+            ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
+        RepoAircraftTree = new RepoTreeItemViewModel( aircraft );
+        RepoDlcCampaignTree = new RepoTreeItemViewModel( dlc );
+        RefreshLocalAircraftTree();
+        RefreshLocalDlcCampaignTree();
+    }
+
+    private async void OnDownload() {
+        RepoTreeItemViewModel? root;
+        switch(SelectedTabIndex) {
+            // Aircraft tab
+            case 0:
+                root = RepoAircraftTree;
+                break;
+            // DLC Campaign tab
+            case 1:
+                root = RepoDlcCampaignTree;
+                break;
+            default:
+                return;
+        }
+        if(root == null) return;
+        foreach(var item in root.GetCheckedFiles()) {
+            byte[] data = await repositoryService.GetFileAsync( item.AbsolutePath );
+            var savePath = Path.Combine( appSettingsService.TranslateFileDir, item.AbsolutePath );
+            await fileService.SaveAsync( savePath, data );
+        }
+    }
+
+    private void OnLoadLocalTree( FileTreeItemViewModel node ) {
+        if(node == null) return;
+        node.UpdateChildren( fileService );
+    }
+
+    private void OnResetCheck() {
+        RepoAircraftTree?.SetCheckedRecursive( false );
+        RepoDlcCampaignTree?.SetCheckedRecursive( false );
+    }
+
+    private void RefreshLocalAircraftTree() {
+        var path = appSettingsService.SourceAircraftDir;
+        if(string.IsNullOrEmpty( path ) || !Directory.Exists( path )) {
+            var emptyRoot = new FileTree { Name = path, AbsolutePath = path, IsDirectory = true };
+            LocalAircraftRoot = new FileTreeItemViewModel( emptyRoot );
+            return;
+        }
+        FileTree tree = fileService.GetFileTree( path );
+        var root = new FileTreeItemViewModel( tree );
+        root.UpdateChildren( fileService );
+        LocalAircraftRoot = root;
+    }
+
+    private void RefreshLocalDlcCampaignTree() {
+        var path = appSettingsService.SourceDlcCampaignDir;
+        if(string.IsNullOrEmpty( path ) || !Directory.Exists( path )) {
+            var emptyRoot = new FileTree { Name = path, AbsolutePath = path, IsDirectory = true };
+            LocalDlcCampaignRoot = new FileTreeItemViewModel( emptyRoot );
+            return;
+        }
+        FileTree tree = fileService.GetFileTree( path );
+        var root = new FileTreeItemViewModel( tree );
+        root.UpdateChildren( fileService );
+        LocalDlcCampaignRoot = root;
+    }
+
+    private static RepoTree? FindRepoTree( RepoTree root, string path ) {
+        var parts = path.Split( '/' );
+        var current = root;
+        foreach(string part in parts) {
+            RepoTree? next = null;
+            foreach(var child in current.Children) {
+                if(child.Name == part) {
+                    next = child;
+                    break;
+                }
+            }
+            if(next == null) {
+                return null;
+            }
+            current = next;
+        }
+        return current;
+    }
+
+    #endregion
 }
