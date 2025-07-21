@@ -60,7 +60,7 @@
                 </TreeView>
             </mah:MetroTabItem>
             <mah:MetroTabItem Header="DLC Campaign">
-                <TreeView ItemsSource="{Binding LocalDlcCampaignRoot.Children}">
+                <TreeView ItemsSource="{Binding RepoDlcCampaignsTree.Children}">
                     <TreeView.ItemTemplate>
                         <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                             <StackPanel x:Name="ItemPanel" Orientation="Horizontal">

@@ -1,7 +1,6 @@
 using System.IO;
 
 using DcsTranslateTool.Core.Contracts.Services;
-using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Share.Contracts.Services;
 using DcsTranslateTool.Share.Models;
 using DcsTranslateTool.Win.Constants;
@@ -25,9 +24,7 @@ public class DownloadViewModel(
     #region Fields
 
     private RepoTreeItemViewModel? _repoAircraftTree;
-    private RepoTreeItemViewModel? _repoDlcCampaignTree;
-    private FileTreeItemViewModel? _localAircraftRoot;
-    private FileTreeItemViewModel? _localDlcCampaignRoot;
+    private RepoTreeItemViewModel? _repoDlcCampaignsTree;
     private int _selectedTabIndex;
 
     private DelegateCommand? _openSettingsCommand;
@@ -51,25 +48,9 @@ public class DownloadViewModel(
     /// <summary>
     /// リポジトリのDLCキャンペーンフォルダツリー
     /// </summary>
-    public RepoTreeItemViewModel? RepoDlcCampaignTree {
-        get => _repoDlcCampaignTree;
-        set => SetProperty( ref _repoDlcCampaignTree, value );
-    }
-
-    /// <summary>
-    /// ローカルの機体フォルダツリー
-    /// </summary>
-    public FileTreeItemViewModel? LocalAircraftRoot {
-        get => _localAircraftRoot;
-        set => SetProperty( ref _localAircraftRoot, value );
-    }
-
-    /// <summary>
-    /// ローカルのDLCキャンペーンフォルダツリー
-    /// </summary>
-    public FileTreeItemViewModel? LocalDlcCampaignRoot {
-        get => _localDlcCampaignRoot;
-        set => SetProperty( ref _localDlcCampaignRoot, value );
+    public RepoTreeItemViewModel? RepoDlcCampaignsTree {
+        get => _repoDlcCampaignsTree;
+        set => SetProperty( ref _repoDlcCampaignsTree, value );
     }
 
     /// <summary>
@@ -127,10 +108,7 @@ public class DownloadViewModel(
     /// ナビゲーション後の処理を行う
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
-    public void OnNavigatedTo( NavigationContext navigationContext ) {
-        RefreshLocalAircraftTree();
-        RefreshLocalDlcCampaignTree();
-    }
+    public void OnNavigatedTo( NavigationContext navigationContext ) { }
 
     /// <summary>
     /// ナビゲーションターゲットかどうかを示す
@@ -153,12 +131,10 @@ public class DownloadViewModel(
         };
         var aircraft = FindRepoTree( root, "DCSWorld/Mods/aircraft" )
             ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
-        var dlc = FindRepoTree( root, "DCSWorld/Mods/campaigns" )
+        var dlcCampaigns = FindRepoTree( root, "DCSWorld/Mods/campaigns" )
             ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
         RepoAircraftTree = new RepoTreeItemViewModel( aircraft );
-        RepoDlcCampaignTree = new RepoTreeItemViewModel( dlc );
-        RefreshLocalAircraftTree();
-        RefreshLocalDlcCampaignTree();
+        RepoDlcCampaignsTree = new RepoTreeItemViewModel( dlcCampaigns );
     }
 
     private async void OnDownload() {
@@ -170,7 +146,7 @@ public class DownloadViewModel(
                 break;
             // DLC Campaign tab
             case 1:
-                root = RepoDlcCampaignTree;
+                root = RepoDlcCampaignsTree;
                 break;
             default:
                 return;
@@ -190,33 +166,7 @@ public class DownloadViewModel(
 
     private void OnResetCheck() {
         RepoAircraftTree?.SetCheckedRecursive( false );
-        RepoDlcCampaignTree?.SetCheckedRecursive( false );
-    }
-
-    private void RefreshLocalAircraftTree() {
-        var path = appSettingsService.SourceAircraftDir;
-        if(string.IsNullOrEmpty( path ) || !Directory.Exists( path )) {
-            var emptyRoot = new FileTree { Name = path, AbsolutePath = path, IsDirectory = true };
-            LocalAircraftRoot = new FileTreeItemViewModel( emptyRoot );
-            return;
-        }
-        FileTree tree = fileService.GetFileTree( path );
-        var root = new FileTreeItemViewModel( tree );
-        root.UpdateChildren( fileService );
-        LocalAircraftRoot = root;
-    }
-
-    private void RefreshLocalDlcCampaignTree() {
-        var path = appSettingsService.SourceDlcCampaignDir;
-        if(string.IsNullOrEmpty( path ) || !Directory.Exists( path )) {
-            var emptyRoot = new FileTree { Name = path, AbsolutePath = path, IsDirectory = true };
-            LocalDlcCampaignRoot = new FileTreeItemViewModel( emptyRoot );
-            return;
-        }
-        FileTree tree = fileService.GetFileTree( path );
-        var root = new FileTreeItemViewModel( tree );
-        root.UpdateChildren( fileService );
-        LocalDlcCampaignRoot = root;
+        RepoDlcCampaignsTree?.SetCheckedRecursive( false );
     }
 
     private static RepoTree? FindRepoTree( RepoTree root, string path ) {
