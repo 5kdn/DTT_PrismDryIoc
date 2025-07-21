@@ -5,6 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     Style="{StaticResource BaseUserControlStyle}"
     mc:Ignorable="d">
     <Grid>
@@ -32,15 +34,76 @@
         <!-- The content area where the main content will be placed -->
         <Grid
             Grid.Row="1"
-            Margin="{StaticResource MediumLeftRightMargin}"
-            Background="{DynamicResource MahApps.Brushes.Gray10}">
-            <!--
-            The Mahapps Gray10 color represents where you should place your content.
-            Place your content here.
-            -->
+             Margin="{StaticResource MediumLeftTopRightBottomMargin}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <mah:MetroTabControl>
+                    <mah:MetroTabItem Header="Aircraft">
+                        <TreeView x:Name="LocalAircraftTree" ItemsSource="{Binding LocalAircraftRoot.Children}">
+                            <TreeView.ItemTemplate>
+                                <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <CheckBox IsChecked="{Binding IsChecked}"/>
+                                        <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
+                                        <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
+                                    </StackPanel>
+                                    <HierarchicalDataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                                            <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsDirectory}" Value="False">
+                                            <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
+                                        </DataTrigger>
+                                    </HierarchicalDataTemplate.Triggers>
+                                </HierarchicalDataTemplate>
+                            </TreeView.ItemTemplate>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="SelectedItemChanged">
+                                    <i:InvokeCommandAction Command="{Binding LoadLocalTreeCommand}" CommandParameter="{Binding SelectedItem, ElementName=LocalAircraftTree}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </TreeView>
+                    </mah:MetroTabItem>
 
+                    <mah:MetroTabItem Header="DLC Campaigns">
+                        <TreeView x:Name="LocalDlcCampaignsTree" ItemsSource="{Binding LocalDlcCampaignsRoot.Children}">
+                            <TreeView.ItemTemplate>
+                                <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <CheckBox IsChecked="{Binding IsChecked}"/>
+                                        <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
+                                        <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
+                                    </StackPanel>
+                                    <HierarchicalDataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                                            <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsDirectory}" Value="False">
+                                            <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
+                                        </DataTrigger>
+                                    </HierarchicalDataTemplate.Triggers>
+                                </HierarchicalDataTemplate>
+                            </TreeView.ItemTemplate>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="SelectedItemChanged">
+                                    <i:InvokeCommandAction Command="{Binding LoadLocalTreeCommand}" CommandParameter="{Binding SelectedItem, ElementName=LocalDlcCampaignsTree}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </TreeView>
+                    </mah:MetroTabItem>
 
+                </mah:MetroTabControl>
 
+                <Button Grid.Row="2"
+                        Height="32"
+                        Content="Create PR"
+                        IsEnabled="{Binding IsCreatePullRequestDialogButtonEnabled}"
+                        Command="{Binding OpenCreatePullRequestDialogCommand}"/>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

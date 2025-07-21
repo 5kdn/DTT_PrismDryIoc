@@ -69,6 +69,7 @@ public partial class App : PrismApplication {
         containerRegistry.RegisterForNavigation<MainPage, MainViewModel>( PageKeys.Main );
         containerRegistry.RegisterForNavigation<DownloadPage, DownloadViewModel>( PageKeys.Download );
         containerRegistry.RegisterForNavigation<UploadPage, UploadViewModel>( PageKeys.Upload );
+        containerRegistry.RegisterDialog<CreatePullRequestDialog, CreatePullRequestDialogViewModel>( PageKeys.CreatePullRequestDialog );
         containerRegistry.RegisterForNavigation<SettingsPage, SettingsViewModel>( PageKeys.Settings );
         containerRegistry.RegisterForNavigation<ShellWindow, ShellViewModel>();
 

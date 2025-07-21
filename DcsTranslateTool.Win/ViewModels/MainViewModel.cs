@@ -5,9 +5,9 @@ namespace DcsTranslateTool.Win.ViewModels;
 public class MainViewModel : BindableBase, INavigationAware {
     private readonly IRegionManager _regionManager;
 
-    private DelegateCommand _openSettingsCommand;
-    private DelegateCommand _openDownloadCommand;
-    private DelegateCommand _openUploadCommand;
+    private DelegateCommand? _openSettingsCommand;
+    private DelegateCommand? _openDownloadCommand;
+    private DelegateCommand? _openUploadCommand;
 
     /// <summary>
     /// 設定画面を開くコマンド
