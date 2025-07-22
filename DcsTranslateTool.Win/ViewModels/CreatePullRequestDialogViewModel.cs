@@ -7,12 +7,17 @@ using DcsTranslateTool.Win.Models;
 namespace DcsTranslateTool.Win.ViewModels;
 
 public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
-    public string Title => "PR作成ダイアログ";
+    #region Fields
+
+    public static string Title => "PR作成ダイアログ";
     private IEnumerable<string>? _files;
-    private ObservableCollection<PullRequestChangeKindItem> _pullRequestChangeKinds;
     private string _prComment = "[概要]\n簡潔に変更内容を記載してください。\n\n[変更内容]\n- mizファイル単位で箇条書きで記載してください\n- 機体やキャンペーン全体に関連する場合、機体やキャンペーンごとの記載でも大丈夫です\n\n[備考]\n- 気になる点があれば箇条書きで記載してください";
-    private ObservableCollection<PullRequestDialogAgreementCheckItem> _agreementItems;
-    private DelegateCommand _createPullRequestCommand;
+
+    private DelegateCommand? _createPullRequestCommand;
+
+    #endregion
+
+    #region Properties
 
     /// <summary>
     /// ローカルのフォルダツリー
@@ -36,7 +41,7 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
         }
     }
 
-    public ObservableCollection<PullRequestChangeKindItem> PullRequestChangeKinds => _pullRequestChangeKinds;
+    public ObservableCollection<PullRequestChangeKindItem> PullRequestChangeKinds { get; }
 
     /// <summary>
     /// PRのタイトル
@@ -59,7 +64,17 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
     /// <summary>
     /// 同意を求める項目
     /// </summary>
-    public ObservableCollection<PullRequestDialogAgreementCheckItem> AgreementItems => _agreementItems;
+    public ObservableCollection<PullRequestDialogAgreementCheckItem> AgreementItems { get; }
+
+    #endregion
+
+    #region Commands
+    public DelegateCommand CreatePullRequestCommand
+    => _createPullRequestCommand ??= new DelegateCommand( OnCreatePullRequest );
+
+    #endregion
+
+    #region Methods
 
     /// <summary>
     /// PRを作成する上で十分な入力がされているか
@@ -74,11 +89,8 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
         }
     }
 
-    public DelegateCommand CreatePullRequestCommand
-        => _createPullRequestCommand ??= new DelegateCommand( OnCreatePullRequest );
-
     public CreatePullRequestDialogViewModel() {
-        _pullRequestChangeKinds = new ObservableCollection<PullRequestChangeKindItem>(
+        PullRequestChangeKinds = new ObservableCollection<PullRequestChangeKindItem>(
             Enum.GetValues( typeof( PullRequestChangeKind ) )
                 .Cast<PullRequestChangeKind>()
                 .Select( kind => new PullRequestChangeKindItem( kind ) )
@@ -87,10 +99,10 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
         foreach(var item in PullRequestChangeKinds) {
             item.PropertyChanged += PullRequestChangeKindItem_PropertyChanged;
         }
-        _agreementItems = new ObservableCollection<PullRequestDialogAgreementCheckItem>
-        {
+        AgreementItems =
+        [
             new PullRequestDialogAgreementCheckItem("アップロードするファイルに個人情報は含まれていません"),
-        };
+        ];
         foreach(var item in AgreementItems) {
             item.PropertyChanged += AgreementItem_PropertyChanged;
         }
@@ -107,14 +119,14 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
     public IEnumerable<PullRequestChangeKind> SelectedChangeKinds =>
         PullRequestChangeKinds.Where( x => x.IsChecked ).Select( x => x.Kind );
 
-    private void PullRequestChangeKindItem_PropertyChanged( object sender, PropertyChangedEventArgs e ) {
+    private void PullRequestChangeKindItem_PropertyChanged( object? sender, PropertyChangedEventArgs e ) {
         if(e.PropertyName == nameof( PullRequestChangeKindItem.IsChecked )) {
             RaisePropertyChanged( nameof( PRTitle ) );
             RaisePropertyChanged( nameof( CanCreatePR ) );
         }
     }
 
-    private void AgreementItem_PropertyChanged( object sender, PropertyChangedEventArgs e ) {
+    private void AgreementItem_PropertyChanged( object? sender, PropertyChangedEventArgs e ) {
         if(e.PropertyName == nameof( PullRequestDialogAgreementCheckItem.IsAgreed )) {
             RaisePropertyChanged( nameof( CanCreatePR ) );
         }
@@ -144,4 +156,5 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
             RequestClose.Invoke( new DialogResult( ButtonResult.Abort ) );
         }
     }
+    #endregion
 }

@@ -6,6 +6,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:vm="clr-namespace:DcsTranslateTool.Win.ViewModels"
+    xmlns:views="clr-namespace:DcsTranslateTool.Win.Views"
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     Style="{StaticResource BaseUserControlStyle}"
@@ -14,6 +16,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="48" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid Margin="{StaticResource MediumLeftRightMargin}">
             <Grid.ColumnDefinitions>
@@ -36,124 +39,48 @@
                 <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
             </Button>
         </Grid>
-        <mah:MetroTabControl Grid.Row="1" Margin="{StaticResource MediumLeftRightMargin}" SelectedIndex="{Binding SelectedTabIndex}">
-            <mah:MetroTabItem Header="Aircraft">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <TreeView x:Name="LocalAircraftTree" ItemsSource="{Binding LocalAircraftRoot.Children}">
-                        <TreeView.ItemTemplate>
-                            <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="0,0,4,0" />
-                                    <TextBlock Text="{Binding Name}" />
-                                </StackPanel>
-                                <HierarchicalDataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding IsDirectory}" Value="True">
-                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsDirectory}" Value="False">
-                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
-                                    </DataTrigger>
-                                </HierarchicalDataTemplate.Triggers>
-                            </HierarchicalDataTemplate>
-                        </TreeView.ItemTemplate>
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="SelectedItemChanged">
-                                <i:InvokeCommandAction Command="{Binding LoadLocalTreeCommand}" CommandParameter="{Binding SelectedItem, ElementName=LocalAircraftTree}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </TreeView>
-                    <UniformGrid Grid.Column="1" Rows="4" Width="64">
-                        <Button Height="32" Margin="0,16" Content="Download" Command="{Binding DownloadCommand}" />
-                        <Button Height="32" Margin="0,16" Content="Reset" Command="{Binding ResetCheckCommand}" />
-                        <Button Height="32" Margin="0,16" Content="Apply" />
-                        <Button Height="32" Margin="0,16" Content="Upload" />
-                    </UniformGrid>
-                    <TreeView Grid.Column="2" ItemsSource="{Binding RepoAircraftTree.Children}">
+
+        <mah:MetroTabControl
+            Grid.Row="1"
+            Margin="{StaticResource MediumLeftRightMargin}"
+            SelectedIndex="{Binding SelectedTabIndex}"
+            ItemsSource="{Binding Tabs}">
+
+            <mah:MetroTabControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Title}"/>
+                </DataTemplate>
+            </mah:MetroTabControl.ItemTemplate>
+            <mah:MetroTabControl.ContentTemplate>
+                <DataTemplate>
+                    <TreeView ItemsSource="{Binding RepoTree.Children}">
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                 <StackPanel x:Name="ItemPanel" Orientation="Horizontal">
-                                    <CheckBox IsChecked="{Binding IsChecked}" Margin="0,0,4,0" />
-                                    <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="0,0,4,0" />
-                                    <TextBlock Text="{Binding Name}" />
-                                </StackPanel>
-                                <HierarchicalDataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding IsDirectory}" Value="True">
-                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsDirectory}" Value="False">
-                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsChecked}" Value="True">
-                                        <Setter TargetName="ItemPanel" Property="Background" Value="Bisque" />
-                                    </DataTrigger>
-                                </HierarchicalDataTemplate.Triggers>
-                            </HierarchicalDataTemplate>
-                        </TreeView.ItemTemplate>
-                    </TreeView>
-                </Grid>
-            </mah:MetroTabItem>
-            <mah:MetroTabItem Header="DLC Campaign">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <TreeView x:Name="LocalDlcCampaignTree" ItemsSource="{Binding LocalDlcCampaignRoot.Children}">
-                        <TreeView.ItemTemplate>
-                            <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="0,0,4,0" />
-                                    <TextBlock Text="{Binding Name}" />
-                                </StackPanel>
-                                <HierarchicalDataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding IsDirectory}" Value="True">
-                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsDirectory}" Value="False">
-                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
-                                    </DataTrigger>
-                                </HierarchicalDataTemplate.Triggers>
-                            </HierarchicalDataTemplate>
-                        </TreeView.ItemTemplate>
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="SelectedItemChanged">
-                                <i:InvokeCommandAction Command="{Binding LoadLocalTreeCommand}" CommandParameter="{Binding SelectedItem, ElementName=LocalDlcCampaignTree}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </TreeView>
-                    <UniformGrid Grid.Column="1" Rows="4" Width="64">
-                        <Button Height="32" Margin="0,16" Content="Download" Command="{Binding DownloadCommand}" />
-                        <Button Height="32" Margin="0,16" Content="Reset" Command="{Binding ResetCheckCommand}" />
-                        <Button Height="32" Margin="0,16" Content="Apply" />
-                        <Button Height="32" Margin="0,16" Content="Upload" />
-                    </UniformGrid>
-                    <TreeView Grid.Column="2" ItemsSource="{Binding RepoDlcCampaignTree.Children}">
-                        <TreeView.ItemTemplate>
-                            <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                <StackPanel x:Name="ItemPanel" Orientation="Horizontal">
-                                    <CheckBox IsChecked="{Binding IsChecked}"/>
+                                    <CheckBox IsChecked="{Binding IsChecked}" />
                                     <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
                                     <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
                                 </StackPanel>
                                 <HierarchicalDataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding IsDirectory}" Value="True">
-                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;" />
+                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding IsDirectory}" Value="False">
-                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
+                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;"/>
                                     </DataTrigger>
                                 </HierarchicalDataTemplate.Triggers>
                             </HierarchicalDataTemplate>
                         </TreeView.ItemTemplate>
                     </TreeView>
-                </Grid>
-            </mah:MetroTabItem>
+                </DataTemplate>
+            </mah:MetroTabControl.ContentTemplate>
         </mah:MetroTabControl>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal">
+            <Button Width="96" Content="Download" Command="{Binding DownloadCommand}"/>
+            <Button Width="96" Margin="{StaticResource SmallLeftMargin}" Content="Apply" Command="{Binding ApplyCommand}"/>
+            <Button Width="96" Margin="{StaticResource SmallLeftMargin}" Content="Reset" Command="{Binding ResetCheckCommand}"/>
+            <Button Width="96" Margin="{StaticResource SmallLeftMargin}" Content="Open Directory" Command="{Binding OpenDirectoryCommand}"/>
+        </StackPanel>
     </Grid>
 </UserControl>
