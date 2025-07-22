@@ -94,9 +94,6 @@ public class DownloadViewModel(
     #region Methods
 
     /// <summary>
-    /// 設定ページに遷移する
-    /// </summary>
-    /// <summary>
     /// ナビゲーション前の処理を行う
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
@@ -118,6 +115,9 @@ public class DownloadViewModel(
     public bool IsNavigationTarget( NavigationContext navigationContext )
         => true;
 
+    /// <summary>
+    /// 設定ページに遷移する
+    /// </summary>
     private void OnOpenSettings() => regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
 
     private async void OnFetch() {
@@ -187,12 +187,12 @@ public class DownloadViewModel(
     }
 
     /// <summary>
-    /// TabsをTranslateFileDirから初期化
+    /// Tabsを初期化
     /// </summary>
     private void RefleshTabs() {
         Tabs = [
-            new DownloadTabItem("Aircraft"     , new RepoTreeItemViewModel() ),
-            new DownloadTabItem("DLC Campaigns", new RepoTreeItemViewModel() )
+            new DownloadTabItem("Aircraft"     , new RepoTreeItemViewModel(new(){ Name="未設定", AbsolutePath="未設定",IsDirectory=false } ) ),
+            new DownloadTabItem("DLC Campaigns", new RepoTreeItemViewModel(new(){ Name="未設定", AbsolutePath="未設定",IsDirectory=false } ) )
         ];
     }
 

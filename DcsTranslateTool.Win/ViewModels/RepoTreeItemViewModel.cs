@@ -5,34 +5,39 @@ using DcsTranslateTool.Share.Models;
 namespace DcsTranslateTool.Win.ViewModels;
 
 /// <summary>
-/// リポジトリツリー表示用の ViewModel である。
+/// リポジトリツリー表示用の ViewModel
 /// </summary>
 public class RepoTreeItemViewModel : BindableBase {
     private bool _isChecked;
 
     /// <summary>
-    /// 名称を取得する。
+    /// 名称を取得する
     /// </summary>
-    public string Name { get; }
+    public string Name => this.Model.Name;
 
     /// <summary>
-    /// 絶対パスを取得する。
+    /// 絶対パスを取得する
     /// </summary>
-    public string AbsolutePath { get; }
+    public string AbsolutePath => this.Model.AbsolutePath;
 
     /// <summary>
-    /// ディレクトリかどうかを取得する。
+    /// ディレクトリかどうかを取得する
     /// </summary>
-    public bool IsDirectory { get; }
+    public bool IsDirectory => this.Model.IsDirectory;
 
     /// <summary>
-    /// 子要素を取得する。
+    /// 子ノードを取得する
     /// </summary>
-    public ObservableCollection<RepoTreeItemViewModel> Children { get; } = [];
+    public ObservableCollection<RepoTreeItemViewModel> Children { get; }
+
+    /// <summary>
+    /// モデル本体を必要に応じて取得できるプロパティ
+    /// </summary>
+    public RepoTree Model { get; }
 
     /// <summary>
     /// チェック状態を取得または設定する。
-    /// 設定時はディレクトリの場合に子要素へ伝搬する。
+    /// ディレクトリの場合は子要素へ状態が伝搬する。
     /// </summary>
     public bool IsChecked {
         get => _isChecked;
@@ -46,18 +51,18 @@ public class RepoTreeItemViewModel : BindableBase {
     }
 
     /// <summary>
-    /// <see cref="RepoTreeItemViewModel"/> の新しいインスタンスを生成する。
+    /// <see cref="RepoTreeItemViewModel"/> の新しいインスタンスを生成する
     /// </summary>
-    /// <param name="tree">元となる <see cref="RepoTree"/></param>
-    public RepoTreeItemViewModel( RepoTree? tree = null ) {
-        Name = tree?.Name ?? "初期値";
-        AbsolutePath = tree?.AbsolutePath ?? "初期値";
-        IsDirectory = tree?.IsDirectory ?? false;
-        tree?.Children.ForEach( child => Children.Add( new RepoTreeItemViewModel( child ) ) );
+    /// <param name="model">基となる <see cref="RepoTree"/></param>
+    public RepoTreeItemViewModel( RepoTree model ) {
+        this.Model = model;
+
+        Children = new ObservableCollection<RepoTreeItemViewModel>(
+            this.Model.Children.Select( c => new RepoTreeItemViewModel( c ) ) );
     }
 
     /// <summary>
-    /// チェック状態を再帰的に設定する。
+    /// チェック状態を再帰的に設定する
     /// </summary>
     /// <param name="value">設定する値</param>
     public void SetCheckedRecursive( bool value ) {
@@ -69,13 +74,11 @@ public class RepoTreeItemViewModel : BindableBase {
     }
 
     /// <summary>
-    /// チェックされたファイル要素を列挙する。
+    /// チェックされたファイル要素を列挙する
     /// </summary>
     /// <returns>チェック済みファイルの列挙</returns>
     public IEnumerable<RepoTreeItemViewModel> GetCheckedFiles() {
-        if(IsChecked && !IsDirectory) {
-            yield return this;
-        }
+        if(IsChecked && !IsDirectory) yield return this;
         foreach(var child in Children) {
             foreach(var c in child.GetCheckedFiles()) {
                 yield return c;

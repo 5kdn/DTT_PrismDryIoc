@@ -31,8 +31,8 @@ public interface IZipService {
     /// バイト列を zip に追加する
     /// </summary>
     /// <param name="zipFilePath">対象の zip ファイルパス</param>
-    /// <param name="data">追加するbyte[]データ</param>
     /// <param name="entryPath">zip 内でのパス</param>
+    /// <param name="data">追加するbyte[]データ</param>
     /// <exception cref="FileNotFoundException">zip ファイルが存在しない場合</exception>
     /// <exception cref="ArgumentException">引数が null または空の場合</exception>
     /// <exception cref="InvalidDataException">zip ファイルが壊れている場合</exception>

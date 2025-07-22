@@ -7,8 +7,8 @@ namespace DcsTranslateTool.Win.ViewModels;
 /// <summary>
 /// アプリケーションシェルを制御する ViewModel
 /// </summary>
-public class ShellViewModel : BindableBase {
-    private readonly IRegionManager _regionManager;
+/// <param name="regionManager">リージョン管理用サービス</param>
+public class ShellViewModel( IRegionManager regionManager ) : BindableBase {
     private IRegionNavigationService? _navigationService;
     private DelegateCommand? _goBackCommand;
     private ICommand? _loadedCommand;
@@ -29,16 +29,8 @@ public class ShellViewModel : BindableBase {
     /// </summary>
     public ICommand UnloadedCommand => _unloadedCommand ??= new DelegateCommand( OnUnloaded );
 
-    /// <summary>
-    /// 新しいインスタンスを生成する
-    /// </summary>
-    /// <param name="regionManager">リージョン管理用サービス</param>
-    public ShellViewModel( IRegionManager regionManager ) {
-        _regionManager = regionManager;
-    }
-
     private void OnLoaded() {
-        _navigationService = _regionManager.Regions[Regions.Main].NavigationService;
+        _navigationService = regionManager.Regions[Regions.Main].NavigationService;
         _navigationService.Navigated += OnNavigated;
         _navigationService.RequestNavigate( PageKeys.Main );
         _goBackCommand?.RaiseCanExecuteChanged();
@@ -48,10 +40,10 @@ public class ShellViewModel : BindableBase {
         if(_navigationService != null) {
             _navigationService.Navigated -= OnNavigated;
         }
-        _regionManager.Regions.Remove( Regions.Main );
+        regionManager.Regions.Remove( Regions.Main );
     }
 
-    private bool CanGoBack() => _navigationService != null && _navigationService.Journal.CanGoBack;
+    private bool CanGoBack() => _navigationService?.Journal.CanGoBack == true;
 
     private void OnGoBack() => _navigationService?.Journal.GoBack();
 

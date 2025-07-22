@@ -16,7 +16,7 @@ public class ZipService : IZipService {
         try {
             using FileStream fs = new(zipFilePath, FileMode.Open, FileAccess.Read);
             using ZipArchive archive = new(fs, ZipArchiveMode.Read);
-            return archive.Entries.Select( e => e.FullName ).ToList();
+            return [.. archive.Entries.Select( e => e.FullName )];
         }
         catch(InvalidDataException ex) {
             throw new InvalidDataException( "zip ファイルが壊れている可能性がある", ex );
@@ -80,12 +80,8 @@ public class ZipService : IZipService {
         try {
             using FileStream stream = new(zipFilePath, FileMode.Open, FileAccess.ReadWrite);
             using ZipArchive archive = new(stream, ZipArchiveMode.Update);
-            List<ZipArchiveEntry> targets = archive.Entries
-                .Where(e => e.FullName == entryPath || e.FullName.StartsWith(entryPath.TrimEnd('/') + '/'))
-                .ToList();
-            foreach(ZipArchiveEntry entry in targets) {
-                entry.Delete();
-            }
+            List<ZipArchiveEntry> targets = [.. archive.Entries.Where(e => e.FullName == entryPath || e.FullName.StartsWith(entryPath.TrimEnd('/') + '/'))];
+            targets.ForEach( entry => entry.Delete() );
         }
         catch(InvalidDataException ex) {
             throw new InvalidDataException( "zip ファイルが壊れている可能性がある", ex );
