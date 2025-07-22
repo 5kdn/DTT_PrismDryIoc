@@ -31,7 +31,9 @@ public class DownloadViewModel(
     private DelegateCommand? _openSettingsCommand;
     private DelegateCommand? _fetchCommand;
     private DelegateCommand? _downloadCommand;
+    private DelegateCommand? _applyCommand;
     private DelegateCommand? _resetCheckCommand;
+    private DelegateCommand? _openDirectoryCommand;
 
     #endregion
 
@@ -73,9 +75,19 @@ public class DownloadViewModel(
     public DelegateCommand DownloadCommand => _downloadCommand ??= new DelegateCommand( OnDownload );
 
     /// <summary>
+    /// リポジトリ上のファイルをmizファイルに適用するコマンド
+    /// </summary>
+    public DelegateCommand ApplyCommand => _applyCommand ??= new DelegateCommand( OnApply );
+
+    /// <summary>
     /// チェック状態をリセットするコマンド
     /// </summary>
     public DelegateCommand ResetCheckCommand => _resetCheckCommand ??= new DelegateCommand( OnResetCheck );
+
+    /// <summary>
+    /// 翻訳ファイルを管理するディレクトリを開くコマンド
+    /// </summary>
+    public DelegateCommand OpenDirectoryCommand => _openDirectoryCommand ??= new DelegateCommand( OnOpenDirectory );
 
     #endregion
 
@@ -141,10 +153,18 @@ public class DownloadViewModel(
         }
     }
 
+    private void OnApply() {
+        // TODO: 選択されたファイルをmizファイルに適用する処理を実装
+    }
+
     private void OnResetCheck() {
         foreach(var tab in _tabs) {
             tab.RepoTree?.SetCheckedRecursive( false );
         }
+    }
+
+    private void OnOpenDirectory() {
+        // TODO: TranslateFileDirを開く処理を実装
     }
 
     private static RepoTree? FindRepoTree( RepoTree root, string path ) {

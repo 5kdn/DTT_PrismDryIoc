@@ -77,10 +77,10 @@
         </mah:MetroTabControl>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal">
-            <Button Width="96" Content="Download" Command="{Binding DownloadCommand}" />
-            <Button Width="96" Margin="{StaticResource SmallLeftMargin}" Content="Apply" />
-            <Button Width="96" Margin="{StaticResource SmallLeftMargin}" Content="Reset" Command="{Binding ResetCheckCommand}" />
-            <Button Width="96" Margin="{StaticResource SmallLeftMargin}" Content="Open Directory" />
+            <Button Width="96" Content="Download" Command="{Binding DownloadCommand}"/>
+            <Button Width="96" Margin="{StaticResource SmallLeftMargin}" Content="Apply" Command="{Binding ApplyCommand}"/>
+            <Button Width="96" Margin="{StaticResource SmallLeftMargin}" Content="Reset" Command="{Binding ResetCheckCommand}"/>
+            <Button Width="96" Margin="{StaticResource SmallLeftMargin}" Content="Open Directory" Command="{Binding OpenDirectoryCommand}"/>
         </StackPanel>
     </Grid>
 </UserControl>
