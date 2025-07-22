@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.IO;
 
 using DcsTranslateTool.Core.Contracts.Services;
@@ -5,6 +6,7 @@ using DcsTranslateTool.Share.Contracts.Services;
 using DcsTranslateTool.Share.Models;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
+using DcsTranslateTool.Win.Models;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
@@ -23,14 +25,12 @@ public class DownloadViewModel(
     ) : BindableBase, INavigationAware {
     #region Fields
 
-    private RepoTreeItemViewModel? _repoAircraftTree;
-    private RepoTreeItemViewModel? _repoDlcCampaignsTree;
+    private ObservableCollection<DownloadTabItem> _tabs = [];
     private int _selectedTabIndex;
 
     private DelegateCommand? _openSettingsCommand;
     private DelegateCommand? _fetchCommand;
     private DelegateCommand? _downloadCommand;
-    private DelegateCommand<FileTreeItemViewModel>? _loadLocalTreeCommand;
     private DelegateCommand? _resetCheckCommand;
 
     #endregion
@@ -38,27 +38,19 @@ public class DownloadViewModel(
     #region Properties
 
     /// <summary>
-    /// リポジトリの機体フォルダツリー
-    /// </summary>
-    public RepoTreeItemViewModel? RepoAircraftTree {
-        get => _repoAircraftTree;
-        set => SetProperty( ref _repoAircraftTree, value );
-    }
-
-    /// <summary>
-    /// リポジトリのDLCキャンペーンフォルダツリー
-    /// </summary>
-    public RepoTreeItemViewModel? RepoDlcCampaignsTree {
-        get => _repoDlcCampaignsTree;
-        set => SetProperty( ref _repoDlcCampaignsTree, value );
-    }
-
-    /// <summary>
     /// 選択中のタブインデックス
     /// </summary>
     public int SelectedTabIndex {
         get => _selectedTabIndex;
         set => SetProperty( ref _selectedTabIndex, value );
+    }
+
+    ///<summary>
+    ///全てのタブ情報を取得する
+    /// </summary>
+    public ObservableCollection<DownloadTabItem> Tabs {
+        get => _tabs;
+        set => SetProperty( ref _tabs, value );
     }
 
     #endregion
@@ -79,12 +71,6 @@ public class DownloadViewModel(
     /// ファイルをダウンロードするコマンド
     /// </summary>
     public DelegateCommand DownloadCommand => _downloadCommand ??= new DelegateCommand( OnDownload );
-
-    /// <summary>
-    /// ローカルツリーを読み込むコマンド
-    /// </summary>
-    public DelegateCommand<FileTreeItemViewModel> LoadLocalTreeCommand =>
-        _loadLocalTreeCommand ??= new DelegateCommand<FileTreeItemViewModel>( OnLoadLocalTree );
 
     /// <summary>
     /// チェック状態をリセットするコマンド
@@ -108,7 +94,9 @@ public class DownloadViewModel(
     /// ナビゲーション後の処理を行う
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
-    public void OnNavigatedTo( NavigationContext navigationContext ) { }
+    public void OnNavigatedTo( NavigationContext navigationContext ) {
+        RefleshTabs();
+    }
 
     /// <summary>
     /// ナビゲーションターゲットかどうかを示す
@@ -133,24 +121,18 @@ public class DownloadViewModel(
             ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
         var dlcCampaigns = FindRepoTree( root, "DCSWorld/Mods/campaigns" )
             ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
-        RepoAircraftTree = new RepoTreeItemViewModel( aircraft );
-        RepoDlcCampaignsTree = new RepoTreeItemViewModel( dlcCampaigns );
+        //RepoAircraftTree = new RepoTreeItemViewModel( aircraft );
+        //RepoDlcCampaignsTree = new RepoTreeItemViewModel( dlcCampaigns );
+        //_tabs[0].RepoTree = RepoAircraftTree;
+        //_tabs[1].RepoTree = RepoDlcCampaignsTree;
+        Tabs[0].RepoTree = new RepoTreeItemViewModel( aircraft );
+        Tabs[1].RepoTree = new RepoTreeItemViewModel( dlcCampaigns );
     }
 
     private async void OnDownload() {
-        RepoTreeItemViewModel? root;
-        switch(SelectedTabIndex) {
-            // Aircraft tab
-            case 0:
-                root = RepoAircraftTree;
-                break;
-            // DLC Campaign tab
-            case 1:
-                root = RepoDlcCampaignsTree;
-                break;
-            default:
-                return;
-        }
+        var root = SelectedTabIndex >=0 && SelectedTabIndex < _tabs.Count
+            ? _tabs[SelectedTabIndex].RepoTree
+            : null;
         if(root == null) return;
         foreach(var item in root.GetCheckedFiles()) {
             byte[] data = await repositoryService.GetFileAsync( item.AbsolutePath );
@@ -159,14 +141,10 @@ public class DownloadViewModel(
         }
     }
 
-    private void OnLoadLocalTree( FileTreeItemViewModel node ) {
-        if(node == null) return;
-        node.UpdateChildren( fileService );
-    }
-
     private void OnResetCheck() {
-        RepoAircraftTree?.SetCheckedRecursive( false );
-        RepoDlcCampaignsTree?.SetCheckedRecursive( false );
+        foreach(var tab in _tabs) {
+            tab.RepoTree?.SetCheckedRecursive( false );
+        }
     }
 
     private static RepoTree? FindRepoTree( RepoTree root, string path ) {
@@ -186,6 +164,16 @@ public class DownloadViewModel(
             current = next;
         }
         return current;
+    }
+
+    /// <summary>
+    /// TabsをTranslateFileDirから初期化
+    /// </summary>
+    private void RefleshTabs() {
+        Tabs = [
+            new DownloadTabItem("Aircraft"     , new RepoTreeItemViewModel() ),
+            new DownloadTabItem("DLC Campaigns", new RepoTreeItemViewModel() )
+        ];
     }
 
     #endregion

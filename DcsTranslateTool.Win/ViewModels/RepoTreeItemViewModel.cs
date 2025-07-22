@@ -49,13 +49,11 @@ public class RepoTreeItemViewModel : BindableBase {
     /// <see cref="RepoTreeItemViewModel"/> の新しいインスタンスを生成する。
     /// </summary>
     /// <param name="tree">元となる <see cref="RepoTree"/></param>
-    public RepoTreeItemViewModel( RepoTree tree ) {
-        Name = tree.Name;
-        AbsolutePath = tree.AbsolutePath;
-        IsDirectory = tree.IsDirectory;
-        foreach(var child in tree.Children) {
-            Children.Add( new RepoTreeItemViewModel( child ) );
-        }
+    public RepoTreeItemViewModel( RepoTree? tree = null ) {
+        Name = tree?.Name ?? "初期値";
+        AbsolutePath = tree?.AbsolutePath ?? "初期値";
+        IsDirectory = tree?.IsDirectory ?? false;
+        tree?.Children.ForEach( child => Children.Add( new RepoTreeItemViewModel( child ) ) );
     }
 
     /// <summary>
