@@ -5,14 +5,8 @@ using Octokit;
 
 namespace DcsTranslateTool.Share.Services;
 
-public class RepositoryService : IRepositoryService {
+public class RepositoryService( IGitHubApiClient gitHubApiClient ) : IRepositoryService {
     private const string MainBranch = "master";
-    private readonly IGitHubApiClient _gitHubApiClient;
-
-    /// <summary>
-    /// コンストラクタ
-    /// </summary>
-    public RepositoryService( IGitHubApiClient gitHubApiClient ) => _gitHubApiClient = gitHubApiClient;
 
     /// <inheritdoc/>
     public async Task<List<RepoTree>> GetRepositoryTreeAsync() {
@@ -22,30 +16,30 @@ public class RepositoryService : IRepositoryService {
             AbsolutePath = "",
             IsDirectory = true,
         };
-        var tree = await _gitHubApiClient.GetRepositoryTreeAsync( MainBranch );
+        var tree = await gitHubApiClient.GetRepositoryTreeAsync( MainBranch );
         tree.ToList().ForEach( item => AddTreeToModel( root, item ) );
 
         return root.Children;
     }
 
     /// <inheritdoc/>
-    public async Task<byte[]> GetFileAsync( string path ) => await _gitHubApiClient.GetFileAsync( path );
+    public async Task<byte[]> GetFileAsync( string path ) => await gitHubApiClient.GetFileAsync( path );
 
     /// <inheritdoc/>
     public async Task CreateBranchAsync( string branchName ) =>
-        await _gitHubApiClient.CreateBranchAsync( MainBranch, branchName );
+        await gitHubApiClient.CreateBranchAsync( MainBranch, branchName );
 
     /// <inheritdoc/>
     public async Task CommitAsync( string branchName, IEnumerable<CommitFile> files, string message ) =>
-        await _gitHubApiClient.CommitAsync( branchName, files, message );
+        await gitHubApiClient.CommitAsync( branchName, files, message );
 
     /// <inheritdoc/>
     public async Task CommitAsync( string branchName, CommitFile file, string message ) =>
-        await CommitAsync( branchName, new CommitFile[] { file }, message );
+        await CommitAsync( branchName, [file], message );
 
     /// <inheritdoc/>
     public async Task CreatePullRequestAsync( string branchName, string title, string message ) =>
-        await _gitHubApiClient.CreatePullRequestAsync( branchName, MainBranch, title, message );
+        await gitHubApiClient.CreatePullRequestAsync( branchName, MainBranch, title, message );
 
     /// <summary>
     /// Octokitの<see cref="TreeItem"/>を<see cref="IRepoTreeModel"/>に変換して、ツリー構造をモデルに追加する。

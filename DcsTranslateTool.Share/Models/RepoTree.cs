@@ -23,5 +23,5 @@ public class RepoTree {
     /// <summary>
     /// 子要素となる <see cref="RepoTree"/> のリストを設定する。
     /// </summary>
-    public List<RepoTree> Children { get; set; } = new();
+    public List<RepoTree> Children { get; set; } = [];
 }

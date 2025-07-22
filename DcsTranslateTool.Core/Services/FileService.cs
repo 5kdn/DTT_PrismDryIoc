@@ -86,7 +86,8 @@ public class FileService : IFileService {
                 Name = Path.GetFileName( directoryPath ),
                 AbsolutePath = directoryPath,
                 IsDirectory = true,
-                Children = Directory.EnumerateFileSystemEntries( directoryPath )
+                Children = [
+                    .. Directory.EnumerateFileSystemEntries( directoryPath )
                     .Select( f => new FileTree
                     {
                         Name = Path.GetFileName( f ),
@@ -94,7 +95,7 @@ public class FileService : IFileService {
                         IsDirectory = Directory.Exists( f ),
                     } )
                     .OrderBy( f => f.Name )
-                    .ToList()
+                ]
             };
         }
         catch(IOException ex) {

@@ -191,8 +191,8 @@ public class DownloadViewModel(
     /// </summary>
     private void RefleshTabs() {
         Tabs = [
-            new DownloadTabItem("Aircraft"     , new RepoTreeItemViewModel() ),
-            new DownloadTabItem("DLC Campaigns", new RepoTreeItemViewModel() )
+            new DownloadTabItem("Aircraft"     , new RepoTreeItemViewModel(new(){ Name="未設定", AbsolutePath="未設定",IsDirectory=false } ) ),
+            new DownloadTabItem("DLC Campaigns", new RepoTreeItemViewModel(new(){ Name="未設定", AbsolutePath="未設定",IsDirectory=false } ) )
         ];
     }
 

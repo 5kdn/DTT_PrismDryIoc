@@ -1,4 +1,5 @@
 using DcsTranslateTool.Share.Models;
+
 using Octokit;
 
 namespace DcsTranslateTool.Share.Services;
@@ -57,61 +58,49 @@ public interface IGitHubApiClient {
 /// <summary>
 /// GitHub API にアクセスするクライアント実装。
 /// </summary>
-public class GitHubApiClient : IGitHubApiClient {
-    private readonly string _owner;
-    private readonly string _repo;
-    private readonly string _appName;
-    private readonly int _appId;
-    private readonly long _installationId;
-
-    /// <summary>
-    /// <see cref="GitHubApiClient"/> の新しいインスタンスを初期化する。
-    /// </summary>
-    /// <param name="owner">リポジトリ所有者名</param>
-    /// <param name="repo">リポジトリ名</param>
-    /// <param name="appName">GitHubアプリケーション名</param>
-    /// <param name="appId">GitHubアプリケーションID</param>
-    /// <param name="installationId">インストールID</param>
-    public GitHubApiClient( string owner, string repo, string appName, int appId, long installationId ) {
-        _owner = owner;
-        _repo = repo;
-        _appName = appName;
-        _appId = appId;
-        _installationId = installationId;
-    }
-
+/// <remarks>
+/// <see cref="GitHubApiClient"/> の新しいインスタンスを初期化する。
+/// </remarks>
+/// <param name="owner">リポジトリ所有者名</param>
+/// <param name="repo">リポジトリ名</param>
+/// <param name="appName">GitHubアプリケーション名</param>
+/// <param name="appId">GitHubアプリケーションID</param>
+/// <param name="installationId">インストールID</param>
+public class GitHubApiClient( string owner, string repo, string appName, int appId, long installationId ) : IGitHubApiClient {
     /// <inheritdoc/>
     public async Task CommitAsync( string branchName, IEnumerable<CommitFile> files, string message ) {
         try {
             IGitHubClient client = await InstallationClientGenerator();
 
-            Reference reference = await client.Git.Reference.Get(_owner, _repo, $"heads/{branchName}");
-            Commit latestCommit = await client.Git.Commit.Get(_owner, _repo, reference.Object.Sha);
+            Reference reference = await client.Git.Reference.Get(owner, repo, $"heads/{branchName}");
+            Commit latestCommit = await client.Git.Commit.Get(owner, repo, reference.Object.Sha);
 
             // AddOrUpdate処理
-            List<CommitFile> addOrUpdateFiles = files.Where( f => f.Operation == CommitOperation.AddOrUpdate & f.LocalPath != null ).ToList();
-            List<Task<NewTreeItem>> newTreeItemTasks = addOrUpdateFiles.Select( async file => {
-                if(!File.Exists( file.LocalPath! )) throw new FileNotFoundException( "ファイルが存在しません", file.LocalPath );
-                string content = await File.ReadAllTextAsync(file.LocalPath!);
-                NewBlob newBlob = new() { Content = content, Encoding = EncodingType.Utf8 };
-                BlobReference blobRef = await client.Git.Blob.Create(_owner, _repo, newBlob);
-                return new NewTreeItem
-                {
-                    Path = file.RepoPath,
-                    Mode = "100644",
-                    Type = TreeType.Blob,
-                    Sha = blobRef.Sha
-                };
-            } ).ToList();
-            List<NewTreeItem> newTreeItems = (await Task.WhenAll(newTreeItemTasks)).ToList();
+            List<CommitFile> addOrUpdateFiles = [.. files.Where( f => f.Operation == CommitOperation.AddOrUpdate && f.LocalPath != null )];
+            List<Task<NewTreeItem>> newTreeItemTasks = [
+                .. addOrUpdateFiles.Select( async file => {
+                    if(!File.Exists( file.LocalPath! )) throw new FileNotFoundException( "ファイルが存在しません", file.LocalPath );
+                    string content = await File.ReadAllTextAsync(file.LocalPath!);
+                    NewBlob newBlob = new() { Content = content, Encoding = EncodingType.Utf8 };
+                    BlobReference blobRef = await client.Git.Blob.Create(owner, repo, newBlob);
+                    return new NewTreeItem
+                    {
+                        Path = file.RepoPath,
+                        Mode = "100644",
+                        Type = TreeType.Blob,
+                        Sha = blobRef.Sha
+                    };
+                } )
+            ];
+            List<NewTreeItem> newTreeItems = [.. await Task.WhenAll(newTreeItemTasks)];
 
             NewTree newTree = new() { BaseTree = latestCommit.Tree.Sha };
             foreach(NewTreeItem item in newTreeItems) newTree.Tree.Add( item );
 
-            TreeResponse createdTreeRes = await client.Git.Tree.Create(_owner, _repo, newTree);
+            TreeResponse createdTreeRes = await client.Git.Tree.Create(owner, repo, newTree);
             NewCommit newCommit = new(message, createdTreeRes.Sha, latestCommit.Sha);
-            Commit commit = await client.Git.Commit.Create(_owner, _repo, newCommit);
-            await client.Git.Reference.Update( _owner, _repo, $"heads/{branchName}", new ReferenceUpdate( commit.Sha ) );
+            Commit commit = await client.Git.Commit.Create(owner, repo, newCommit);
+            await client.Git.Reference.Update( owner, repo, $"heads/{branchName}", new ReferenceUpdate( commit.Sha ) );
         }
         catch(ApiException ex) {
             throw new Exception( "GitHub API の呼び出しに失敗しました", ex );
@@ -122,9 +111,9 @@ public class GitHubApiClient : IGitHubApiClient {
     public async Task CreateBranchAsync( string sourceBranch, string newBranch ) {
         try {
             IGitHubClient client = await InstallationClientGenerator();
-            var gitRef = await client.Git.Reference.Get(_owner, _repo, $"heads/{sourceBranch}");
+            var gitRef = await client.Git.Reference.Get(owner, repo, $"heads/{sourceBranch}");
             var newRef =  new NewReference( $"refs/heads/{newBranch}", gitRef.Object.Sha );
-            await client.Git.Reference.Create( _owner, _repo, newRef );
+            await client.Git.Reference.Create( owner, repo, newRef );
         }
         catch(ApiException ex) {
             throw new Exception( "GitHub API の呼び出しに失敗しました", ex );
@@ -140,7 +129,7 @@ public class GitHubApiClient : IGitHubApiClient {
         try {
             IGitHubClient client = await InstallationClientGenerator();
             var newPR = new NewPullRequest(title, sourceBranch, targetBranch){Body = message};
-            await client.PullRequest.Create(_owner, _repo, newPR);
+            await client.PullRequest.Create( owner, repo, newPR );
         }
         catch(ApiException ex) {
             throw new Exception( "GitHub API の呼び出しに失敗しました", ex );
@@ -151,7 +140,7 @@ public class GitHubApiClient : IGitHubApiClient {
     public async Task<byte[]> GetFileAsync( string path, string branch = "master" ) {
         try {
             IGitHubClient client = await InstallationClientGenerator();
-            var files = await client.Repository.Content.GetAllContentsByRef(_owner, _repo, path, branch);
+            var files = await client.Repository.Content.GetAllContentsByRef(owner, repo, path, branch);
             return System.Text.Encoding.UTF8.GetBytes( files[0].Content );
         }
         catch(ApiException ex) {
@@ -163,8 +152,8 @@ public class GitHubApiClient : IGitHubApiClient {
     public async Task<IReadOnlyList<TreeItem>> GetRepositoryTreeAsync( string branch = "master" ) {
         try {
             IGitHubClient client = await InstallationClientGenerator();
-            var gitRef = await client.Git.Reference.Get(_owner, _repo, $"heads/{branch}");
-            var tree = await client.Git.Tree.GetRecursive(_owner, _repo, gitRef.Object.Sha);
+            var gitRef = await client.Git.Reference.Get(owner, repo, $"heads/{branch}");
+            var tree = await client.Git.Tree.GetRecursive(owner, repo, gitRef.Object.Sha);
             return tree.Tree;
         }
         catch(ApiException ex) {
@@ -177,19 +166,19 @@ public class GitHubApiClient : IGitHubApiClient {
             new GitHubJwt.EnvironmentVariablePrivateKeySource("PRIVATE_KEY"),
             new GitHubJwt.GitHubJwtFactoryOptions
             {
-                AppIntegrationId = _appId,
+                AppIntegrationId = appId,
                 ExpirationSeconds = 600   // 10 minutes is the maximum time allowed
             }
         );
         var jwtToken = generator.CreateEncodedJwtToken();
         var credential = new Credentials( jwtToken , AuthenticationType.Bearer);
-        var appClient = new GitHubClient( new ProductHeaderValue(_appName) )
+        var appClient = new GitHubClient( new ProductHeaderValue(appName) )
         {
             Credentials = credential
         };
-        var installationToken = await appClient.GitHubApps.CreateInstallationToken( _installationId );
+        var installationToken = await appClient.GitHubApps.CreateInstallationToken( installationId );
         var token = installationToken.Token;
-        var installationClient = new GitHubClient( new ProductHeaderValue( _appName ) )
+        var installationClient = new GitHubClient( new ProductHeaderValue( appName ) )
         {
             Credentials = new Credentials( token, AuthenticationType.Oauth )
         };

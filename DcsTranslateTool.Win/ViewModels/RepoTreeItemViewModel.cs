@@ -13,31 +13,27 @@ public class RepoTreeItemViewModel : BindableBase {
     /// <summary>
     /// 名称を取得する
     /// </summary>
-    public string Name { get; }
+    public string Name => this.Model.Name;
 
     /// <summary>
     /// 絶対パスを取得する
     /// </summary>
-    public string AbsolutePath { get; }
+    public string AbsolutePath => this.Model.AbsolutePath;
 
     /// <summary>
     /// ディレクトリかどうかを取得する
     /// </summary>
-    public bool IsDirectory {
-        get => _isChecked;
-        set {
-            if(SetProperty( ref _isChecked, value ) && IsDirectory) {
-                foreach(var child in Children) {
-                    child.SetCheckedRecursive( value );
-                }
-            }
-        }
-    }
+    public bool IsDirectory => this.Model.IsDirectory;
 
     /// <summary>
     /// 子ノードを取得する
     /// </summary>
-    public ObservableCollection<RepoTreeItemViewModel> Children { get; } = [];
+    public ObservableCollection<RepoTreeItemViewModel> Children { get; }
+
+    /// <summary>
+    /// モデル本体を必要に応じて取得できるプロパティ
+    /// </summary>
+    public RepoTree Model { get; }
 
     /// <summary>
     /// チェック状態を取得または設定する。
@@ -57,12 +53,12 @@ public class RepoTreeItemViewModel : BindableBase {
     /// <summary>
     /// <see cref="RepoTreeItemViewModel"/> の新しいインスタンスを生成する
     /// </summary>
-    /// <param name="tree">基となる <see cref="RepoTree"/></param>
-    public RepoTreeItemViewModel( RepoTree? tree = null ) {
-        Name = tree?.Name ?? "初期値";
-        AbsolutePath = tree?.AbsolutePath ?? "初期値";
-        IsDirectory = tree?.IsDirectory ?? false;
-        tree?.Children.ForEach( child => Children.Add( new RepoTreeItemViewModel( child ) ) );
+    /// <param name="model">基となる <see cref="RepoTree"/></param>
+    public RepoTreeItemViewModel( RepoTree model ) {
+        this.Model = model;
+
+        Children = new ObservableCollection<RepoTreeItemViewModel>(
+            this.Model.Children.Select( c => new RepoTreeItemViewModel( c ) ) );
     }
 
     /// <summary>

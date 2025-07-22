@@ -6,4 +6,5 @@
 /// </summary>
 public enum CommitOperation {
     AddOrUpdate,
+    Delete,
 }

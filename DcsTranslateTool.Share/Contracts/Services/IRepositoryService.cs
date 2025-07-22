@@ -29,7 +29,7 @@ public interface IRepositoryService {
     /// ファイルをコミットする
     /// </summary>
     /// <param name="branchName">コミット先ブランチ名</param>
-    /// <param name="paths">コミットするローカルパス一覧</param>
+    /// <param name="files">コミットするローカルパス一覧</param>
     /// <param name="message">コミットメッセージ</param>
     Task CommitAsync( string branchName, IEnumerable<CommitFile> files, string message );
 
@@ -37,7 +37,7 @@ public interface IRepositoryService {
     /// ファイルをコミットする
     /// </summary>
     /// <param name="branchName">コミット先ブランチ名</param>
-    /// <param name="path">コミットするローカルパス</param>
+    /// <param name="file">コミットするローカルパス</param>
     /// <param name="message">コミットメッセージ</param>
     Task CommitAsync( string branchName, CommitFile file, string message );
 
@@ -46,7 +46,7 @@ public interface IRepositoryService {
     /// </summary>
     /// <param name="branchName">PR のブランチ名</param>
     /// <param name="title">PR タイトル</param>
-    /// <param name="body">PR 本文</param>
+    /// <param name="message">PR 本文</param>
     /// <returns>作成されたプルリクエスト</returns>
     Task CreatePullRequestAsync( string branchName, string title, string message );
 }
