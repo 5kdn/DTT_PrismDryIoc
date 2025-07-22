@@ -1,49 +1,46 @@
-﻿using System.IO;
+﻿using System.Collections.ObjectModel;
+using System.IO;
 
 using DcsTranslateTool.Core.Contracts.Services;
-using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
+using DcsTranslateTool.Win.Models;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
-public class UploadViewModel : BindableBase, INavigationAware {
-    private readonly IAppSettingsService _appSettingsService;
-    private readonly IRegionManager _regionManager;
-    private readonly IDialogService _dialogService;
-    private readonly IFileService _fileService;
+public class UploadViewModel(
+    IAppSettingsService appSettingsService,
+    IRegionManager regionManager,
+    IDialogService dialogService,
+    IFileService fileService
+    ) : BindableBase, INavigationAware {
+    #region Fields
 
-    private FileTreeItemViewModel? _localAircraftRoot;
-    private FileTreeItemViewModel? _localDlcCampaignsRoot;
-    private int _selectedTabIndex;
+    private ObservableCollection<UploadTabItem> _tabs = [];
+    private int _selectedTabIndex = 0;
     private bool _isCreatePullRequestDialogButtonEnabled = true;
 
     private DelegateCommand? _openSettingsCommand;
     private DelegateCommand? _openCreatePullRequestDialogCommand;
     private DelegateCommand<FileTreeItemViewModel>? _loadLocalTreeCommand;
 
-    /// <summary>
-    /// ローカルのAircraftsフォルダツリー
-    /// </summary>
-    public FileTreeItemViewModel? LocalAircraftRoot {
-        get => _localAircraftRoot;
-        set => SetProperty( ref _localAircraftRoot, value );
-    }
+    #endregion
 
-    /// <summary>
-    /// ローカルのDLC Campaignsフォルダツリー
-    /// </summary>
-    public FileTreeItemViewModel? LocalDlcCampaignsRoot {
-        get => _localDlcCampaignsRoot;
-        set => SetProperty( ref _localDlcCampaignsRoot, value );
-    }
-
+    #region Properties
     /// <summary>
     /// 選択中のタブインデックス
     /// </summary>
     public int SelectedTabIndex {
         get => _selectedTabIndex;
         set => SetProperty( ref _selectedTabIndex, value );
+    }
+
+    ///<summary>
+    ///全てのタブ情報を取得する
+    /// </summary>
+    public ObservableCollection<UploadTabItem> Tabs {
+        get => _tabs;
+        set => SetProperty( ref _tabs, value );
     }
 
     /// <summary>
@@ -54,85 +51,30 @@ public class UploadViewModel : BindableBase, INavigationAware {
         set => SetProperty( ref _isCreatePullRequestDialogButtonEnabled, value );
     }
 
-    /// <summary>
-    /// ローカルツリーを読み込むコマンド
-    /// </summary>
-    public DelegateCommand<FileTreeItemViewModel> LoadLocalTreeCommand =>
-        _loadLocalTreeCommand ??= new DelegateCommand<FileTreeItemViewModel>( OnLoadLocalTree );
+    #endregion
+
+    #region Commands
 
     /// <summary>
     /// 設定画面を開くコマンド
     /// </summary>
     public DelegateCommand OpenSettingsCommand => _openSettingsCommand ??= new DelegateCommand( OnOpenSettings );
 
+    /// <summary>
+    /// ローカルツリーを取得するコマンド
+    /// </summary>
+    public DelegateCommand<FileTreeItemViewModel> LoadLocalTreeCommand =>
+        _loadLocalTreeCommand ??= new DelegateCommand<FileTreeItemViewModel>( OnLoadLocalTree );
+
+    /// <summary>
+    /// Pull Request 作成ダイアログを開くコマンド
+    /// </summary>
     public DelegateCommand OpenCreatePullRequestDialogCommand =>
         _openCreatePullRequestDialogCommand ??= new DelegateCommand( OnOpenCreatePullRequestDialog );
 
-    /// <summary>
-    /// ナビゲーションターゲットかどうかを示す
-    /// </summary>
-    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
-    /// <returns>常に true</returns>
-    public bool IsNavigationTarget( NavigationContext navigationContext ) => true;
+    #endregion
 
-    public UploadViewModel(
-        IAppSettingsService appSettingsService,
-        IRegionManager regionManager,
-        IDialogService dialogService,
-        IFileService fileService
-    ) {
-        _appSettingsService = appSettingsService;
-        _regionManager = regionManager;
-        _dialogService = dialogService;
-        _fileService = fileService;
-    }
-
-    private void OnLoadLocalTree( FileTreeItemViewModel node ) {
-        if(node == null) return;
-        node.UpdateChildren( _fileService );
-    }
-
-    /// <summary>
-    /// LocalAircraftRootをTranslateFileDirから初期化
-    /// </summary>
-    private void RefreshLocalAircraftTree() {
-        var path = Path.Join(
-            _appSettingsService.TranslateFileDir,
-            "DCSWorld",
-            "Mods",
-            "aircraft"
-        );
-        if(string.IsNullOrEmpty( path ) || !Directory.Exists( path )) {
-            var emptyRoot = new FileTree { Name = path, AbsolutePath = path, IsDirectory = true };
-            LocalAircraftRoot = new FileTreeItemViewModel( emptyRoot );
-            return;
-        }
-        FileTree tree = _fileService.GetFileTree( path );
-        var root = new FileTreeItemViewModel( tree );
-        root.UpdateChildren( _fileService );
-        LocalAircraftRoot = root;
-    }
-
-    /// <summary>
-    /// LocalDlcCampaignRootをTranslateFileDirから初期化
-    /// </summary>
-    private void RefreshLocalDlcCampaignTree() {
-        var path = Path.Join(
-            _appSettingsService.TranslateFileDir,
-            "DCSWorld",
-            "Mods",
-            "campaigns"
-        );
-        if(string.IsNullOrEmpty( path ) || !Directory.Exists( path )) {
-            var emptyRoot = new FileTree { Name = path, AbsolutePath = path, IsDirectory = true };
-            LocalDlcCampaignsRoot = new FileTreeItemViewModel( emptyRoot );
-            return;
-        }
-        FileTree tree = _fileService.GetFileTree( path );
-        var root = new FileTreeItemViewModel( tree );
-        root.UpdateChildren( _fileService );
-        LocalDlcCampaignsRoot = root;
-    }
+    #region Methods
 
     /// <summary>
     /// ナビゲーション前の処理を行う
@@ -145,14 +87,25 @@ public class UploadViewModel : BindableBase, INavigationAware {
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedTo( NavigationContext navigationContext ) {
-        RefreshLocalAircraftTree();
-        RefreshLocalDlcCampaignTree();
+        RefleshTabs();
     }
+
+    /// <summary>
+    /// ナビゲーションターゲットかどうかを示す
+    /// </summary>
+    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
+    /// <returns>常に true</returns>
+    public bool IsNavigationTarget( NavigationContext navigationContext ) => true;
 
     /// <summary>
     /// 設定ページに遷移する
     /// </summary>
-    private void OnOpenSettings() => _regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
+    private void OnOpenSettings() => regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
+
+    private void OnLoadLocalTree( FileTreeItemViewModel node ) {
+        if(node == null) return;
+        node.UpdateChildren();
+    }
 
     /// <summary>
     /// Pull Request作成ダイアログを開く
@@ -162,7 +115,7 @@ public class UploadViewModel : BindableBase, INavigationAware {
         var parameters = new DialogParameters(){
             {"files", new string[]{"files1", "files2", "files3" } }
         };
-        _dialogService.ShowDialog( PageKeys.CreatePullRequestDialog, parameters, r => {
+        dialogService.ShowDialog( PageKeys.CreatePullRequestDialog, parameters, r => {
             // ダイアログの処理
             if(r.Result == ButtonResult.OK) {
                 // OKボタンが押された場合の処理
@@ -174,4 +127,22 @@ public class UploadViewModel : BindableBase, INavigationAware {
             IsCreatePullRequestDialogButtonEnabled = true;
         } );
     }
+
+    /// <summary>
+    /// TabsをTranslateFileDirから初期化
+    /// </summary>
+    private void RefleshTabs() {
+        var aircraftTree = fileService.GetFileTree(
+            Path.Join( appSettingsService.TranslateFileDir, "DCSWorld", "Mods", "aircraft" )
+        );
+        var dlcCampaignsTree = fileService.GetFileTree(
+            Path.Join( appSettingsService.TranslateFileDir, "DCSWorld", "Mods", "campaigns" )
+        );
+        Tabs = [
+            new UploadTabItem("Aircraft"     , new FileTreeItemViewModel(aircraftTree)),
+            new UploadTabItem("DLC Campaigns", new FileTreeItemViewModel(dlcCampaignsTree))
+        ];
+    }
+
+    #endregion
 }

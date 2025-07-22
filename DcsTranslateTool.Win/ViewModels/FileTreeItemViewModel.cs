@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
+using System.IO;
 
-using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
 
 namespace DcsTranslateTool.Win.ViewModels;
@@ -12,22 +12,28 @@ public class FileTreeItemViewModel : BindableBase {
     private bool _isChecked;
 
     /// <summary>
-    /// 名前
+    /// 名称を取得する
     /// </summary>
     public string Name { get; }
 
     /// <summary>
-    /// 絶対パス
+    /// 絶対パスを取得する
     /// </summary>
     public string AbsolutePath { get; }
 
     /// <summary>
-    /// ディレクトリかどうか
+    /// ディレクトリかどうかを取得する
     /// </summary>
     public bool IsDirectory { get; }
 
     /// <summary>
-    /// チェック状態
+    /// 子ノードを取得する
+    /// </summary>
+    public ObservableCollection<FileTreeItemViewModel> Children { get; } = [];
+
+    /// <summary>
+    /// チェック状態を取得または設定する
+    /// ディレクトリの場合は子要素へ状態が伝搬する
     /// </summary>
     public bool IsChecked {
         get => _isChecked;
@@ -41,34 +47,15 @@ public class FileTreeItemViewModel : BindableBase {
     }
 
     /// <summary>
-    /// 子ノード
-    /// </summary>
-    public ObservableCollection<FileTreeItemViewModel> Children { get; } = new();
-
-    /// <summary>
     /// <see cref="FileTreeItemViewModel"/> の新しいインスタンスを生成する
     /// </summary>
     /// <param name="tree">基となる <see cref="FileTree"/></param>
-    public FileTreeItemViewModel( FileTree tree ) {
-        Name = tree.Name;
-        AbsolutePath = tree.AbsolutePath;
-        IsDirectory = tree.IsDirectory;
-        Children = new ObservableCollection<FileTreeItemViewModel>(
-            tree.Children.Select( child => new FileTreeItemViewModel( child ) )
-        );
-    }
+    public FileTreeItemViewModel( FileTree? tree = null ) {
+        Name = tree?.Name ?? "初期値";
+        AbsolutePath = tree?.AbsolutePath ?? "初期値";
+        IsDirectory = tree?.IsDirectory ?? false;
 
-    /// <summary>
-    /// 子要素を更新する
-    /// </summary>
-    /// <param name="fileService">ファイルサービス</param>
-    public void UpdateChildren( IFileService fileService ) {
-        if(!IsDirectory) return;
-        FileTree tree = fileService.GetFileTree( AbsolutePath );
-        Children.Clear();
-        foreach(FileTree child in tree.Children) {
-            Children.Add( new FileTreeItemViewModel( child ) );
-        }
+        tree?.Children.ForEach( child => Children.Add( new FileTreeItemViewModel( child ) ) );
     }
 
     /// <summary>
@@ -94,5 +81,24 @@ public class FileTreeItemViewModel : BindableBase {
                 yield return c;
             }
         }
+    }
+
+    /// <summary>
+    /// 子要素を更新する
+    /// </summary>
+    public void UpdateChildren() {
+        if(!IsDirectory) return;
+
+        var childrenPath = Directory.EnumerateFileSystemEntries( AbsolutePath ).Select( f => new FileTree
+        {
+            Name = Path.GetFileName( f ),
+            AbsolutePath = f,
+            IsDirectory = Directory.Exists( f ),
+        } )
+        .OrderBy( f => f.Name )
+        .ToList();
+
+        Children.Clear();
+        childrenPath.ForEach( child => Children.Add( new FileTreeItemViewModel( child ) ) );
     }
 }

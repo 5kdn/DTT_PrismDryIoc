@@ -41,61 +41,45 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <mah:MetroTabControl>
-                    <mah:MetroTabItem Header="Aircraft">
-                        <TreeView x:Name="LocalAircraftTree" ItemsSource="{Binding LocalAircraftRoot.Children}">
-                            <TreeView.ItemTemplate>
-                                <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <CheckBox IsChecked="{Binding IsChecked}"/>
-                                        <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
-                                        <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
-                                    </StackPanel>
-                                    <HierarchicalDataTemplate.Triggers>
-                                        <DataTrigger Binding="{Binding IsDirectory}" Value="True">
-                                            <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsDirectory}" Value="False">
-                                            <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
-                                        </DataTrigger>
-                                    </HierarchicalDataTemplate.Triggers>
-                                </HierarchicalDataTemplate>
-                            </TreeView.ItemTemplate>
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="SelectedItemChanged">
-                                    <i:InvokeCommandAction Command="{Binding LoadLocalTreeCommand}" CommandParameter="{Binding SelectedItem, ElementName=LocalAircraftTree}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </TreeView>
-                    </mah:MetroTabItem>
-
-                    <mah:MetroTabItem Header="DLC Campaigns">
-                        <TreeView x:Name="LocalDlcCampaignsTree" ItemsSource="{Binding LocalDlcCampaignsRoot.Children}">
-                            <TreeView.ItemTemplate>
-                                <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <CheckBox IsChecked="{Binding IsChecked}"/>
-                                        <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
-                                        <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
-                                    </StackPanel>
-                                    <HierarchicalDataTemplate.Triggers>
-                                        <DataTrigger Binding="{Binding IsDirectory}" Value="True">
-                                            <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsDirectory}" Value="False">
-                                            <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
-                                        </DataTrigger>
-                                    </HierarchicalDataTemplate.Triggers>
-                                </HierarchicalDataTemplate>
-                            </TreeView.ItemTemplate>
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="SelectedItemChanged">
-                                    <i:InvokeCommandAction Command="{Binding LoadLocalTreeCommand}" CommandParameter="{Binding SelectedItem, ElementName=LocalDlcCampaignsTree}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </TreeView>
-                    </mah:MetroTabItem>
-
+                <mah:MetroTabControl
+                    Margin="{StaticResource MediumLeftRightMargin}"
+                    SelectedIndex="{Binding SelectedTabIndex}"
+                    ItemsSource="{Binding Tabs}">
+                    <mah:MetroTabControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Title}"/>
+                        </DataTemplate>
+                    </mah:MetroTabControl.ItemTemplate>
+                    <mah:MetroTabControl.ContentTemplate>
+                        <DataTemplate>
+                            <TreeView x:Name="TreeViewControl" ItemsSource="{Binding LocalTree.Children}">
+                                <TreeView.ItemTemplate>
+                                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding IsChecked}"/>
+                                            <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
+                                            <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
+                                        </StackPanel>
+                                        <HierarchicalDataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                                                <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsDirectory}" Value="False">
+                                                <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
+                                            </DataTrigger>
+                                        </HierarchicalDataTemplate.Triggers>
+                                    </HierarchicalDataTemplate>
+                                </TreeView.ItemTemplate>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SelectedItemChanged">
+                                        <i:InvokeCommandAction
+                                            Command="{Binding DataContext.LoadLocalTreeCommand, RelativeSource={RelativeSource  AncestorType=UserControl}}"
+                                            CommandParameter="{Binding SelectedItem, ElementName=TreeViewControl}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </TreeView>
+                        </DataTemplate>
+                    </mah:MetroTabControl.ContentTemplate>
                 </mah:MetroTabControl>
 
                 <Button Grid.Row="2"
