@@ -1,34 +1,63 @@
+using System.Collections.ObjectModel;
 using System.IO;
 
 using DcsTranslateTool.Core.Contracts.Services;
-using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Share.Contracts.Services;
 using DcsTranslateTool.Share.Models;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
+using DcsTranslateTool.Win.Models;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
 /// <summary>
-/// メイン画面の表示ロジックを保持する ViewModel
+/// DownloadPageの表示ロジックを保持する ViewModel
 /// </summary>
-public class DownloadViewModel : BindableBase, INavigationAware {
-    private readonly IAppSettingsService _appSettingsService;
-    private readonly IRegionManager _regionManager;
-    private readonly IRepositoryService _repositoryService;
-    private readonly IFileService _fileService;
+/// <param name="appSettingsService">アプリ設定サービス</param>
+/// <param name="regionManager">ナビゲーション管理用の IRegionManager</param>
+/// <param name="repositoryService">リポジトリサービス</param>
+/// <param name="fileService">ファイルサービス</param>
+public class DownloadViewModel(
+    IAppSettingsService appSettingsService,
+    IRegionManager regionManager,
+    IRepositoryService repositoryService,
+    IFileService fileService
+    ) : BindableBase, INavigationAware {
+    #region Fields
 
-    private RepoTreeItemViewModel? _repoAircraftTree;
-    private RepoTreeItemViewModel? _repoDlcCampaignTree;
-    private FileTreeItemViewModel? _localAircraftRoot;
-    private FileTreeItemViewModel? _localDlcCampaignRoot;
+    private ObservableCollection<DownloadTabItem> _tabs = [];
     private int _selectedTabIndex;
 
     private DelegateCommand? _openSettingsCommand;
     private DelegateCommand? _fetchCommand;
     private DelegateCommand? _downloadCommand;
-    private DelegateCommand<FileTreeItemViewModel>? _loadLocalTreeCommand;
+    private DelegateCommand? _applyCommand;
     private DelegateCommand? _resetCheckCommand;
+    private DelegateCommand? _openDirectoryCommand;
+
+    #endregion
+
+    #region Properties
+
+    /// <summary>
+    /// 選択中のタブインデックス
+    /// </summary>
+    public int SelectedTabIndex {
+        get => _selectedTabIndex;
+        set => SetProperty( ref _selectedTabIndex, value );
+    }
+
+    ///<summary>
+    ///全てのタブ情報を取得する
+    /// </summary>
+    public ObservableCollection<DownloadTabItem> Tabs {
+        get => _tabs;
+        set => SetProperty( ref _tabs, value );
+    }
+
+    #endregion
+
+    #region Commands
 
     /// <summary>
     /// 設定画面を開くコマンド
@@ -41,15 +70,14 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     public DelegateCommand FetchCommand => _fetchCommand ??= new DelegateCommand( OnFetch );
 
     /// <summary>
-    /// ローカルツリーを読み込むコマンド
-    /// </summary>
-    public DelegateCommand<FileTreeItemViewModel> LoadLocalTreeCommand =>
-        _loadLocalTreeCommand ??= new DelegateCommand<FileTreeItemViewModel>( OnLoadLocalTree );
-
-    /// <summary>
     /// ファイルをダウンロードするコマンド
     /// </summary>
     public DelegateCommand DownloadCommand => _downloadCommand ??= new DelegateCommand( OnDownload );
+
+    /// <summary>
+    /// リポジトリ上のファイルをmizファイルに適用するコマンド
+    /// </summary>
+    public DelegateCommand ApplyCommand => _applyCommand ??= new DelegateCommand( OnApply );
 
     /// <summary>
     /// チェック状態をリセットするコマンド
@@ -57,66 +85,43 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     public DelegateCommand ResetCheckCommand => _resetCheckCommand ??= new DelegateCommand( OnResetCheck );
 
     /// <summary>
-    /// リポジトリの機体フォルダツリー
+    /// 翻訳ファイルを管理するディレクトリを開くコマンド
     /// </summary>
-    public RepoTreeItemViewModel? RepoAircraftTree {
-        get => _repoAircraftTree;
-        set => SetProperty( ref _repoAircraftTree, value );
+    public DelegateCommand OpenDirectoryCommand => _openDirectoryCommand ??= new DelegateCommand( OnOpenDirectory );
+
+    #endregion
+
+    #region Methods
+
+    /// <summary>
+    /// 設定ページに遷移する
+    /// </summary>
+    /// <summary>
+    /// ナビゲーション前の処理を行う
+    /// </summary>
+    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
+    public void OnNavigatedFrom( NavigationContext navigationContext ) { }
+
+    /// <summary>
+    /// ナビゲーション後の処理を行う
+    /// </summary>
+    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
+    public void OnNavigatedTo( NavigationContext navigationContext ) {
+        RefleshTabs();
     }
 
     /// <summary>
-    /// リポジトリのDLCキャンペーンフォルダツリー
+    /// ナビゲーションターゲットかどうかを示す
     /// </summary>
-    public RepoTreeItemViewModel? RepoDlcCampaignTree {
-        get => _repoDlcCampaignTree;
-        set => SetProperty( ref _repoDlcCampaignTree, value );
-    }
+    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
+    /// <returns>常に true</returns>
+    public bool IsNavigationTarget( NavigationContext navigationContext )
+        => true;
 
-    /// <summary>
-    /// ローカルの機体フォルダツリー
-    /// </summary>
-    public FileTreeItemViewModel? LocalAircraftRoot {
-        get => _localAircraftRoot;
-        set => SetProperty( ref _localAircraftRoot, value );
-    }
-
-    /// <summary>
-    /// ローカルのDLCキャンペーンフォルダツリー
-    /// </summary>
-    public FileTreeItemViewModel? LocalDlcCampaignRoot {
-        get => _localDlcCampaignRoot;
-        set => SetProperty( ref _localDlcCampaignRoot, value );
-    }
-
-    /// <summary>
-    /// 選択中のタブインデックス
-    /// </summary>
-    public int SelectedTabIndex {
-        get => _selectedTabIndex;
-        set => SetProperty( ref _selectedTabIndex, value );
-    }
-
-    /// <summary>
-    /// ViewModel の新しいインスタンスを生成する
-    /// </summary>
-    /// <param name="regionManager">ナビゲーション管理用の IRegionManager</param>
-    /// <param name="repositoryService">リポジトリサービス</param>
-    /// <param name="fileService">ファイルサービス</param>
-    /// <param name="appSettingsService">アプリ設定サービス</param>
-    public DownloadViewModel(
-        IAppSettingsService appSettingsService,
-        IRegionManager regionManager,
-        IRepositoryService repositoryService,
-        IFileService fileService
-    ) {
-        _appSettingsService = appSettingsService;
-        _regionManager = regionManager;
-        _repositoryService = repositoryService;
-        _fileService = fileService;
-    }
+    private void OnOpenSettings() => regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
 
     private async void OnFetch() {
-        var trees = await _repositoryService.GetRepositoryTreeAsync();
+        var trees = await repositoryService.GetRepositoryTreeAsync();
         var root = new RepoTree
         {
             Name = string.Empty,
@@ -126,43 +131,40 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         };
         var aircraft = FindRepoTree( root, "DCSWorld/Mods/aircraft" )
             ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
-        var dlc = FindRepoTree( root, "DCSWorld/Mods/campaigns" )
+        var dlcCampaigns = FindRepoTree( root, "DCSWorld/Mods/campaigns" )
             ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
-        RepoAircraftTree = new RepoTreeItemViewModel( aircraft );
-        RepoDlcCampaignTree = new RepoTreeItemViewModel( dlc );
-        RefreshLocalAircraftTree();
-        RefreshLocalDlcCampaignTree();
+        //RepoAircraftTree = new RepoTreeItemViewModel( aircraft );
+        //RepoDlcCampaignsTree = new RepoTreeItemViewModel( dlcCampaigns );
+        //_tabs[0].RepoTree = RepoAircraftTree;
+        //_tabs[1].RepoTree = RepoDlcCampaignsTree;
+        Tabs[0].RepoTree = new RepoTreeItemViewModel( aircraft );
+        Tabs[1].RepoTree = new RepoTreeItemViewModel( dlcCampaigns );
     }
 
-    private void OnLoadLocalTree( FileTreeItemViewModel node ) {
-        if(node == null) return;
-        node.UpdateChildren( _fileService );
-    }
-
-    private void RefreshLocalAircraftTree() {
-        var path = _appSettingsService.SourceAircraftDir;
-        if(string.IsNullOrEmpty( path ) || !Directory.Exists( path )) {
-            var emptyRoot = new FileTree { Name = path, AbsolutePath = path, IsDirectory = true };
-            LocalAircraftRoot = new FileTreeItemViewModel( emptyRoot );
-            return;
+    private async void OnDownload() {
+        var root = SelectedTabIndex >=0 && SelectedTabIndex < _tabs.Count
+            ? _tabs[SelectedTabIndex].RepoTree
+            : null;
+        if(root == null) return;
+        foreach(var item in root.GetCheckedFiles()) {
+            byte[] data = await repositoryService.GetFileAsync( item.AbsolutePath );
+            var savePath = Path.Combine( appSettingsService.TranslateFileDir, item.AbsolutePath );
+            await fileService.SaveAsync( savePath, data );
         }
-        FileTree tree = _fileService.GetFileTree( path );
-        var root = new FileTreeItemViewModel( tree );
-        root.UpdateChildren( _fileService );
-        LocalAircraftRoot = root;
     }
 
-    private void RefreshLocalDlcCampaignTree() {
-        var path = _appSettingsService.SourceDlcCampaignDir;
-        if(string.IsNullOrEmpty( path ) || !Directory.Exists( path )) {
-            var emptyRoot = new FileTree { Name = path, AbsolutePath = path, IsDirectory = true };
-            LocalDlcCampaignRoot = new FileTreeItemViewModel( emptyRoot );
-            return;
+    private void OnApply() {
+        // TODO: 選択されたファイルをmizファイルに適用する処理を実装
+    }
+
+    private void OnResetCheck() {
+        foreach(var tab in _tabs) {
+            tab.RepoTree?.SetCheckedRecursive( false );
         }
-        FileTree tree = _fileService.GetFileTree( path );
-        var root = new FileTreeItemViewModel( tree );
-        root.UpdateChildren( _fileService );
-        LocalDlcCampaignRoot = root;
+    }
+
+    private void OnOpenDirectory() {
+        // TODO: TranslateFileDirを開く処理を実装
     }
 
     private static RepoTree? FindRepoTree( RepoTree root, string path ) {
@@ -184,59 +186,15 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         return current;
     }
 
-    private async void OnDownload() {
-        RepoTreeItemViewModel? root;
-        switch(SelectedTabIndex) {
-            // Aircraft tab
-            case 0:
-                root = RepoAircraftTree;
-                break;
-            // DLC Campaign tab
-            case 1:
-                root = RepoDlcCampaignTree;
-                break;
-            default:
-                return;
-        }
-        if(root == null) return;
-        var items = root.GetCheckedFiles();
-        foreach(var item in root.GetCheckedFiles()) {
-            byte[] data = await _repositoryService.GetFileAsync( item.AbsolutePath );
-            var savePath = Path.Combine( _appSettingsService.TranslateFileDir, item.AbsolutePath );
-            await _fileService.SaveAsync( savePath, data );
-        }
+    /// <summary>
+    /// TabsをTranslateFileDirから初期化
+    /// </summary>
+    private void RefleshTabs() {
+        Tabs = [
+            new DownloadTabItem("Aircraft"     , new RepoTreeItemViewModel() ),
+            new DownloadTabItem("DLC Campaigns", new RepoTreeItemViewModel() )
+        ];
     }
 
-    private void OnResetCheck() {
-        RepoAircraftTree?.SetCheckedRecursive( false );
-        RepoDlcCampaignTree?.SetCheckedRecursive( false );
-    }
-
-    /// <summary>
-    /// ナビゲーション前の処理を行う
-    /// </summary>
-    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
-    public void OnNavigatedFrom( NavigationContext navigationContext ) { }
-
-    /// <summary>
-    /// ナビゲーション後の処理を行う
-    /// </summary>
-    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
-    public void OnNavigatedTo( NavigationContext navigationContext ) {
-        RefreshLocalAircraftTree();
-        RefreshLocalDlcCampaignTree();
-    }
-
-    /// <summary>
-    /// ナビゲーションターゲットかどうかを示す
-    /// </summary>
-    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
-    /// <returns>常に true</returns>
-    public bool IsNavigationTarget( NavigationContext navigationContext )
-        => true;
-
-    /// <summary>
-    /// 設定ページに遷移する
-    /// </summary>
-    private void OnOpenSettings() => _regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
+    #endregion
 }

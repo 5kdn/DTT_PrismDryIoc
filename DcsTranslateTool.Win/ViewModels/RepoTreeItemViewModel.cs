@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
-using System.Collections.Generic;
+
 using DcsTranslateTool.Share.Models;
-using Prism.Mvvm;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
@@ -29,7 +28,7 @@ public class RepoTreeItemViewModel : BindableBase {
     /// <summary>
     /// 子要素を取得する。
     /// </summary>
-    public ObservableCollection<RepoTreeItemViewModel> Children { get; } = new();
+    public ObservableCollection<RepoTreeItemViewModel> Children { get; } = [];
 
     /// <summary>
     /// チェック状態を取得または設定する。
@@ -38,9 +37,9 @@ public class RepoTreeItemViewModel : BindableBase {
     public bool IsChecked {
         get => _isChecked;
         set {
-            if(SetProperty(ref _isChecked, value) && IsDirectory) {
+            if(SetProperty( ref _isChecked, value ) && IsDirectory) {
                 foreach(var child in Children) {
-                    child.SetCheckedRecursive(value);
+                    child.SetCheckedRecursive( value );
                 }
             }
         }
@@ -50,13 +49,11 @@ public class RepoTreeItemViewModel : BindableBase {
     /// <see cref="RepoTreeItemViewModel"/> の新しいインスタンスを生成する。
     /// </summary>
     /// <param name="tree">元となる <see cref="RepoTree"/></param>
-    public RepoTreeItemViewModel( RepoTree tree ) {
-        Name = tree.Name;
-        AbsolutePath = tree.AbsolutePath;
-        IsDirectory = tree.IsDirectory;
-        foreach(var child in tree.Children) {
-            Children.Add( new RepoTreeItemViewModel( child ) );
-        }
+    public RepoTreeItemViewModel( RepoTree? tree = null ) {
+        Name = tree?.Name ?? "初期値";
+        AbsolutePath = tree?.AbsolutePath ?? "初期値";
+        IsDirectory = tree?.IsDirectory ?? false;
+        tree?.Children.ForEach( child => Children.Add( new RepoTreeItemViewModel( child ) ) );
     }
 
     /// <summary>
@@ -65,7 +62,7 @@ public class RepoTreeItemViewModel : BindableBase {
     /// <param name="value">設定する値</param>
     public void SetCheckedRecursive( bool value ) {
         _isChecked = value;
-        RaisePropertyChanged( nameof(IsChecked) );
+        RaisePropertyChanged( nameof( IsChecked ) );
         foreach(var child in Children) {
             child.SetCheckedRecursive( value );
         }

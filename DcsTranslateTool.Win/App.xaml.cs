@@ -27,7 +27,7 @@ namespace DcsTranslateTool.Win;
 // If you need to support other cultures make sure you add converters and review dates and numbers in your UI to ensure everything adapts correctly.
 // Tracking issue for improving this is https://github.com/dotnet/wpf/issues/1946
 public partial class App : PrismApplication {
-    private string[] _startUpArgs;
+    private string[] _startUpArgs = [];
 
     public App() { }
 
@@ -77,7 +77,7 @@ public partial class App : PrismApplication {
         var configuration = BuildConfiguration();
         var appConfig = configuration
             .GetSection(nameof(AppConfig))
-            .Get<AppConfig>();
+            .Get<AppConfig>() ?? throw new InvalidOperationException("AppConfig section is missing or invalid.");
 
         // Register configurations to IoC
         containerRegistry.RegisterInstance<IConfiguration>( configuration );
@@ -86,12 +86,15 @@ public partial class App : PrismApplication {
         // カスタム引数
         var dryIoc = containerRegistry.GetContainer();
         dryIoc.RegisterDelegate<IRepositoryService>(
-            r => new RepositoryService( new GitHubApiClient( "5kdn", "test_DCS", "DCSTranslateTool", 1510695, 74330212 ) ),
+            () => new RepositoryService( new GitHubApiClient( "5kdn", "test_DCS", "DCSTranslateTool", 1510695, 74330212 ) ),
             DryIoc.Reuse.Transient );
     }
 
     private IConfiguration BuildConfiguration() {
-        var appLocation = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+        var entryAssembly = Assembly.GetEntryAssembly()
+            ?? throw new InvalidOperationException("Could not determine entry assembly.");
+        var appLocation = Path.GetDirectoryName( entryAssembly.Location )
+            ?? throw new InvalidOperationException("Could not determine application directory.");
         return new ConfigurationBuilder()
             .SetBasePath( appLocation )
             .AddJsonFile( "appsettings.json" )
