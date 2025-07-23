@@ -1,8 +1,10 @@
 ﻿using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Services;
 using DcsTranslateTool.Win.Contracts.Services;
+using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 using DcsTranslateTool.Win.Services;
 using DcsTranslateTool.Win.ViewModels;
+using DcsTranslateTool.Win.ViewModels.Factories;
 
 using Moq;
 
@@ -21,6 +23,7 @@ public class UploadViewModelTests {
         _container.Register<IFileService, FileService>( Reuse.Transient );
         // ViewModels
         _container.Register<UploadViewModel>( Reuse.Singleton );
+        _container.Register<IFileEntryViewModelFactory, FileEntryViewModelFactory>( Reuse.Singleton );
     }
 
     [Fact( DisplayName = "UploadViewModelが正常に生成できる" )]
