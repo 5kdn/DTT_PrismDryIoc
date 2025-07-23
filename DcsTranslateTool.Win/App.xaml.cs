@@ -10,10 +10,12 @@ using DcsTranslateTool.Share.Services;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Providers;
 using DcsTranslateTool.Win.Contracts.Services;
+using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 using DcsTranslateTool.Win.Models;
 using DcsTranslateTool.Win.Providers;
 using DcsTranslateTool.Win.Services;
 using DcsTranslateTool.Win.ViewModels;
+using DcsTranslateTool.Win.ViewModels.Factories;
 using DcsTranslateTool.Win.Views;
 
 using Microsoft.Extensions.Configuration;
@@ -51,6 +53,7 @@ public partial class App : PrismApplication {
 
     protected override void RegisterTypes( IContainerRegistry containerRegistry ) {
         // Core Services
+        containerRegistry.Register<IFileEntryService, FileEntryService>();
         containerRegistry.Register<IFileService, FileService>();
 
         // Share Service
@@ -64,6 +67,9 @@ public partial class App : PrismApplication {
         containerRegistry.Register<IDialogProvider, DialogProvider>();
         containerRegistry.Register<IEnvironmentProvider, EnvironmentProvider>();
         containerRegistry.Register<IAppSettingsService, AppSettingsService>();
+
+        // ViewModel Factories
+        containerRegistry.Register<IFileEntryViewModelFactory, FileEntryViewModelFactory>();
 
         // Views
         containerRegistry.RegisterForNavigation<MainPage, MainViewModel>( PageKeys.Main );

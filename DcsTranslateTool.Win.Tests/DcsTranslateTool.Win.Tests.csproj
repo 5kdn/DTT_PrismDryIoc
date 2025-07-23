@@ -40,7 +40,4 @@
     <ProjectReference Include="..\DcsTranslateTool.Core\DcsTranslateTool.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-  </ItemGroup>
-
 </Project>

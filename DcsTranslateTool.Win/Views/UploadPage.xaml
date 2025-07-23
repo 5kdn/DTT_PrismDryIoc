@@ -7,6 +7,7 @@
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:vm="clr-namespace:DcsTranslateTool.Win.ViewModels"
     Style="{StaticResource BaseUserControlStyle}"
     mc:Ignorable="d">
     <Grid>
@@ -46,17 +47,22 @@
                     SelectedIndex="{Binding SelectedTabIndex}"
                     ItemsSource="{Binding Tabs}">
                     <mah:MetroTabControl.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate DataType="{x:Type vm:UploadTabItemViewModel}">
                             <TextBlock Text="{Binding Title}"/>
                         </DataTemplate>
                     </mah:MetroTabControl.ItemTemplate>
                     <mah:MetroTabControl.ContentTemplate>
-                        <DataTemplate>
-                            <TreeView x:Name="TreeViewControl" ItemsSource="{Binding LocalTree.Children}">
+                        <DataTemplate DataType="{x:Type vm:UploadTabItemViewModel}">
+                            <TreeView x:Name="TreeViewControl" ItemsSource="{Binding Root.Children}">
+                                <TreeView.ItemContainerStyle>
+                                    <Style TargetType="TreeViewItem">
+                                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                                    </Style>
+                                </TreeView.ItemContainerStyle>
                                 <TreeView.ItemTemplate>
                                     <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                         <StackPanel Orientation="Horizontal">
-                                            <CheckBox IsChecked="{Binding IsChecked}"/>
+                                            <CheckBox IsChecked="{Binding IsSelected}"/>
                                             <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
                                             <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
                                         </StackPanel>

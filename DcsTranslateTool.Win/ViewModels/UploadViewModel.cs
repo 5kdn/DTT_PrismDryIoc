@@ -1,10 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
 
-using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
-using DcsTranslateTool.Win.Models;
+using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
@@ -12,17 +11,17 @@ public class UploadViewModel(
     IAppSettingsService appSettingsService,
     IRegionManager regionManager,
     IDialogService dialogService,
-    IFileService fileService
+    IFileEntryViewModelFactory fileEntryViewModelFactory
     ) : BindableBase, INavigationAware {
     #region Fields
 
-    private ObservableCollection<UploadTabItem> _tabs = [];
+    private ObservableCollection<UploadTabItemViewModel> _tabs = [];
     private int _selectedTabIndex = 0;
-    private bool _isCreatePullRequestDialogButtonEnabled = true;
+    private bool _isCreatePullRequestDialogButtonEnabled = false;
 
     private DelegateCommand? _openSettingsCommand;
     private DelegateCommand? _openCreatePullRequestDialogCommand;
-    private DelegateCommand<FileTreeItemViewModel>? _loadLocalTreeCommand;
+    private DelegateCommand<object?>? _loadLocalTreeCommand;
 
     #endregion
 
@@ -38,7 +37,7 @@ public class UploadViewModel(
     ///<summary>
     ///全てのタブ情報を取得する
     /// </summary>
-    public ObservableCollection<UploadTabItem> Tabs {
+    public ObservableCollection<UploadTabItemViewModel> Tabs {
         get => _tabs;
         set => SetProperty( ref _tabs, value );
     }
@@ -63,8 +62,8 @@ public class UploadViewModel(
     /// <summary>
     /// ローカルツリーを取得するコマンド
     /// </summary>
-    public DelegateCommand<FileTreeItemViewModel> LoadLocalTreeCommand =>
-        _loadLocalTreeCommand ??= new DelegateCommand<FileTreeItemViewModel>( OnLoadLocalTree );
+    public DelegateCommand<object?> LoadLocalTreeCommand =>
+        _loadLocalTreeCommand ??= new DelegateCommand<object?>( OnLoadLocalTree );
 
     /// <summary>
     /// Pull Request 作成ダイアログを開くコマンド
@@ -102,9 +101,12 @@ public class UploadViewModel(
     /// </summary>
     private void OnOpenSettings() => regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
 
-    private void OnLoadLocalTree( FileTreeItemViewModel node ) {
-        if(node == null) return;
-        node.UpdateChildren();
+    private void OnLoadLocalTree( object? parameter ) {
+        if(parameter is not FileEntryViewModel node) return;
+
+        if(node.IsChildrenLoaded) return;
+        node.LoadChildren();
+        node.IsChildrenLoaded = true;
     }
 
     /// <summary>
@@ -132,16 +134,16 @@ public class UploadViewModel(
     /// TabsをTranslateFileDirから初期化
     /// </summary>
     private void RefleshTabs() {
-        var aircraftTree = fileService.GetFileTree(
-            Path.Join( appSettingsService.TranslateFileDir, "DCSWorld", "Mods", "aircraft" )
-        );
-        var dlcCampaignsTree = fileService.GetFileTree(
-            Path.Join( appSettingsService.TranslateFileDir, "DCSWorld", "Mods", "campaigns" )
-        );
+        var aircraftPath = Path.Join( appSettingsService.TranslateFileDir, "DCSWorld", "Mods", "aircraft");
+        var dlcCampaignsPath = Path.Join( appSettingsService.TranslateFileDir, "DCSWorld", "Mods", "campaigns" );
         Tabs = [
-            new UploadTabItem("Aircraft"     , new FileTreeItemViewModel(aircraftTree)),
-            new UploadTabItem("DLC Campaigns", new FileTreeItemViewModel(dlcCampaignsTree))
+            new UploadTabItemViewModel("Aircraft"     , fileEntryViewModelFactory.Create(aircraftPath, true)),
+            new UploadTabItemViewModel("DLC Campaigns", fileEntryViewModelFactory.Create(dlcCampaignsPath, true))
         ];
+        foreach(var tab in Tabs) {
+            tab.Root.LoadChildren();
+            tab.Root.IsChildrenLoaded = true;
+        }
     }
 
     #endregion

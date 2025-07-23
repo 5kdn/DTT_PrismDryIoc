@@ -151,7 +151,7 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
             // TODO: PR作成処理をここに実装
             RequestClose.Invoke( new DialogResult( ButtonResult.OK ) );
         }
-        catch(Exception ex) {
+        catch {
             // TODO: ユーザーにエラー通知
             RequestClose.Invoke( new DialogResult( ButtonResult.Abort ) );
         }
