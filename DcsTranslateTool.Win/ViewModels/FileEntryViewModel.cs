@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
 
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
@@ -58,9 +57,7 @@ public class FileEntryViewModel : BindableBase {
     }
 
     public void LoadChildren() {
-        Debug.WriteLine( $"LoadChildren is called in {this.Name}" );
         if(!this.Model.IsDirectory || childrenLoaded) return;
-        Debug.WriteLine( "continuous" );
         childrenLoaded = true;
         Children.Clear();
         try {
