@@ -12,10 +12,10 @@ public class FileEntryService : IFileEntryService {
             dirs = Directory.GetDirectories( entry.AbsolutePath );
             files = Directory.GetFiles( entry.AbsolutePath );
         }
-        catch(Exception ex) {
+        catch {
             yield break;
         }
-        foreach(var dir in dirs) yield return new FileEntry( dir, true );
-        foreach(var file in files) yield return new FileEntry( file, false );
+        foreach(var dir in dirs) yield return new FileEntry( Path.GetFileName( dir ), dir, true );
+        foreach(var file in files) yield return new FileEntry( Path.GetFileName( file ), file, false );
     }
 }

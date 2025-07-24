@@ -1,4 +1,5 @@
-﻿using DcsTranslateTool.Share.Models;
+﻿using DcsTranslateTool.Core.Models;
+using DcsTranslateTool.Share.Models;
 
 namespace DcsTranslateTool.Share.Contracts.Services;
 
@@ -7,10 +8,10 @@ namespace DcsTranslateTool.Share.Contracts.Services;
 /// </summary>
 public interface IRepositoryService {
     /// <summary>
-    /// リポジトリツリーを取得する
+    /// リポジトリのファイルリスト<see cref="RepoEntry">を取得する
     /// </summary>
-    /// <returns>リポジトリツリー</returns>
-    Task<List<RepoTree>> GetRepositoryTreeAsync();
+    /// <returns>リポジトリエントリー</returns>
+    Task<List<RepoEntry>> GetRepositoryEntryAsync();
 
     /// <summary>
     /// ファイルをバイナリ形式で取得する

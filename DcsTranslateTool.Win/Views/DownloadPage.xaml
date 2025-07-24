@@ -47,17 +47,22 @@
             ItemsSource="{Binding Tabs}">
 
             <mah:MetroTabControl.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate DataType="{x:Type vm:DownloadTabItemViewModel}">
                     <TextBlock Text="{Binding Title}"/>
                 </DataTemplate>
             </mah:MetroTabControl.ItemTemplate>
             <mah:MetroTabControl.ContentTemplate>
-                <DataTemplate>
-                    <TreeView ItemsSource="{Binding RepoTree.Children}">
+                <DataTemplate DataType="{x:Type vm:DownloadTabItemViewModel}">
+                    <TreeView x:Name="TreeViewControl" ItemsSource="{Binding Root.Children}">
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="TreeViewItem">
+                                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                            </Style>
+                        </TreeView.ItemContainerStyle>
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                <StackPanel x:Name="ItemPanel" Orientation="Horizontal">
-                                    <CheckBox IsChecked="{Binding IsChecked}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox IsChecked="{Binding IsSelected}" />
                                     <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
                                     <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
                                 </StackPanel>

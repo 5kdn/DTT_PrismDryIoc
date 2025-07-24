@@ -1,4 +1,6 @@
-﻿using DcsTranslateTool.Core.Contracts.Services;
+﻿using System.IO;
+
+using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 
@@ -13,6 +15,6 @@ public class FileEntryViewModelFactory( IResolverContext resolver ) : IFileEntry
 
     /// <inheritdoc />
     public FileEntryViewModel Create( string absolutePath, bool isDirectory ) {
-        return Create( new FileEntry( absolutePath, isDirectory ) );
+        return Create( new FileEntry( Path.GetFileName( absolutePath ), absolutePath, isDirectory ) );
     }
 }

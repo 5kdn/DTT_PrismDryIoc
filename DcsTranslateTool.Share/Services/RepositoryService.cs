@@ -1,4 +1,5 @@
-﻿using DcsTranslateTool.Share.Contracts.Services;
+﻿using DcsTranslateTool.Core.Models;
+using DcsTranslateTool.Share.Contracts.Services;
 using DcsTranslateTool.Share.Models;
 
 using Octokit;
@@ -9,17 +10,9 @@ public class RepositoryService( IGitHubApiClient gitHubApiClient ) : IRepository
     private const string MainBranch = "master";
 
     /// <inheritdoc/>
-    public async Task<List<RepoTree>> GetRepositoryTreeAsync() {
-        RepoTree root = new()
-        {
-            Name ="",
-            AbsolutePath = "",
-            IsDirectory = true,
-        };
+    public async Task<List<RepoEntry>> GetRepositoryEntryAsync() {
         var tree = await gitHubApiClient.GetRepositoryTreeAsync( MainBranch );
-        tree.ToList().ForEach( item => AddTreeToModel( root, item ) );
-
-        return root.Children;
+        return [.. tree.Select( treeItem => ConvertTreeItemToRepoEntry( treeItem ) )];
     }
 
     /// <inheritdoc/>
@@ -42,26 +35,16 @@ public class RepositoryService( IGitHubApiClient gitHubApiClient ) : IRepository
         await gitHubApiClient.CreatePullRequestAsync( branchName, MainBranch, title, message );
 
     /// <summary>
-    /// Octokitの<see cref="TreeItem"/>を<see cref="IRepoTreeModel"/>に変換して、ツリー構造をモデルに追加する。
+    /// Octokitの<see cref="TreeItem"/>を<see cref="RepoEntry"/>に変換する
     /// </summary>
-    /// <param name="root">ツリーのルートオブジェクト</param>
-    /// <param name="item">ツリーに追加するアイテム</param>
-    private static void AddTreeToModel( RepoTree root, TreeItem item ) {
-        var parts = item.Path.Split( '/' );
-        var current = root;
+    /// <param name="item">ソースの<see cref="TreeItem"/></param>
+    /// <returns>変換した<see cref="RepoEntry"/></returns>
+    private static RepoEntry ConvertTreeItemToRepoEntry( TreeItem item ) {
+        var path = item.Path;
+        var pathParts = path.Split( '/' );
+        var name = pathParts[^1];
+        var isDirectory = item.Type == TreeType.Tree;
 
-        parts[..^1].ToList().ForEach( part => {
-            var next = current.Children.FirstOrDefault( c => c.Name == part && c.IsDirectory );
-            if(next == null) {
-                next = new RepoTree { Name = part, AbsolutePath = item.Path, IsDirectory = true };
-                current.Children.Add( next );
-            }
-            current = next;
-        } );
-
-        var last = parts[^1];
-        if(!current.Children.Any( c => c.Name == last )) {
-            current.Children.Add( new RepoTree { Name = last, AbsolutePath = item.Path, IsDirectory = item.Type == TreeType.Tree } );
-        }
+        return new RepoEntry( name, path, isDirectory );
     }
 }

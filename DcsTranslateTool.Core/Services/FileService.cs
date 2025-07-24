@@ -1,7 +1,6 @@
 ﻿using System.Text;
 
 using DcsTranslateTool.Core.Contracts.Services;
-using DcsTranslateTool.Core.Models;
 
 using Newtonsoft.Json;
 
@@ -13,10 +12,8 @@ namespace DcsTranslateTool.Core.Services;
 public class FileService : IFileService {
     /// <inheritdoc/>
     public T? ReadFromJson<T>( string folderPath, string fileName ) {
-        if(string.IsNullOrWhiteSpace( folderPath ))
-            throw new ArgumentException( "値が null または空です", nameof( folderPath ) );
-        if(string.IsNullOrWhiteSpace( fileName ))
-            throw new ArgumentException( "値が null または空です", nameof( fileName ) );
+        if(string.IsNullOrWhiteSpace( folderPath )) throw new ArgumentException( "値が空です", nameof( folderPath ) );
+        if(string.IsNullOrWhiteSpace( fileName )) throw new ArgumentException( "値が空です", nameof( fileName ) );
 
         var path = Path.Combine( folderPath, fileName );
         if(!File.Exists( path )) return default;
@@ -59,9 +56,9 @@ public class FileService : IFileService {
     /// <inheritdoc/>
     public void Delete( string folderPath, string fileName ) {
         if(string.IsNullOrWhiteSpace( folderPath ))
-            throw new ArgumentException( "値が null または空です", nameof( folderPath ) );
+            throw new ArgumentException( "値が空です", nameof( folderPath ) );
         if(string.IsNullOrWhiteSpace( fileName ))
-            throw new ArgumentException( "値が null または空です", nameof( fileName ) );
+            throw new ArgumentException( "値が空です", nameof( fileName ) );
 
         var path = Path.Combine( folderPath, fileName );
         if(!File.Exists( path )) return;
@@ -71,35 +68,6 @@ public class FileService : IFileService {
         }
         catch(IOException ex) {
             throw new IOException( $"ファイルの削除に失敗した: {path}", ex );
-        }
-    }
-
-    /// <inheritdoc/>
-    public FileTree GetFileTree( string directoryPath ) {
-        if(!Directory.Exists( directoryPath ))
-            throw new DirectoryNotFoundException( $"不正なディレクトリパスが指定されました: {directoryPath}" );
-
-        try {
-            var trimmedPath = directoryPath.TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar );
-            return new FileTree
-            {
-                Name = Path.GetFileName( directoryPath ),
-                AbsolutePath = directoryPath,
-                IsDirectory = true,
-                Children = [
-                    .. Directory.EnumerateFileSystemEntries( directoryPath )
-                    .Select( f => new FileTree
-                    {
-                        Name = Path.GetFileName( f ),
-                        AbsolutePath = f,
-                        IsDirectory = Directory.Exists( f ),
-                    } )
-                    .OrderBy( f => f.Name )
-                ]
-            };
-        }
-        catch(IOException ex) {
-            throw new IOException( $"ファイルツリーの取得に失敗した: {directoryPath}", ex );
         }
     }
 

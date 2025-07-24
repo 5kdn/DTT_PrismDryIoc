@@ -1,6 +1,7 @@
 ﻿namespace DcsTranslateTool.Win.Models;
-public class PullRequestChangeKindItem : BindableBase {
-    public PullRequestChangeKind Kind { get; }
+// TODO: VM化
+public class PullRequestChangeKindItem( PullRequestChangeKind kind ) : BindableBase {
+    public PullRequestChangeKind Kind { get; } = kind;
     public string DisplayName => Kind.ToString();
 
     private bool _isChecked;
@@ -8,6 +9,4 @@ public class PullRequestChangeKindItem : BindableBase {
         get => _isChecked;
         set => SetProperty( ref _isChecked, value );
     }
-
-    public PullRequestChangeKindItem( PullRequestChangeKind kind ) => Kind = kind;
 }
