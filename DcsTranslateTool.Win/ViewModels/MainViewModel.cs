@@ -2,9 +2,7 @@
 
 namespace DcsTranslateTool.Win.ViewModels;
 
-public class MainViewModel : BindableBase, INavigationAware {
-    private readonly IRegionManager _regionManager;
-
+public class MainViewModel( IRegionManager regionManager ) : BindableBase, INavigationAware {
     private DelegateCommand? _openSettingsCommand;
     private DelegateCommand? _openDownloadCommand;
     private DelegateCommand? _openUploadCommand;
@@ -23,11 +21,6 @@ public class MainViewModel : BindableBase, INavigationAware {
     /// アップロード画面を開くコマンド
     /// </summary>
     public DelegateCommand OpenUploadCommand => _openUploadCommand ??= new DelegateCommand( OnOpenUpload );
-
-
-    public MainViewModel( IRegionManager regionManager ) {
-        _regionManager = regionManager;
-    }
 
     /// <summary>
     /// ナビゲーションターゲットかどうかを示す
@@ -48,9 +41,9 @@ public class MainViewModel : BindableBase, INavigationAware {
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedTo( NavigationContext navigationContext ) { }
 
-    private void OnOpenSettings() => _regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
+    private void OnOpenSettings() => regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
 
-    private void OnOpenDownload() => _regionManager.RequestNavigate( Regions.Main, PageKeys.Download );
+    private void OnOpenDownload() => regionManager.RequestNavigate( Regions.Main, PageKeys.Download );
 
-    private void OnOpenUpload() => _regionManager.RequestNavigate( Regions.Main, PageKeys.Upload );
+    private void OnOpenUpload() => regionManager.RequestNavigate( Regions.Main, PageKeys.Upload );
 }

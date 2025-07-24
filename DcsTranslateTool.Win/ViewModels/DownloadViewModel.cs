@@ -2,11 +2,12 @@ using System.Collections.ObjectModel;
 using System.IO;
 
 using DcsTranslateTool.Core.Contracts.Services;
+using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Share.Contracts.Services;
-using DcsTranslateTool.Share.Models;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
-using DcsTranslateTool.Win.Models;
+
+using DryIoc.ImTools;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
@@ -25,7 +26,7 @@ public class DownloadViewModel(
     ) : BindableBase, INavigationAware {
     #region Fields
 
-    private ObservableCollection<DownloadTabItem> _tabs = [];
+    private ObservableCollection<DownloadTabItemViewModel> _tabs = [];
     private int _selectedTabIndex;
 
     private DelegateCommand? _openSettingsCommand;
@@ -50,7 +51,7 @@ public class DownloadViewModel(
     ///<summary>
     ///全てのタブ情報を取得する
     /// </summary>
-    public ObservableCollection<DownloadTabItem> Tabs {
+    public ObservableCollection<DownloadTabItemViewModel> Tabs {
         get => _tabs;
         set => SetProperty( ref _tabs, value );
     }
@@ -104,7 +105,7 @@ public class DownloadViewModel(
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedTo( NavigationContext navigationContext ) {
-        RefleshTabs();
+        OnFetch();
     }
 
     /// <summary>
@@ -120,35 +121,33 @@ public class DownloadViewModel(
     /// </summary>
     private void OnOpenSettings() => regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
 
+    /// <summary>
+    /// リポジトリからツリーを取得する
+    /// </summary>
     private async void OnFetch() {
-        var trees = await repositoryService.GetRepositoryTreeAsync();
-        var root = new RepoTree
-        {
-            Name = string.Empty,
-            AbsolutePath = string.Empty,
-            IsDirectory = true,
-            Children = trees
-        };
-        var aircraft = FindRepoTree( root, "DCSWorld/Mods/aircraft" )
-            ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
-        var dlcCampaigns = FindRepoTree( root, "DCSWorld/Mods/campaigns" )
-            ?? new RepoTree { Name = string.Empty, AbsolutePath = string.Empty, IsDirectory = true };
-        //RepoAircraftTree = new RepoTreeItemViewModel( aircraft );
-        //RepoDlcCampaignsTree = new RepoTreeItemViewModel( dlcCampaigns );
-        //_tabs[0].RepoTree = RepoAircraftTree;
-        //_tabs[1].RepoTree = RepoDlcCampaignsTree;
-        Tabs[0].RepoTree = new RepoTreeItemViewModel( aircraft );
-        Tabs[1].RepoTree = new RepoTreeItemViewModel( dlcCampaigns );
+        List<RepoEntry> entries = await repositoryService.GetRepositoryEntryAsync();
+        RepoEntryViewModel rootVm = new( new RepoEntry( "", "", true ) );
+        entries.ForEach( entry => AddRepoEntryToRepoEntryViewModel( rootVm, entry ) );
+        var modVM = rootVm
+            .Children.FirstOrDefault(c => c.Name == "DCSWorld")?
+            .Children.FirstOrDefault(c => c.Name == "Mods");
+
+        ResetTabs();
+        var aircraftVM = modVM?.Children.FirstOrDefault( c => c.Name == "aircraft" );
+        var dlcCampaignsVM = modVM?.Children.FirstOrDefault( c => c.Name == "campaigns" );
+        if(aircraftVM is not null) Tabs.FindFirst( t => t.Title == "Aircraft" )!.Root = aircraftVM;
+        if(dlcCampaignsVM is not null) Tabs.FindFirst( t => t.Title == "DLC Campaigns" )!.Root = dlcCampaignsVM;
     }
 
+    /// <summary>
+    /// チェック状態のファイルをダウンロードする
+    /// </summary>
     private async void OnDownload() {
-        var root = SelectedTabIndex >=0 && SelectedTabIndex < _tabs.Count
-            ? _tabs[SelectedTabIndex].RepoTree
-            : null;
-        if(root == null) return;
-        foreach(var item in root.GetCheckedFiles()) {
-            byte[] data = await repositoryService.GetFileAsync( item.AbsolutePath );
-            var savePath = Path.Combine( appSettingsService.TranslateFileDir, item.AbsolutePath );
+        var targetEntries = _tabs[SelectedTabIndex].GetCheckedEntries();
+        foreach(var entry in targetEntries) {
+            if(entry.IsDirectory) continue;
+            byte[] data = await repositoryService.GetFileAsync( entry.AbsolutePath );
+            var savePath = Path.Join( appSettingsService.TranslateFileDir, entry.AbsolutePath );
             await fileService.SaveAsync( savePath, data );
         }
     }
@@ -159,7 +158,7 @@ public class DownloadViewModel(
 
     private void OnResetCheck() {
         foreach(var tab in _tabs) {
-            tab.RepoTree?.SetCheckedRecursive( false );
+            tab.SetCheckRecursive( false );
         }
     }
 
@@ -167,34 +166,41 @@ public class DownloadViewModel(
         // TODO: TranslateFileDirを開く処理を実装
     }
 
-    private static RepoTree? FindRepoTree( RepoTree root, string path ) {
-        var parts = path.Split( '/' );
-        var current = root;
-        foreach(string part in parts) {
-            RepoTree? next = null;
-            foreach(var child in current.Children) {
-                if(child.Name == part) {
-                    next = child;
-                    break;
-                }
-            }
-            if(next == null) {
-                return null;
-            }
-            current = next;
-        }
-        return current;
-    }
-
     /// <summary>
     /// Tabsを初期化
     /// </summary>
-    private void RefleshTabs() {
+    private void ResetTabs() {
         Tabs = [
-            new DownloadTabItem("Aircraft"     , new RepoTreeItemViewModel(new(){ Name="未設定", AbsolutePath="未設定",IsDirectory=false } ) ),
-            new DownloadTabItem("DLC Campaigns", new RepoTreeItemViewModel(new(){ Name="未設定", AbsolutePath="未設定",IsDirectory=false } ) )
+            new DownloadTabItemViewModel("Aircraft"     , new RepoEntryViewModel(new RepoEntry("", "", true) ) ),
+            new DownloadTabItemViewModel("DLC Campaigns", new RepoEntryViewModel(new RepoEntry("", "", true) ) )
         ];
     }
 
+    /// <summary>
+    /// <see cref="RepoEntry"/>を<see cref="RepoEntryViewModel"/>に変換し、ツリー構造に追加する"/>
+    /// </summary>
+    /// <param name="root">ルートViewModel</param>
+    /// <param name="entry">追加するエントリー</param>
+    private static void AddRepoEntryToRepoEntryViewModel( RepoEntryViewModel root, RepoEntry entry ) {
+        string[] parts = entry.AbsolutePath.Split( "/", StringSplitOptions.RemoveEmptyEntries );
+        if(parts.IsNullOrEmpty()) return;
+        RepoEntryViewModel current = root;
+        string absolutePath = "";
+        // ディレクトリが確定している場所までディレクトリを作成していく
+        foreach(string part in parts[..^1]) {
+            absolutePath += absolutePath.Length == 0 ? part : "/" + part;
+            var next = current.Children.FirstOrDefault(c => c.Name == part && c.IsDirectory);
+            if(next is null) {
+                next = new RepoEntryViewModel( new RepoEntry( part, absolutePath, true ) );
+                current.Children.Add( next );
+            }
+            current = next;
+        }
+
+        var last = parts[^1];
+        if(!current.Children.Any( c => c.Name == last )) {
+            current.Children.Add( new RepoEntryViewModel( new RepoEntry( last, entry.AbsolutePath, entry.IsDirectory ) ) );
+        }
+    }
     #endregion
 }

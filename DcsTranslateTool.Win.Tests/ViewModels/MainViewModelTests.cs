@@ -19,7 +19,7 @@ public class MainViewModelTests {
         _container.Register<IRegionManager, RegionManager>( Reuse.Singleton );
         _container.Register<IAppSettingsService, AppSettingsService>( Reuse.Singleton );
         _container.Register<IFileService, FileService>( Reuse.Transient );
-        _container.RegisterDelegate<IRepositoryService>( s => Mock.Of<IRepositoryService>() );
+        _container.RegisterDelegate<IRepositoryService>( () => Mock.Of<IRepositoryService>() );
         // ViewModels
         _container.Register<MainViewModel>( Reuse.Singleton );
     }

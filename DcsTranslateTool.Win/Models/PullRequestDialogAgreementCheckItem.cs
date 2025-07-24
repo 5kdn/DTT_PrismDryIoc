@@ -1,7 +1,6 @@
 ﻿namespace DcsTranslateTool.Win.Models;
-public class PullRequestDialogAgreementCheckItem : BindableBase {
-    private bool _isAgreed;
-    private readonly string _message;
+public class PullRequestDialogAgreementCheckItem( string message ) : BindableBase {
+    private bool _isAgreed = false;
 
     /// <summary>
     /// ユーザーが同意したか
@@ -14,10 +13,5 @@ public class PullRequestDialogAgreementCheckItem : BindableBase {
     /// <summary>
     /// ユーザーに同意を求めるメッセージ
     /// </summary>
-    public string Message { get => _message; }
-
-    public PullRequestDialogAgreementCheckItem( string message ) {
-        _isAgreed = false;
-        _message = message;
-    }
+    public string Message { get; } = message;
 }

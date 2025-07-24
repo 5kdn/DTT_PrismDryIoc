@@ -1,9 +1,9 @@
 ﻿namespace DcsTranslateTool.Core.Models;
-public class FileEntry( string absolutePath, bool isDirectory ) {
+public class FileEntry( string name, string absolutePath, bool isDirectory ) {
     /// <summary>
     /// ファイルまたはディレクトリの名称を取得する。
     /// </summary>
-    public string Name => Path.GetFileName( AbsolutePath );
+    public string Name => name;
 
     /// <summary>
     /// ファイルまたはディレクトリの絶対パスを取得する。

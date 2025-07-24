@@ -146,7 +146,6 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
         // For Debugging purposes
         var msg = string.Join("\n",PullRequestChangeKinds.Where( x => x.IsChecked ).Select( x => x.DisplayName ));
         MessageBox.Show( $"{newBranchName}\n{msg}" );
-        return;
         try {
             // TODO: PR作成処理をここに実装
             RequestClose.Invoke( new DialogResult( ButtonResult.OK ) );

@@ -73,9 +73,9 @@ public class ZipService : IZipService {
 
     /// <inheritdoc />
     public void DeleteEntry( string zipFilePath, string entryPath ) {
-        if(string.IsNullOrWhiteSpace( zipFilePath )) throw new ArgumentException( "zip ファイルパスが null または空です", nameof( zipFilePath ) );
+        if(string.IsNullOrWhiteSpace( zipFilePath )) throw new ArgumentException( "zip ファイルパスが空です", nameof( zipFilePath ) );
         if(!File.Exists( zipFilePath )) throw new FileNotFoundException( "ファイルが存在しません", zipFilePath );
-        if(string.IsNullOrWhiteSpace( entryPath )) throw new ArgumentException( "エントリーが null または空です", nameof( entryPath ) );
+        if(string.IsNullOrWhiteSpace( entryPath )) throw new ArgumentException( "エントリーが空です", nameof( entryPath ) );
 
         try {
             using FileStream stream = new(zipFilePath, FileMode.Open, FileAccess.ReadWrite);

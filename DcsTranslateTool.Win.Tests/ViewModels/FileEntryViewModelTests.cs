@@ -14,7 +14,7 @@ public class FileEntryViewModelTests {
         // Arrange
         var factoryMock = new Mock<IFileEntryViewModelFactory>();
         var serviceMock = new Mock<IFileEntryService>();
-        var model = new FileEntry( "/path/to/file", false );
+        var model = new FileEntry( "file", "/path/to/file", false );
 
         // Act
         var vm = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, model);
@@ -30,8 +30,8 @@ public class FileEntryViewModelTests {
         var factoryMock = new Mock<IFileEntryViewModelFactory>();
         var serviceMock = new Mock<IFileEntryService>();
 
-        var parentModel = new FileEntry("/Parent", true);
-        var childModel = new FileEntry ("/Parent/Child.exp", false);
+        var parentModel = new FileEntry("Parent", "/Parent", true);
+        var childModel = new FileEntry ("Child.exp", "/Parent/Child.exp", false);
         var childViewModel = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, childModel);
 
         serviceMock
@@ -59,8 +59,8 @@ public class FileEntryViewModelTests {
         // Arrange
         var factoryMock = new Mock<IFileEntryViewModelFactory>();
         var serviceMock = new Mock<IFileEntryService>();
-        var parentModel = new FileEntry("/Parent", true);
-        var childModel = new FileEntry ("/Parent/Child.exp", false);
+        var parentModel = new FileEntry("Parent", "/Parent", true);
+        var childModel = new FileEntry ("Child.exp", "/Parent/Child.exp", false);
         var childViewModel = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, childModel);
 
         serviceMock
@@ -88,7 +88,7 @@ public class FileEntryViewModelTests {
         // Arrange
         var factoryMock = new Mock<IFileEntryViewModelFactory>();
         var serviceMock = new Mock<IFileEntryService>();
-        var model = new FileEntry("/Parent.exp", false);
+        var model = new FileEntry("Parent.exp", "/Parent.exp", false);
         // Act
         var vm = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, model);
 
@@ -101,8 +101,8 @@ public class FileEntryViewModelTests {
         // Arrange
         var factoryMock = new Mock<IFileEntryViewModelFactory>();
         var serviceMock = new Mock<IFileEntryService>();
-        var parentModel = new FileEntry("/Parent", true);
-        var childModel = new FileEntry ("/Parent/Child.exp", false);
+        var parentModel = new FileEntry("Parent", "/Parent", true);
+        var childModel = new FileEntry ("Child.exp", "/Parent/Child.exp", false);
         var childViewModel = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, childModel);
 
         var vm = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, parentModel);
@@ -121,7 +121,7 @@ public class FileEntryViewModelTests {
         // Arrange
         var factoryMock = new Mock<IFileEntryViewModelFactory>();
         var serviceMock = new Mock<IFileEntryService>();
-        var parentModel = new FileEntry("/Parent", true );
+        var parentModel = new FileEntry("Parent", "/Parent", true );
 
         serviceMock
             .Setup( s => s.GetChildren( parentModel ) )
