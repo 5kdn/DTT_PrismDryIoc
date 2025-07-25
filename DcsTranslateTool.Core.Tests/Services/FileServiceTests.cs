@@ -69,6 +69,7 @@ public class FileServiceTests : IDisposable {
     }
 
     [Fact]
+    [Trait( "Category", "WindowsOnly" )]
     public void ファイル読み込み時にIOExceptionが発生したときIOExceptionがラップされて送出される() {
         // Arrange
         var sut = new FileService();
