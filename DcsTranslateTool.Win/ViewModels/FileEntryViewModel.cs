@@ -77,7 +77,7 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
             // TODO: エラーハンドリング
         }
         Children.Clear();
-        foreach(var child in result.Value!) Children.Add( _factory.Create( child ) );
+        foreach(var child in result.Value!) Children.Add( _factory.Create( child, IsSelected ) );
 
         RaisePropertyChanged( nameof( Children ) );
     }

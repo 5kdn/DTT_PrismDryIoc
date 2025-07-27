@@ -66,8 +66,8 @@ public class FileEntryServiceTests : IDisposable {
         var result = sut.GetChildren(entry);
 
         // Assert
-        Assert.False( result.IsSuccess );
-        Assert.Equal( $"ディレクトリではないエントリが指定されました: {filePath}", result.Error );
+        Assert.True( result.IsFailed );
+        Assert.Contains( $"ディレクトリではないエントリが指定されました: {filePath}", result.Errors[0].Message );
     }
 
     [Fact]

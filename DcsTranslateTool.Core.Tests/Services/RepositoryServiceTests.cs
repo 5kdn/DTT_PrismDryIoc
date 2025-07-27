@@ -55,10 +55,11 @@ public class RepositoryServiceTests {
         var service = new RepositoryService( mockClient.Object );
 
         // Act
-        var actual = await service.GetFileAsync("path/to/file.exp");
+        var result = await service.GetFileAsync("path/to/file.exp");
 
         // Assert
-        Assert.Equal( expected, actual );
+        Assert.True( result.IsSuccess );
+        Assert.Equal( expected, result.Value );
     }
 
     [Fact]

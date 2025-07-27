@@ -124,7 +124,12 @@ public class DownloadViewModel(
     /// リポジトリからツリーを取得する
     /// </summary>
     private async void OnFetch() {
-        IEnumerable<RepoEntry> entries = await repositoryService.GetRepositoryEntryAsync();
+        var result = await repositoryService.GetRepositoryEntryAsync();
+        if(result.IsFailed) {
+            // TODO: エラーハンドリング
+            return;
+        }
+        IEnumerable<RepoEntry> entries = result.Value;
         RepoEntryViewModel rootVm = new( new RepoEntry( "", "", true ) );
         foreach(var entry in entries) AddRepoEntryToRepoEntryViewModel( rootVm, entry );
         var modVM = rootVm
@@ -145,7 +150,12 @@ public class DownloadViewModel(
         var targetEntries = _tabs[SelectedTabIndex].GetCheckedEntries();
         foreach(var entry in targetEntries) {
             if(entry.IsDirectory) continue;
-            byte[] data = await repositoryService.GetFileAsync( entry.AbsolutePath );
+            var result = await repositoryService.GetFileAsync( entry.AbsolutePath );
+            if(result.IsFailed) {
+                // TODO: エラーハンドリング
+                return;
+            }
+            byte[] data = result.Value;
             var savePath = Path.Join( appSettingsService.TranslateFileDir, entry.AbsolutePath );
             await fileService.SaveAsync( savePath, data );
         }

@@ -1,8 +1,9 @@
-﻿using DcsTranslateTool.Core.Common;
-using DcsTranslateTool.Core.Contracts.Services;
+﻿using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 using DcsTranslateTool.Win.ViewModels;
+
+using FluentResults;
 
 using Moq;
 
@@ -37,9 +38,9 @@ public class FileEntryViewModelTests {
 
         serviceMock
             .Setup( s => s.GetChildren( parentModel ) )
-            .Returns( Result<IEnumerable<FileEntry>>.Success( [childModel] ) );
+            .Returns( Result.Ok<IEnumerable<FileEntry>>( [childModel] ) );
         factoryMock
-            .Setup( f => f.Create( childModel ) )
+            .Setup( f => f.Create( childModel, false ) )
             .Returns( childViewModel );
 
         var vm = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, parentModel);
@@ -66,9 +67,9 @@ public class FileEntryViewModelTests {
 
         serviceMock
             .Setup( s => s.GetChildren( parentModel ) )
-            .Returns( Result<IEnumerable<FileEntry>>.Success( [childModel] ) );
+            .Returns( Result.Ok<IEnumerable<FileEntry>>( [childModel] ) );
         factoryMock
-            .Setup( f => f.Create( childModel ) )
+            .Setup( f => f.Create( childModel, false ) )
             .Returns( childViewModel );
 
         var vm = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, parentModel);

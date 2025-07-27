@@ -1,5 +1,7 @@
 ﻿using DcsTranslateTool.Core.Models;
 
+using FluentResults;
+
 namespace DcsTranslateTool.Core.Contracts.Services;
 
 /// <summary>
@@ -10,20 +12,20 @@ public interface IRepositoryService {
     /// リポジトリのファイルリスト<see cref="RepoEntry">を取得する
     /// </summary>
     /// <returns>リポジトリエントリー</returns>
-    Task<IEnumerable<RepoEntry>> GetRepositoryEntryAsync();
+    Task<Result<IEnumerable<RepoEntry>>> GetRepositoryEntryAsync();
 
     /// <summary>
     /// ファイルをバイナリ形式で取得する
     /// </summary>
     /// <param name="path">ファイルパス</param>
     /// <returns>ファイルのバイト列</returns>
-    Task<byte[]> GetFileAsync( string path );
+    Task<Result<byte[]>> GetFileAsync( string path );
 
     /// <summary>
     /// ブランチを作成する
     /// </summary>
     /// <param name="branchName">作成するブランチ名</param>
-    Task CreateBranchAsync( string branchName );
+    Task<Result> CreateBranchAsync( string branchName );
 
     /// <summary>
     /// ファイルをコミットする
@@ -31,7 +33,7 @@ public interface IRepositoryService {
     /// <param name="branchName">コミット先ブランチ名</param>
     /// <param name="files">コミットするローカルパス一覧</param>
     /// <param name="message">コミットメッセージ</param>
-    Task CommitAsync( string branchName, IEnumerable<CommitFile> files, string message );
+    Task<Result> CommitAsync( string branchName, IEnumerable<CommitFile> files, string message );
 
     /// <summary>
     /// ファイルをコミットする
@@ -39,7 +41,7 @@ public interface IRepositoryService {
     /// <param name="branchName">コミット先ブランチ名</param>
     /// <param name="file">コミットするローカルパス</param>
     /// <param name="message">コミットメッセージ</param>
-    Task CommitAsync( string branchName, CommitFile file, string message );
+    Task<Result> CommitAsync( string branchName, CommitFile file, string message );
 
     /// <summary>
     /// プルリクエストを作成する
@@ -48,5 +50,5 @@ public interface IRepositoryService {
     /// <param name="title">PR タイトル</param>
     /// <param name="message">PR 本文</param>
     /// <returns>作成されたプルリクエスト</returns>
-    Task CreatePullRequestAsync( string branchName, string title, string message );
+    Task<Result> CreatePullRequestAsync( string branchName, string title, string message );
 }

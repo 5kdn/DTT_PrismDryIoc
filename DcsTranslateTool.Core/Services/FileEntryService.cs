@@ -1,12 +1,13 @@
-﻿using DcsTranslateTool.Core.Common;
-using DcsTranslateTool.Core.Contracts.Services;
+﻿using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
+
+using FluentResults;
 
 namespace DcsTranslateTool.Core.Services;
 public class FileEntryService : IFileEntryService {
     /// <inheritdoc/>
     public Result<IEnumerable<FileEntry>> GetChildren( FileEntry entry ) {
-        if(!entry.IsDirectory) return Result<IEnumerable<FileEntry>>.Failure( $"ディレクトリではないエントリが指定されました: {entry.AbsolutePath}" );
+        if(!entry.IsDirectory) return Result.Fail( $"ディレクトリではないエントリが指定されました: {entry.AbsolutePath}" );
         string[] dirs;
         string[] files;
         try {
@@ -15,10 +16,10 @@ public class FileEntryService : IFileEntryService {
             List<FileEntry> result = [];
             foreach(var dir in dirs) result.Add( new( Path.GetFileName( dir ), dir, true ) );
             foreach(var file in files) result.Add( new( Path.GetFileName( file ), file, false ) );
-            return Result<IEnumerable<FileEntry>>.Success( result );
+            return Result.Ok<IEnumerable<FileEntry>>( result );
         }
         catch(Exception ex) {
-            return Result<IEnumerable<FileEntry>>.Failure( ex.Message );
+            return Result.Fail( ex.Message );
         }
     }
 }

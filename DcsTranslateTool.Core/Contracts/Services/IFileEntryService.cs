@@ -1,5 +1,6 @@
-﻿using DcsTranslateTool.Core.Common;
-using DcsTranslateTool.Core.Models;
+﻿using DcsTranslateTool.Core.Models;
+
+using FluentResults;
 
 namespace DcsTranslateTool.Core.Contracts.Services;
 public interface IFileEntryService {
