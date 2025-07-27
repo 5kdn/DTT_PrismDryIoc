@@ -1,10 +1,10 @@
 using System.IO.Compression;
 
-using DcsTranslateTool.Share.Services;
+using DcsTranslateTool.Core.Services;
 
 using Xunit;
 
-namespace DcsTranslateTool.Share.Tests.Services;
+namespace DcsTranslateTool.Core.Tests.Services;
 
 public class ZipServiceTests : IDisposable {
     private readonly string _tempDir;

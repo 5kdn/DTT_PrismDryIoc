@@ -1,4 +1,4 @@
-namespace DcsTranslateTool.Share.Contracts.Services;
+namespace DcsTranslateTool.Core.Contracts.Services;
 
 /// <summary>
 /// zip ファイル操作を提供するサービスインターフェースである

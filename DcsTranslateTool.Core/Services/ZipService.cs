@@ -1,8 +1,8 @@
 using System.IO.Compression;
 
-using DcsTranslateTool.Share.Contracts.Services;
+using DcsTranslateTool.Core.Contracts.Services;
 
-namespace DcsTranslateTool.Share.Services;
+namespace DcsTranslateTool.Core.Services;
 
 /// <summary>
 /// zip ファイル操作を提供するサービスである
