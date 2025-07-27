@@ -1,4 +1,5 @@
-﻿using DcsTranslateTool.Core.Contracts.Services;
+﻿using DcsTranslateTool.Core.Common;
+using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 using DcsTranslateTool.Win.ViewModels;
@@ -36,7 +37,7 @@ public class FileEntryViewModelTests {
 
         serviceMock
             .Setup( s => s.GetChildren( parentModel ) )
-            .Returns( [childModel] );
+            .Returns( Result<IEnumerable<FileEntry>>.Success( [childModel] ) );
         factoryMock
             .Setup( f => f.Create( childModel ) )
             .Returns( childViewModel );
@@ -65,7 +66,7 @@ public class FileEntryViewModelTests {
 
         serviceMock
             .Setup( s => s.GetChildren( parentModel ) )
-            .Returns( [childModel] );
+            .Returns( Result<IEnumerable<FileEntry>>.Success( [childModel] ) );
         factoryMock
             .Setup( f => f.Create( childModel ) )
             .Returns( childViewModel );
@@ -114,25 +115,5 @@ public class FileEntryViewModelTests {
         // Assert
         Assert.True( vm.IsSelected );
         Assert.True( childViewModel.IsSelected );
-    }
-
-    [Fact]
-    public void 子要素取得時に例外が発生したとき子が空のままになる() {
-        // Arrange
-        var factoryMock = new Mock<IFileEntryViewModelFactory>();
-        var serviceMock = new Mock<IFileEntryService>();
-        var parentModel = new FileEntry("Parent", "/Parent", true );
-
-        serviceMock
-            .Setup( s => s.GetChildren( parentModel ) )
-            .Throws( new Exception( "子取得失敗" ) );
-
-        var vm = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, parentModel);
-
-        // Act
-        vm.LoadChildren();
-
-        // Assert
-        Assert.Empty( vm.Children );
     }
 }

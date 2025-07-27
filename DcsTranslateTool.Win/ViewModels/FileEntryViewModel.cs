@@ -72,15 +72,13 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     public void LoadChildren() {
         if(!this.Model.IsDirectory || childrenLoaded) return;
         childrenLoaded = true;
-        Children.Clear();
-        try {
-            foreach(var child in _fileEntryService.GetChildren( this.Model )) {
-                Children.Add( _factory.Create( child ) );
-            }
-        }
-        catch {
+        var result = _fileEntryService.GetChildren( this.Model );
+        if(!result.IsSuccess) {
             // TODO: エラーハンドリング
         }
+        Children.Clear();
+        foreach(var child in result.Value!) Children.Add( _factory.Create( child ) );
+
         RaisePropertyChanged( nameof( Children ) );
     }
 }

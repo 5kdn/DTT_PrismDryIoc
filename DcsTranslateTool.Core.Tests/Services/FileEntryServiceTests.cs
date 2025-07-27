@@ -29,7 +29,8 @@ public class FileEntryServiceTests : IDisposable {
         var result = sut.GetChildren(entry);
 
         // Assert
-        Assert.Empty( result );
+        Assert.True( result.IsSuccess );
+        Assert.Equal( [], result.Value );
     }
 
     [Fact]
@@ -43,16 +44,18 @@ public class FileEntryServiceTests : IDisposable {
         var sut = new FileEntryService();
 
         // Act
-        var children = sut.GetChildren(entry).ToArray();
+        var result = sut.GetChildren(entry);
 
         // Assert
+        Assert.True( result.IsSuccess );
+        var children = result.Value.ToArray();
         Assert.Equal( 2, children.Length );
         Assert.Contains( children, c => c.IsDirectory && c.Name == "sub" && c.AbsolutePath == subDir );
         Assert.Contains( children, c => !c.IsDirectory && c.Name == "file.txt" && c.AbsolutePath == file );
     }
 
     [Fact]
-    public void ファイルエントリに対してGetChildrenを実行したとき空列挙が返る() {
+    public void ファイルエントリに対してGetChildrenを実行したとき失敗する() {
         // Arrange
         var filePath = Path.Join(_tempDir, "file.txt");
         File.WriteAllText( filePath, null );
@@ -63,11 +66,12 @@ public class FileEntryServiceTests : IDisposable {
         var result = sut.GetChildren(entry);
 
         // Assert
-        Assert.Empty( result );
+        Assert.False( result.IsSuccess );
+        Assert.Equal( $"ディレクトリではないエントリが指定されました: {filePath}", result.Error );
     }
 
     [Fact]
-    public void 存在しないディレクトリパスに対してGetChildrenを実行したとき空列挙が返る() {
+    public void 存在しないディレクトリパスに対してGetChildrenを実行したとき失敗する() {
         // Arrange
         var notExistDir = Path.Join(_tempDir, "notExist");
         var entry = new FileEntry("notExist", notExistDir, true);
@@ -77,54 +81,8 @@ public class FileEntryServiceTests : IDisposable {
         var result = sut.GetChildren(entry);
 
         // Assert
-        Assert.Empty( result );
+        Assert.False( result.IsSuccess );
     }
 
-    [Fact]
-    public void ディレクトリ列挙時に例外が発生したとき空列挙が返る() {
-        // Arrange
-        var noPermDir = Path.Join(_tempDir, "noPermDir");
-        Directory.CreateDirectory( noPermDir );
-        // アクセス不可にする
-        var dirInfo = new DirectoryInfo(noPermDir);
-        dirInfo.Attributes |= FileAttributes.ReadOnly;
-        var entry = new FileEntry("noPermDir", noPermDir, true);
-        var sut = new FileEntryService();
-
-        try {
-            // Act
-            var result = sut.GetChildren(entry);
-
-            // Assert
-            Assert.Empty( result );
-        }
-        finally {
-            dirInfo.Attributes &= ~FileAttributes.ReadOnly;
-        }
-    }
-
-    [Fact]
-    public void アクセス不可のディレクトリに対してGetChildrenを実行したとき空列挙が返る() {
-        // Arrange
-        var dir = Path.Join(_tempDir, "protected");
-        Directory.CreateDirectory( dir );
-        var dirInfo = new DirectoryInfo(dir);
-
-        // アクセス不可属性（Windowsの場合は読み取り専用だけでは防げないので実際にはACL等で対処するのが理想ですが、ここでは疑似的な例）
-        dirInfo.Attributes |= FileAttributes.ReadOnly;
-        var entry = new FileEntry("protected", dir, true);
-        var sut = new FileEntryService();
-        try {
-            // Act
-            var result = sut.GetChildren(entry);
-
-            // Assert
-            Assert.Empty( result );
-        }
-        finally {
-            // 元に戻す（削除できるようにする）
-            dirInfo.Attributes &= ~FileAttributes.ReadOnly;
-        }
-    }
     #endregion
 }
