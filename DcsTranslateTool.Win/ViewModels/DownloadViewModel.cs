@@ -124,7 +124,7 @@ public class DownloadViewModel(
     /// リポジトリからツリーを取得する
     /// </summary>
     private async void OnFetch() {
-        IReadOnlyList<RepoEntry> entries = await repositoryService.GetRepositoryEntryAsync();
+        IEnumerable<RepoEntry> entries = await repositoryService.GetRepositoryEntryAsync();
         RepoEntryViewModel rootVm = new( new RepoEntry( "", "", true ) );
         foreach(var entry in entries) AddRepoEntryToRepoEntryViewModel( rootVm, entry );
         var modVM = rootVm

@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DcsTranslateTool.Core\DcsTranslateTool.Core.csproj" />
-    <ProjectReference Include="..\DcsTranslateTool.Share\DcsTranslateTool.Share.csproj" />
   </ItemGroup>
 
   <ItemGroup>

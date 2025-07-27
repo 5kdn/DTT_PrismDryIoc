@@ -22,13 +22,13 @@ namespace DcsTranslateTool.Win.Services;
 /// <param name="installationId">インストールID</param>
 public class GitHubApiClient( string owner, string repo, string appName, int appId, long installationId ) : IGitHubApiClient {
     /// <inheritdoc/>
-    public async Task<IReadOnlyList<RepoEntry>> GetRepositoryEntriesAsync( string branch = "master" ) {
+    public async Task<IEnumerable<RepoEntry>> GetRepositoryEntriesAsync( string branch = "master" ) {
         try {
             IGitHubClient client = await InstallationClientGenerator();
             var gitRef = await client.Git.Reference.Get(owner, repo, $"heads/{branch}");
             var tree = await client.Git.Tree.GetRecursive(owner, repo, gitRef.Object.Sha);
             if(tree is null) return [];
-            return (IReadOnlyList<RepoEntry>)tree.Tree.Select( item => TreeItemToRepoEntryConverter.Convert( item ) );
+            return tree.Tree.Select( item => TreeItemToRepoEntryConverter.Convert( item ) );
         }
         catch(ApiException ex) {
             throw new Exception( "GitHub API の呼び出しに失敗しました", ex );

@@ -7,7 +7,7 @@ public class RepositoryService( IGitHubApiClient gitHubApiClient ) : IRepository
     private const string MainBranch = "master";
 
     /// <inheritdoc/>
-    public async Task<IReadOnlyList<RepoEntry>> GetRepositoryEntryAsync() =>
+    public async Task<IEnumerable<RepoEntry>> GetRepositoryEntryAsync() =>
         await gitHubApiClient.GetRepositoryEntriesAsync( MainBranch );
 
     /// <inheritdoc/>

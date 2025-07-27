@@ -35,7 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DcsTranslateTool.Share\DcsTranslateTool.Share.csproj" />
     <ProjectReference Include="..\DcsTranslateTool.Win\DcsTranslateTool.Win.csproj" />
     <ProjectReference Include="..\DcsTranslateTool.Core\DcsTranslateTool.Core.csproj" />
   </ItemGroup>

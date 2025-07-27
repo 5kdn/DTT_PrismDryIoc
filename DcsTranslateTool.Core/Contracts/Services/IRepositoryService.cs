@@ -10,7 +10,7 @@ public interface IRepositoryService {
     /// リポジトリのファイルリスト<see cref="RepoEntry">を取得する
     /// </summary>
     /// <returns>リポジトリエントリー</returns>
-    Task<IReadOnlyList<RepoEntry>> GetRepositoryEntryAsync();
+    Task<IEnumerable<RepoEntry>> GetRepositoryEntryAsync();
 
     /// <summary>
     /// ファイルをバイナリ形式で取得する

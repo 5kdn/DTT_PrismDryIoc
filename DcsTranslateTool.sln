@@ -11,10 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcsTranslateTool.Win.Tests"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcsTranslateTool.Core.Tests", "DcsTranslateTool.Core.Tests\DcsTranslateTool.Core.Tests.csproj", "{40D94029-BDA4-66E1-83DB-DD029D3FF7B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcsTranslateTool.Share", "DcsTranslateTool.Share\DcsTranslateTool.Share.csproj", "{7EA0E3F1-A080-4385-9DEF-6E7B10729F1D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcsTranslateTool.Share.Tests", "DcsTranslateTool.Share.Tests\DcsTranslateTool.Share.Tests.csproj", "{71B1605A-70D2-40EA-B495-BCE987351409}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,14 +33,6 @@ Global
 		{40D94029-BDA4-66E1-83DB-DD029D3FF7B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40D94029-BDA4-66E1-83DB-DD029D3FF7B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40D94029-BDA4-66E1-83DB-DD029D3FF7B7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7EA0E3F1-A080-4385-9DEF-6E7B10729F1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7EA0E3F1-A080-4385-9DEF-6E7B10729F1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7EA0E3F1-A080-4385-9DEF-6E7B10729F1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7EA0E3F1-A080-4385-9DEF-6E7B10729F1D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{71B1605A-70D2-40EA-B495-BCE987351409}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{71B1605A-70D2-40EA-B495-BCE987351409}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{71B1605A-70D2-40EA-B495-BCE987351409}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{71B1605A-70D2-40EA-B495-BCE987351409}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
