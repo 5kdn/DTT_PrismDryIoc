@@ -1,4 +1,6 @@
-﻿namespace DcsTranslateTool.Share.Models;
+﻿using DcsTranslateTool.Core.Enums;
+
+namespace DcsTranslateTool.Core.Models;
 
 /// <summary>
 /// GitHub へコミットするファイルの情報を管理するレコード。
@@ -8,7 +10,7 @@ public record CommitFile {
     /// <summary>
     /// コミット操作の種別（追加・更新・削除）を指定する。
     /// </summary>
-    public CommitOperation Operation;
+    public CommitOperationType Operation;
 
     /// <summary>
     /// コミット対象のローカルファイルのパスを指定する。
