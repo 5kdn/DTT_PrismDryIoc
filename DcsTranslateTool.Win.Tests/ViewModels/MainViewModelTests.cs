@@ -1,6 +1,5 @@
 ﻿using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Services;
-using DcsTranslateTool.Share.Contracts.Services;
 using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Services;
 using DcsTranslateTool.Win.ViewModels;

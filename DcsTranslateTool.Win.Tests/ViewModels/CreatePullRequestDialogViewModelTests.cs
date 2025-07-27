@@ -66,7 +66,7 @@ public class CreatePullRequestDialogViewModelTests {
 
     #region PRTitle
 
-    [Fact( Skip = "未実装のためスキップ" )]
+    [Fact]
     [Trait( "Category", "WindowsOnly" )]
     public void PRTitleはチェックした変更点のDisplayNameがタイトルに含まれるようになる() {
         // TODO: テストを作成
@@ -81,7 +81,7 @@ public class CreatePullRequestDialogViewModelTests {
     public void PRCommentは値を設定したとき同じ値が取得できるようになる() {
         // Arrange
         var vm = new CreatePullRequestDialogViewModel();
-        var expected = "Test Comment";
+        const string expected = "Test Comment";
 
         // Act
         vm.PRComment = expected;

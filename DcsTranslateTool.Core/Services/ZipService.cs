@@ -5,7 +5,7 @@ using DcsTranslateTool.Core.Contracts.Services;
 namespace DcsTranslateTool.Core.Services;
 
 /// <summary>
-/// zip ファイル操作を提供するサービスである
+/// zip ファイル操作を提供するサービスを実装する
 /// </summary>
 public class ZipService : IZipService {
     /// <inheritdoc />

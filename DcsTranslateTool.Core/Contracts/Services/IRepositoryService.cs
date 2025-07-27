@@ -1,7 +1,6 @@
 ﻿using DcsTranslateTool.Core.Models;
-using DcsTranslateTool.Share.Models;
 
-namespace DcsTranslateTool.Share.Contracts.Services;
+namespace DcsTranslateTool.Core.Contracts.Services;
 
 /// <summary>
 /// GitHub リポジトリ操作のサービスを提供する
@@ -11,7 +10,7 @@ public interface IRepositoryService {
     /// リポジトリのファイルリスト<see cref="RepoEntry">を取得する
     /// </summary>
     /// <returns>リポジトリエントリー</returns>
-    Task<List<RepoEntry>> GetRepositoryEntryAsync();
+    Task<IReadOnlyList<RepoEntry>> GetRepositoryEntryAsync();
 
     /// <summary>
     /// ファイルをバイナリ形式で取得する

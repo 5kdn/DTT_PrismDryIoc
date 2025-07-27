@@ -3,7 +3,6 @@ using System.IO;
 
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
-using DcsTranslateTool.Share.Contracts.Services;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
 
@@ -125,9 +124,9 @@ public class DownloadViewModel(
     /// リポジトリからツリーを取得する
     /// </summary>
     private async void OnFetch() {
-        List<RepoEntry> entries = await repositoryService.GetRepositoryEntryAsync();
+        IReadOnlyList<RepoEntry> entries = await repositoryService.GetRepositoryEntryAsync();
         RepoEntryViewModel rootVm = new( new RepoEntry( "", "", true ) );
-        entries.ForEach( entry => AddRepoEntryToRepoEntryViewModel( rootVm, entry ) );
+        foreach(var entry in entries) AddRepoEntryToRepoEntryViewModel( rootVm, entry );
         var modVM = rootVm
             .Children.FirstOrDefault(c => c.Name == "DCSWorld")?
             .Children.FirstOrDefault(c => c.Name == "Mods");
