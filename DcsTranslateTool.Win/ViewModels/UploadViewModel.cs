@@ -162,8 +162,10 @@ public class UploadViewModel(
 
     private void OnFileEntrySelectedChanged( object? sender, CheckState _) => UpdateCreatePullRequestDialogButton();
 
-    private void SubscribeSelectionChanged( FileEntryViewModel node ) {
-        node.CheckStateChanged += OnFileEntrySelectedChanged;
+    private void SubscribeSelectionChanged( IFileEntryViewModel node ) {
+        if(node is FileEntryViewModel concrete) {
+            concrete.CheckStateChanged += OnFileEntrySelectedChanged;
+        }
         foreach(var child in node.Children) {
             if(child is not null) SubscribeSelectionChanged( child );
         }

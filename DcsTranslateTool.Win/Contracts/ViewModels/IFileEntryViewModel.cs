@@ -60,4 +60,10 @@ public interface IFileEntryViewModel {
     /// 子エントリの取得中にエラーが発生した場合にスローされる可能性がある
     /// </exception>
     void LoadChildren();
+
+    /// <summary>
+    /// 選択状態の子要素の <see cref="FileEntry"/> を再帰的に取得する
+    /// </summary>
+    /// <returns>選択状態の <see cref="FileEntry"/> の一覧</returns>
+    List<FileEntry> GetCheckedModelRecursice();
 }
