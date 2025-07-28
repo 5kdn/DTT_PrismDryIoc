@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
@@ -39,11 +38,18 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
         get => checkState;
         set {
             if(!SetProperty( ref checkState, value )) return;
+
+            // 親->子への伝播
             if(IsDirectory && value != CheckState.Indeterminate) {
                 foreach(var child in Children) {
-                    if(child is not null) child.CheckState = value;
+                    if(child is not null && child.CheckState != value) child.CheckState = value;
                 }
             }
+
+
+            // 子->親への伝播
+            Parent?.UpdateCheckStateFromChildren();
+
             CheckStateChanged?.Invoke( this, value );
         }
     }
@@ -63,7 +69,12 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     }
 
     /// <inheritdoc/>
-    public ObservableCollection<IFileEntryViewModel?> Children { get; } = [];
+    public ObservableCollection<FileEntryViewModel?> Children { get; } = [];
+
+    /// <summary>
+    /// 親ノード（CheckStateの伝播用）
+    /// </summary>
+    public FileEntryViewModel? Parent { get; set; }
 
     public FileEntryViewModel(
         IFileEntryViewModelFactory factory,
@@ -82,15 +93,38 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
         var result = _fileEntryService.GetChildren( this.Model );
         if(!result.IsSuccess) {
             // TODO: エラーハンドリング
+            return;
         }
         Children.Clear();
         foreach(var child in result.Value!) {
-            var childVm = _factory.Create( child, CheckState );
-            childVm.CheckStateChanged += (_, _) => CheckStateChanged?.Invoke( childVm, childVm.CheckState );
+            var childVm = _factory.Create( child, this, CheckState );
+            childVm.CheckStateChanged += ( _, _ ) => CheckStateChanged?.Invoke( childVm, childVm.CheckState );
             Children.Add( childVm );
         }
 
         RaisePropertyChanged( nameof( Children ) );
+    }
+
+    /// <summary>
+    /// 子要素の状態を確認して自身のCheckStateを更新する
+    /// </summary>
+    private void UpdateCheckStateFromChildren() {
+        if(!IsDirectory || Children.Count == 0) return;
+
+        var allChecked = Children.All(c => c?.CheckState == CheckState.Checked);
+        var allUnchecked = Children.All(c => c?.CheckState == CheckState.Unchecked);
+
+        var newState = Children.All(c => c?.CheckState == CheckState.Checked) ? CheckState.Checked :
+            Children.All(c => c?.CheckState == CheckState.Unchecked) ? CheckState.Unchecked :
+            CheckState.Indeterminate;
+
+        if(checkState == newState) return;
+        checkState = newState;
+        RaisePropertyChanged( nameof( CheckState ) );
+        CheckStateChanged?.Invoke( this, checkState );
+
+        // 祖先にも伝播
+        Parent?.UpdateCheckStateFromChildren();
     }
 
     /// <summary>
@@ -99,7 +133,7 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     /// <returns>選択状態の <see cref="FileEntry"/> の一覧</returns>
     public List<FileEntry> GetCheckedModelRecursice() {
         List<FileEntry> checkedChildrenModels = [];
-        if(CheckState == CheckState.Checked) checkedChildrenModels.Add( Model );
+        if(CheckState == CheckState.Checked && !IsDirectory) checkedChildrenModels.Add( Model );
 
         foreach(var child in Children) {
             if(child is null) continue;

@@ -4,6 +4,14 @@ using DcsTranslateTool.Win.ViewModels;
 
 namespace DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 public interface IFileEntryViewModelFactory {
-    FileEntryViewModel Create( FileEntry model, CheckState checkState = CheckState.Unchecked );
-    FileEntryViewModel Create( string absolutePath, bool isDirectory, CheckState checkState = CheckState.Unchecked );
+    FileEntryViewModel Create(
+        FileEntry model,
+        FileEntryViewModel? parent = null,
+        CheckState checkState = CheckState.Unchecked );
+
+    FileEntryViewModel Create(
+        string absolutePath,
+        bool isDirectory,
+        FileEntryViewModel? parent = null,
+        CheckState checkState = CheckState.Unchecked );
 }

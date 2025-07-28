@@ -41,7 +41,7 @@ public class FileEntryViewModelTests {
             .Setup( s => s.GetChildren( parentModel ) )
             .Returns( Result.Ok<IEnumerable<FileEntry>>( [childModel] ) );
         factoryMock
-            .Setup( f => f.Create( childModel, false ) )
+            .Setup( f => f.Create( childModel, It.IsAny<FileEntryViewModel?>(), CheckState.Unchecked ) )
             .Returns( childViewModel );
 
         var vm = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, parentModel);
@@ -70,7 +70,7 @@ public class FileEntryViewModelTests {
             .Setup( s => s.GetChildren( parentModel ) )
             .Returns( Result.Ok<IEnumerable<FileEntry>>( [childModel] ) );
         factoryMock
-            .Setup( f => f.Create( childModel, false ) )
+            .Setup( f => f.Create( childModel, It.IsAny<FileEntryViewModel?>(), CheckState.Unchecked ) )
             .Returns( childViewModel );
 
         var vm = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, parentModel);

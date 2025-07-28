@@ -148,6 +148,8 @@ public class UploadViewModel(
         var tabs = Enum.GetValues<RootTabType>().Select(tabType =>{
             var fileEntryVM = fileEntryViewModelFactory.Create(
                     Path.Join([appSettingsService.TranslateFileDir, ..tabType.GetRepoDirRoot()]),
+                    true,
+                    null,
                     CheckState.Checked);
             fileEntryVM.LoadChildren();
             SubscribeSelectionChanged( fileEntryVM );
