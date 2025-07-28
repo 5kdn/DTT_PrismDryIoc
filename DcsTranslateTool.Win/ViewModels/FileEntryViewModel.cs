@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Generic;
 
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
@@ -80,5 +81,20 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
         foreach(var child in result.Value!) Children.Add( _factory.Create( child, IsSelected ) );
 
         RaisePropertyChanged( nameof( Children ) );
+    }
+
+    /// <summary>
+    /// 選択状態の子要素の <see cref="FileEntry"/> を再帰的に取得する
+    /// </summary>
+    /// <returns>選択状態の <see cref="FileEntry"/> の一覧</returns>
+    public List<FileEntry> GetCheckedModelRecursice() {
+        List<FileEntry> checkedChildrenModels = [];
+        if(IsSelected) checkedChildrenModels.Add( Model );
+
+        foreach(var child in Children) {
+            if(child is null) continue;
+            checkedChildrenModels.AddRange( child.GetCheckedModelRecursice() );
+        }
+        return checkedChildrenModels;
     }
 }

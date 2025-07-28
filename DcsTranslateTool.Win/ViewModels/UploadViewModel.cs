@@ -116,9 +116,15 @@ public class UploadViewModel(
     /// </summary>
     private void OnOpenCreatePullRequestDialog() {
         IsCreatePullRequestDialogButtonEnabled = false;
-        var parameters = new DialogParameters(){
-            {"files", new string[]{"files1", "files2", "files3" } }
+
+        var checkedEntries = Tabs[SelectedTabIndex]
+            .Root
+            .GetCheckedModelRecursice();
+
+        var parameters = new DialogParameters {
+            { "files", checkedEntries }
         };
+
         dialogService.ShowDialog( PageKeys.CreatePullRequestDialog, parameters, r => {
             // ダイアログの処理
             if(r.Result == ButtonResult.OK) {

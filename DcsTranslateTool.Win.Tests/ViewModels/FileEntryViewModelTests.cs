@@ -117,4 +117,35 @@ public class FileEntryViewModelTests {
         Assert.True( vm.IsSelected );
         Assert.True( childViewModel.IsSelected );
     }
+
+    #region GetCheckedModelRecursice
+
+    [Fact]
+    [Trait("Category", "WindowsOnly")]
+    public void GetCheckedModelRecursiceは選択された子のみ返す() {
+        // Arrange
+        var factoryMock = new Mock<IFileEntryViewModelFactory>();
+        var serviceMock = new Mock<IFileEntryService>();
+        var parentModel = new FileEntry("Parent", "/Parent", true);
+        var childModel1 = new FileEntry("Child1", "/Parent/Child1", false);
+        var childModel2 = new FileEntry("Child2", "/Parent/Child2", false);
+
+        var childVm1 = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, childModel1);
+        var childVm2 = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, childModel2) { IsSelected = true };
+
+        var parentVm = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, parentModel);
+        parentVm.Children.Clear();
+        parentVm.Children.Add(childVm1);
+        parentVm.Children.Add(childVm2);
+
+        // Act
+        var result = parentVm.GetCheckedModelRecursice();
+
+        // Assert
+        Assert.DoesNotContain(childModel1, result);
+        Assert.Contains(childModel2, result);
+        Assert.DoesNotContain(parentModel, result);
+    }
+
+    #endregion
 }
