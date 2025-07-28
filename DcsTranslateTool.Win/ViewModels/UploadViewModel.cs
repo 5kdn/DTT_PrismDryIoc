@@ -33,7 +33,9 @@ public class UploadViewModel(
     /// </summary>
     public int SelectedTabIndex {
         get => _selectedTabIndex;
-        set => SetProperty( ref _selectedTabIndex, value );
+        set {
+            if(SetProperty( ref _selectedTabIndex, value )) UpdateCreatePullRequestDialogButton();
+        }
     }
 
     ///<summary>
@@ -108,6 +110,7 @@ public class UploadViewModel(
 
         if(node.IsChildrenLoaded) return;
         node.LoadChildren();
+        SubscribeSelectionChanged( node );
         node.IsChildrenLoaded = true;
     }
 
@@ -133,8 +136,8 @@ public class UploadViewModel(
             else if(r.Result == ButtonResult.Cancel) {
                 // キャンセルボタンが押された場合の処理
             }
-            //    // ダイアログ終了後処理
-            IsCreatePullRequestDialogButtonEnabled = true;
+            // ダイアログ終了後処理
+            UpdateCreatePullRequestDialogButton();
         } );
     }
 
@@ -146,10 +149,33 @@ public class UploadViewModel(
             var fileEntryVM = fileEntryViewModelFactory.Create(
                     Path.Join([appSettingsService.TranslateFileDir, ..tabType.GetRepoDirRoot()]),true);
             fileEntryVM.LoadChildren();
+            SubscribeSelectionChanged( fileEntryVM );
             return new UploadTabItemViewModel(tabType, fileEntryVM);
         });
         Tabs.Clear();
         Tabs = [.. tabs];
+        UpdateCreatePullRequestDialogButton();
+    }
+
+    private void OnFileEntrySelectedChanged( object? sender, bool _) => UpdateCreatePullRequestDialogButton();
+
+    private void SubscribeSelectionChanged( FileEntryViewModel node ) {
+        node.IsSelectedChanged += OnFileEntrySelectedChanged;
+        foreach(var child in node.Children) {
+            if(child is not null) SubscribeSelectionChanged( child );
+        }
+    }
+
+    private void UpdateCreatePullRequestDialogButton() {
+        if(Tabs.Count == 0) {
+            IsCreatePullRequestDialogButtonEnabled = false;
+            return;
+        }
+
+        IsCreatePullRequestDialogButtonEnabled = Tabs[SelectedTabIndex]
+            .Root
+            .GetCheckedModelRecursice()
+            .Any();
     }
 
     #endregion

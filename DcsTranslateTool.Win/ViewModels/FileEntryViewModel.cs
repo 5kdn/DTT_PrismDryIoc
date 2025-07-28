@@ -16,6 +16,11 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     private bool isExpanded;
     private bool childrenLoaded;
 
+    /// <summary>
+    /// 選択状態が変更されたときに通知するイベント
+    /// </summary>
+    public event EventHandler<bool>? IsSelectedChanged;
+
     /// <inheritdoc/>
     public string Name => this.Model.Name;
 
@@ -32,13 +37,14 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     public bool IsSelected {
         get => isSelected;
         set {
-            SetProperty( ref isSelected, value );
+            if(!SetProperty( ref isSelected, value )) return;
             // TODO: 一部選択状態を追加
             if(IsDirectory) {
                 foreach(var child in Children) {
                     if(child is not null) child.IsSelected = value;
                 }
             }
+            IsSelectedChanged?.Invoke( this, value );
         }
     }
 
@@ -78,7 +84,11 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
             // TODO: エラーハンドリング
         }
         Children.Clear();
-        foreach(var child in result.Value!) Children.Add( _factory.Create( child, IsSelected ) );
+        foreach(var child in result.Value!) {
+            var childVm = _factory.Create( child, IsSelected );
+            childVm.IsSelectedChanged += (_, _) => IsSelectedChanged?.Invoke( childVm, childVm.IsSelected );
+            Children.Add( childVm );
+        }
 
         RaisePropertyChanged( nameof( Children ) );
     }

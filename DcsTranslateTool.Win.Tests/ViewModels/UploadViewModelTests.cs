@@ -1,17 +1,21 @@
 ﻿using DcsTranslateTool.Core.Contracts.Services;
+using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Core.Services;
+using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
+using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.Services;
 using DcsTranslateTool.Win.ViewModels;
 using DcsTranslateTool.Win.ViewModels.Factories;
-using DcsTranslateTool.Core.Models;
-using Prism.Regions;
-using System.Linq;
 
 using Moq;
 
 using Xunit;
+
+using DryIoc;
+using Prism.Regions;
+using System.Linq;
 
 namespace DcsTranslateTool.Win.Tests.ViewModels;
 
@@ -63,6 +67,8 @@ public class UploadViewModelTests {
         vm.Tabs.Add(new UploadTabItemViewModel(RootTabType.Aircraft, rootVm));
         vm.SelectedTabIndex = 0;
 
+        Assert.True( vm.IsCreatePullRequestDialogButtonEnabled );
+
         IDialogParameters? captured = null;
         dialogServiceMock
             .Setup(d => d.ShowDialog(PageKeys.CreatePullRequestDialog, It.IsAny<IDialogParameters>(), It.IsAny<Action<IDialogResult>>()))
@@ -76,5 +82,42 @@ public class UploadViewModelTests {
         var files = captured!.GetValue<IEnumerable<FileEntry>>( "files" ).ToList();
         Assert.Single( files );
         Assert.Equal( childModel, files[0] );
+        Assert.True( vm.IsCreatePullRequestDialogButtonEnabled );
+    }
+
+    [Fact]
+    [Trait("Category", "WindowsOnly")]
+    public void IsCreatePullRequestDialogButtonEnabledは選択状態で変化する() {
+        // Arrange
+        var appSettingsServiceMock = new Mock<IAppSettingsService>();
+        var regionManager = new RegionManager();
+        var dialogServiceMock = new Mock<IDialogService>();
+        var factoryMock = new Mock<IFileEntryViewModelFactory>();
+        var fileEntryServiceMock = new Mock<IFileEntryService>();
+
+        var childModel = new FileEntry("Child", "/Root/Child", false);
+        var rootModel = new FileEntry("Root", "/Root", true);
+        var rootVm = new FileEntryViewModel(factoryMock.Object, fileEntryServiceMock.Object, rootModel);
+        rootVm.Children.Clear();
+        var childVm = new FileEntryViewModel(factoryMock.Object, fileEntryServiceMock.Object, childModel);
+        rootVm.Children.Add( childVm );
+
+        var vm = new UploadViewModel(
+            appSettingsServiceMock.Object,
+            regionManager,
+            dialogServiceMock.Object,
+            factoryMock.Object );
+
+        vm.Tabs.Add(new UploadTabItemViewModel(RootTabType.Aircraft, rootVm));
+        vm.SelectedTabIndex = 0;
+
+        // Assert initial state
+        Assert.False( vm.IsCreatePullRequestDialogButtonEnabled );
+
+        // Act
+        childVm.IsSelected = true;
+
+        // Assert
+        Assert.True( vm.IsCreatePullRequestDialogButtonEnabled );
     }
 }
