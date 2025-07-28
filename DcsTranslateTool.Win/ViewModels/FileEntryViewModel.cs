@@ -63,7 +63,7 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     }
 
     /// <inheritdoc/>
-    public ObservableCollection<FileEntryViewModel?> Children { get; } = [];
+    public ObservableCollection<IFileEntryViewModel?> Children { get; } = [];
 
     public FileEntryViewModel(
         IFileEntryViewModelFactory factory,

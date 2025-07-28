@@ -13,9 +13,6 @@ using Moq;
 
 using Xunit;
 
-using DryIoc;
-using Prism.Regions;
-using System.Linq;
 
 namespace DcsTranslateTool.Win.Tests.ViewModels;
 

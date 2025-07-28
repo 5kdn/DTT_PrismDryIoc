@@ -3,7 +3,6 @@
 using DcsTranslateTool.Core.Models;
 
 using DcsTranslateTool.Win.Enums;
-using DcsTranslateTool.Win.ViewModels;
 
 namespace DcsTranslateTool.Win.Contracts.ViewModels;
 
@@ -49,7 +48,7 @@ public interface IFileEntryViewModel {
     /// <summary>
     /// 子エントリのコレクションを取得する
     /// </summary>
-    ObservableCollection<FileEntryViewModel?> Children { get; }
+    ObservableCollection<IFileEntryViewModel?> Children { get; }
 
     /// <summary>
     /// 子エントリを読み込む
