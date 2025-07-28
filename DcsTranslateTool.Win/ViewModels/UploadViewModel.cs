@@ -4,6 +4,8 @@ using System.IO;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
+using DcsTranslateTool.Win.Enums;
+using DcsTranslateTool.Win.Extensions;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
@@ -134,16 +136,14 @@ public class UploadViewModel(
     /// TabsをTranslateFileDirから初期化
     /// </summary>
     private void RefleshTabs() {
-        var aircraftPath = Path.Join( appSettingsService.TranslateFileDir, "DCSWorld", "Mods", "aircraft");
-        var dlcCampaignsPath = Path.Join( appSettingsService.TranslateFileDir, "DCSWorld", "Mods", "campaigns" );
-        Tabs = [
-            new UploadTabItemViewModel("Aircraft"     , fileEntryViewModelFactory.Create(aircraftPath, true)),
-            new UploadTabItemViewModel("DLC Campaigns", fileEntryViewModelFactory.Create(dlcCampaignsPath, true))
-        ];
-        foreach(var tab in Tabs) {
-            tab.Root.LoadChildren();
-            tab.Root.IsChildrenLoaded = true;
-        }
+        var tabs = Enum.GetValues<RootTabType>().Select(tabType =>{
+            var fileEntryVM = fileEntryViewModelFactory.Create(
+                    Path.Join([appSettingsService.TranslateFileDir, ..tabType.GetRepoDirRoot()]),true);
+            fileEntryVM.LoadChildren();
+            return new UploadTabItemViewModel(tabType, fileEntryVM);
+        });
+        Tabs.Clear();
+        Tabs = [.. tabs];
     }
 
     #endregion

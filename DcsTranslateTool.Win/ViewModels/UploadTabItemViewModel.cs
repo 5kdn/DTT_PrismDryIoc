@@ -1,7 +1,10 @@
-﻿namespace DcsTranslateTool.Win.ViewModels;
+﻿using DcsTranslateTool.Win.Enums;
+using DcsTranslateTool.Win.Extensions;
 
-public class UploadTabItemViewModel( string title, FileEntryViewModel rootEntry ) : BindableBase {
-    public string Title { get; } = title;
+namespace DcsTranslateTool.Win.ViewModels;
+
+public class UploadTabItemViewModel( RootTabType tabType, FileEntryViewModel rootEntry ) : BindableBase {
+    public string Title { get; } = tabType.GetTabTitle();
 
     public FileEntryViewModel Root {
         get => rootEntry;
