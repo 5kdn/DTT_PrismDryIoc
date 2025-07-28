@@ -1,8 +1,12 @@
 ﻿using DcsTranslateTool.Core.Models;
+using DcsTranslateTool.Win.Enums;
+using DcsTranslateTool.Win.Extensions;
 
 namespace DcsTranslateTool.Win.ViewModels;
-public class DownloadTabItemViewModel( string title, RepoEntryViewModel rootEntry ) : BindableBase {
-    public string Title { get; } = title;
+public class DownloadTabItemViewModel( RootTabType tabType, RepoEntryViewModel rootEntry ) : BindableBase {
+    public RootTabType TabType { get; } = tabType;
+
+    public string Title { get; } = tabType.GetTabTitle();
 
     public RepoEntryViewModel Root {
         get => rootEntry;

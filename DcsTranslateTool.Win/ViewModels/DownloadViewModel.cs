@@ -5,6 +5,8 @@ using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
+using DcsTranslateTool.Win.Enums;
+using DcsTranslateTool.Win.Extensions;
 
 using DryIoc.ImTools;
 
@@ -132,15 +134,15 @@ public class DownloadViewModel(
         IEnumerable<RepoEntry> entries = result.Value;
         RepoEntryViewModel rootVm = new( new RepoEntry( "", "", true ) );
         foreach(var entry in entries) AddRepoEntryToRepoEntryViewModel( rootVm, entry );
-        var modVM = rootVm
-            .Children.FirstOrDefault(c => c.Name == "DCSWorld")?
-            .Children.FirstOrDefault(c => c.Name == "Mods");
 
         ResetTabs();
-        var aircraftVM = modVM?.Children.FirstOrDefault( c => c.Name == "aircraft" );
-        var dlcCampaignsVM = modVM?.Children.FirstOrDefault( c => c.Name == "campaigns" );
-        if(aircraftVM is not null) Tabs.FindFirst( t => t.Title == "Aircraft" )!.Root = aircraftVM;
-        if(dlcCampaignsVM is not null) Tabs.FindFirst( t => t.Title == "DLC Campaigns" )!.Root = dlcCampaignsVM;
+        Enum.GetValues<RootTabType>().ForEach( tabType => {
+            RepoEntryViewModel? target = tabType
+                .GetRepoDirRoot()
+                .Aggregate<string, RepoEntryViewModel?>(rootVm, (node, part) =>
+                    node?.Children.FirstOrDefault(c=>c.Name == part));
+            if(target != null) Tabs.FindFirst( t => t.TabType == tabType ).Root = target;
+        } );
     }
 
     /// <summary>
@@ -179,10 +181,9 @@ public class DownloadViewModel(
     /// Tabsを初期化
     /// </summary>
     private void ResetTabs() {
-        Tabs = [
-            new DownloadTabItemViewModel("Aircraft"     , new RepoEntryViewModel(new RepoEntry("", "", true) ) ),
-            new DownloadTabItemViewModel("DLC Campaigns", new RepoEntryViewModel(new RepoEntry("", "", true) ) )
-        ];
+        Tabs = [..Enum.GetValues<RootTabType>().Select(tabType=>
+            new DownloadTabItemViewModel(tabType, new RepoEntryViewModel(new RepoEntry("", "", true) ))
+        )];
     }
 
     /// <summary>
