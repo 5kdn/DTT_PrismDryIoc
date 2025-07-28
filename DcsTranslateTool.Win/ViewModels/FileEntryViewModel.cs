@@ -69,7 +69,7 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     }
 
     /// <inheritdoc/>
-    public ObservableCollection<FileEntryViewModel?> Children { get; } = [];
+    public ObservableCollection<IFileEntryViewModel?> Children { get; } = [];
 
     /// <summary>
     /// 親ノード（CheckStateの伝播用）

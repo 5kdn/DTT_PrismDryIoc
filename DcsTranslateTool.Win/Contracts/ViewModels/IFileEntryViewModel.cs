@@ -48,7 +48,7 @@ public interface IFileEntryViewModel {
     /// <summary>
     /// 子エントリのコレクションを取得する
     /// </summary>
-    ObservableCollection<FileEntryViewModel?> Children { get; }
+    ObservableCollection<IFileEntryViewModel?> Children { get; }
 
     /// <summary>
     /// 子エントリを読み込む
