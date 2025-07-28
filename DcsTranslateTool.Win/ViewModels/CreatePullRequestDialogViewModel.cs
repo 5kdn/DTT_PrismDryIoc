@@ -68,6 +68,28 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
 
     #endregion
 
+    /// <summary>
+    /// クラスの新しいインスタンスを生成する
+    /// </summary>
+    public CreatePullRequestDialogViewModel() {
+        PullRequestChangeKinds = new ObservableCollection<PullRequestChangeKindItem>(
+            Enum.GetValues( typeof( PullRequestChangeKind ) )
+                .Cast<PullRequestChangeKind>()
+                .Select( kind => new PullRequestChangeKindItem( kind ) )
+        );
+
+        foreach(var item in PullRequestChangeKinds) {
+            item.PropertyChanged += PullRequestChangeKindItem_PropertyChanged;
+        }
+        AgreementItems =
+        [
+            new PullRequestDialogAgreementCheckItem("アップロードするファイルに個人情報は含まれていません"),
+        ];
+        foreach(var item in AgreementItems) {
+            item.PropertyChanged += AgreementItem_PropertyChanged;
+        }
+    }
+
     #region Commands
     public DelegateCommand CreatePullRequestCommand
     => _createPullRequestCommand ??= new DelegateCommand( OnCreatePullRequest );
@@ -86,25 +108,6 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
             // 全ての確認事項に同意する必要がある
             if(!AgreementItems.All( x => x.IsAgreed )) return false;
             return true;
-        }
-    }
-
-    public CreatePullRequestDialogViewModel() {
-        PullRequestChangeKinds = new ObservableCollection<PullRequestChangeKindItem>(
-            Enum.GetValues( typeof( PullRequestChangeKind ) )
-                .Cast<PullRequestChangeKind>()
-                .Select( kind => new PullRequestChangeKindItem( kind ) )
-        );
-
-        foreach(var item in PullRequestChangeKinds) {
-            item.PropertyChanged += PullRequestChangeKindItem_PropertyChanged;
-        }
-        AgreementItems =
-        [
-            new PullRequestDialogAgreementCheckItem("アップロードするファイルに個人情報は含まれていません"),
-        ];
-        foreach(var item in AgreementItems) {
-            item.PropertyChanged += AgreementItem_PropertyChanged;
         }
     }
 
