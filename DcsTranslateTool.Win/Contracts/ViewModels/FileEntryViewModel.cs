@@ -2,6 +2,7 @@
 
 using DcsTranslateTool.Core.Models;
 
+using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.ViewModels;
 
 namespace DcsTranslateTool.Win.Contracts.ViewModels;
@@ -31,9 +32,9 @@ public interface IFileEntryViewModel {
     FileEntry Model { get; }
 
     /// <summary>
-    /// 選択状態かどうかを取得または設定する
+    /// チェック状態を取得または設定する
     /// </summary>
-    bool IsSelected { get; set; }
+    CheckState CheckState { get; set; }
 
     /// <summary>
     /// 展開状態かどうかを取得または設定する

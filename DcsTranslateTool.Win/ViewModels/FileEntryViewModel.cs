@@ -5,6 +5,7 @@ using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Contracts.ViewModels;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
+using DcsTranslateTool.Win.Enums;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
@@ -12,14 +13,14 @@ namespace DcsTranslateTool.Win.ViewModels;
 public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     private readonly IFileEntryViewModelFactory _factory;
     private readonly IFileEntryService _fileEntryService;
-    private bool isSelected;
+    private CheckState checkState;
     private bool isExpanded;
     private bool childrenLoaded;
 
     /// <summary>
     /// 選択状態が変更されたときに通知するイベント
     /// </summary>
-    public event EventHandler<bool>? IsSelectedChanged;
+    public event EventHandler<CheckState>? CheckStateChanged;
 
     /// <inheritdoc/>
     public string Name => this.Model.Name;
@@ -34,17 +35,16 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     public FileEntry Model { get; }
 
     /// <inheritdoc/>
-    public bool IsSelected {
-        get => isSelected;
+    public CheckState CheckState {
+        get => checkState;
         set {
-            if(!SetProperty( ref isSelected, value )) return;
-            // TODO: 一部選択状態を追加
-            if(IsDirectory) {
+            if(!SetProperty( ref checkState, value )) return;
+            if(IsDirectory && value != CheckState.Indeterminate) {
                 foreach(var child in Children) {
-                    if(child is not null) child.IsSelected = value;
+                    if(child is not null) child.CheckState = value;
                 }
             }
-            IsSelectedChanged?.Invoke( this, value );
+            CheckStateChanged?.Invoke( this, value );
         }
     }
 
@@ -85,8 +85,8 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
         }
         Children.Clear();
         foreach(var child in result.Value!) {
-            var childVm = _factory.Create( child, IsSelected );
-            childVm.IsSelectedChanged += (_, _) => IsSelectedChanged?.Invoke( childVm, childVm.IsSelected );
+            var childVm = _factory.Create( child, CheckState );
+            childVm.CheckStateChanged += (_, _) => CheckStateChanged?.Invoke( childVm, childVm.CheckState );
             Children.Add( childVm );
         }
 
@@ -99,7 +99,7 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     /// <returns>選択状態の <see cref="FileEntry"/> の一覧</returns>
     public List<FileEntry> GetCheckedModelRecursice() {
         List<FileEntry> checkedChildrenModels = [];
-        if(IsSelected) checkedChildrenModels.Add( Model );
+        if(CheckState == CheckState.Checked) checkedChildrenModels.Add( Model );
 
         foreach(var child in Children) {
             if(child is null) continue;

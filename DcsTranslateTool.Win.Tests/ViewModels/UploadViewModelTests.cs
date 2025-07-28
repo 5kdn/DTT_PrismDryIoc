@@ -62,7 +62,7 @@ public class UploadViewModelTests {
         var childModel = new FileEntry("Child.txt", "/Root/Child.txt", false);
         var rootVm = new FileEntryViewModel(factoryMock.Object, fileEntryServiceMock.Object, rootModel);
         rootVm.Children.Clear();
-        rootVm.Children.Add(new FileEntryViewModel(factoryMock.Object, fileEntryServiceMock.Object, childModel) { IsSelected = true });
+        rootVm.Children.Add(new FileEntryViewModel(factoryMock.Object, fileEntryServiceMock.Object, childModel) { CheckState = CheckState.Checked });
 
         vm.Tabs.Add(new UploadTabItemViewModel(RootTabType.Aircraft, rootVm));
         vm.SelectedTabIndex = 0;
@@ -115,7 +115,7 @@ public class UploadViewModelTests {
         Assert.False( vm.IsCreatePullRequestDialogButtonEnabled );
 
         // Act
-        childVm.IsSelected = true;
+        childVm.CheckState = CheckState.Checked;
 
         // Assert
         Assert.True( vm.IsCreatePullRequestDialogButtonEnabled );

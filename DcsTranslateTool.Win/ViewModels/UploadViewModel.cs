@@ -147,7 +147,8 @@ public class UploadViewModel(
     private void RefleshTabs() {
         var tabs = Enum.GetValues<RootTabType>().Select(tabType =>{
             var fileEntryVM = fileEntryViewModelFactory.Create(
-                    Path.Join([appSettingsService.TranslateFileDir, ..tabType.GetRepoDirRoot()]),true);
+                    Path.Join([appSettingsService.TranslateFileDir, ..tabType.GetRepoDirRoot()]),
+                    CheckState.Checked);
             fileEntryVM.LoadChildren();
             SubscribeSelectionChanged( fileEntryVM );
             return new UploadTabItemViewModel(tabType, fileEntryVM);
@@ -157,10 +158,10 @@ public class UploadViewModel(
         UpdateCreatePullRequestDialogButton();
     }
 
-    private void OnFileEntrySelectedChanged( object? sender, bool _) => UpdateCreatePullRequestDialogButton();
+    private void OnFileEntrySelectedChanged( object? sender, CheckState _) => UpdateCreatePullRequestDialogButton();
 
     private void SubscribeSelectionChanged( FileEntryViewModel node ) {
-        node.IsSelectedChanged += OnFileEntrySelectedChanged;
+        node.CheckStateChanged += OnFileEntrySelectedChanged;
         foreach(var child in node.Children) {
             if(child is not null) SubscribeSelectionChanged( child );
         }

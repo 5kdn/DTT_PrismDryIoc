@@ -3,21 +3,22 @@
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
+using DcsTranslateTool.Win.Enums;
 
 namespace DcsTranslateTool.Win.ViewModels.Factories;
 
 public class FileEntryViewModelFactory( IResolverContext resolver ) : IFileEntryViewModelFactory {
     /// <inheritdoc />
-    public FileEntryViewModel Create( FileEntry model, bool isSelected = false ) {
+    public FileEntryViewModel Create( FileEntry model, CheckState checkState = CheckState.Unchecked ) {
         var service = resolver.Resolve<IFileEntryService>();
         return new FileEntryViewModel( this, service, model )
         {
-            IsSelected = isSelected
+            CheckState = checkState
         };
     }
 
     /// <inheritdoc />
-    public FileEntryViewModel Create( string absolutePath, bool isDirectory, bool isSelected = false ) {
-        return Create( new FileEntry( Path.GetFileName( absolutePath ), absolutePath, isDirectory ), isSelected );
+    public FileEntryViewModel Create( string absolutePath, bool isDirectory, CheckState checkState = CheckState.Unchecked ) {
+        return Create( new FileEntry( Path.GetFileName( absolutePath ), absolutePath, isDirectory ), checkState );
     }
 }

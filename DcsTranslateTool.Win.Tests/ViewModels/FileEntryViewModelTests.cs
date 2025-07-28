@@ -1,6 +1,7 @@
 ﻿using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
+using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.ViewModels;
 
 using FluentResults;
@@ -99,7 +100,7 @@ public class FileEntryViewModelTests {
     }
 
     [Fact]
-    public void ディレクトリでIsSelectedに設定したとき子も同じ状態になる() {
+    public void ディレクトリでCheckStateをCheckedに設定したとき子も同じ状態になる() {
         // Arrange
         var factoryMock = new Mock<IFileEntryViewModelFactory>();
         var serviceMock = new Mock<IFileEntryService>();
@@ -111,11 +112,11 @@ public class FileEntryViewModelTests {
         vm.Children.Add( childViewModel );
 
         // Act
-        vm.IsSelected = true;
+        vm.CheckState = CheckState.Checked;
 
         // Assert
-        Assert.True( vm.IsSelected );
-        Assert.True( childViewModel.IsSelected );
+        Assert.Equal( CheckState.Checked, vm.CheckState );
+        Assert.Equal( CheckState.Checked, childViewModel.CheckState );
     }
 
     #region GetCheckedModelRecursice
@@ -131,7 +132,7 @@ public class FileEntryViewModelTests {
         var childModel2 = new FileEntry("Child2", "/Parent/Child2", false);
 
         var childVm1 = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, childModel1);
-        var childVm2 = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, childModel2) { IsSelected = true };
+        var childVm2 = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, childModel2) { CheckState = CheckState.Checked };
 
         var parentVm = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, parentModel);
         parentVm.Children.Clear();
