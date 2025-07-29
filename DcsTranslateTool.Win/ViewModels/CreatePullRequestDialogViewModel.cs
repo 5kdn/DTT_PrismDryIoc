@@ -42,7 +42,7 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
     /// </summary>
     public string Subcategory {
         get {
-            if(Files is null || !Files.Any()) return string.Empty;
+            if(Files?.Any() != true) return string.Empty;
 
             var directories = Files
                 .Select(f => Path.GetDirectoryName(f.AbsolutePath) ?? string.Empty)
@@ -55,10 +55,8 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
             int prefixLength = 0;
             for(int i = 0; i < minLength; i++) {
                 var segment = directories[0][i];
-                if(directories.All(a => string.Equals(a[i], segment, System.StringComparison.OrdinalIgnoreCase))) {
-                    prefixLength = i + 1;
-                }
-                else break;
+                if(!directories.All( a => string.Equals( a[i], segment, System.StringComparison.OrdinalIgnoreCase ) )) break;
+                prefixLength = i + 1;
             }
 
             return prefixLength == 0 ? string.Empty : directories[0][prefixLength - 1];
