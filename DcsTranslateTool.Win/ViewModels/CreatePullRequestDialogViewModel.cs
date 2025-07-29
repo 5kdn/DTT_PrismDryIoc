@@ -2,14 +2,19 @@
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
+using System.Threading.Tasks;
 
 using DcsTranslateTool.Core.Models;
+using DcsTranslateTool.Core.Contracts.Services;
+using FluentResults;
 using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.Models;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
-public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
+public class CreatePullRequestDialogViewModel(
+    IRepositoryService repositoryService
+) : BindableBase, IDialogAware {
     #region Fields
 
     public static string Title => "PR作成ダイアログ";
@@ -171,18 +176,32 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
         return $"feature/{Category}/{Subcategory}--{changes}--{dateStr}";
     }
 
-    private void OnCreatePullRequest() {
+    /// <summary>
+    /// RepositoryServiceを利用してプルリクエストを作成する
+    /// </summary>
+    /// <param name="branchName">作成するブランチ名</param>
+    /// <returns>処理結果</returns>
+    private async Task<Result> CreatePullRequestInternalAsync( string branchName ) {
+        try {
+            return await repositoryService.CreatePullRequestAsync( branchName, PRTitle, PRComment );
+        }
+        catch( Exception ex ) {
+            return Result.Fail( ex.Message );
+        }
+    }
+
+    private async void OnCreatePullRequest() {
         string newBranchName = CreateBranchName();
 
         // For Debugging purposes
-        var msg = string.Join("\n",PullRequestChangeKinds.Where( x => x.IsChecked ).Select( x => x.DisplayName ));
+        var msg = string.Join("\n", PullRequestChangeKinds.Where( x => x.IsChecked ).Select( x => x.DisplayName ));
         MessageBox.Show( $"{newBranchName}\n{msg}" );
-        try {
-            // TODO: PR作成処理をここに実装
+
+        var result = await CreatePullRequestInternalAsync( newBranchName );
+        if(result.IsSuccess) {
             RequestClose.Invoke( new DialogResult( ButtonResult.OK ) );
         }
-        catch {
-            // TODO: ユーザーにエラー通知
+        else {
             RequestClose.Invoke( new DialogResult( ButtonResult.Abort ) );
         }
     }
