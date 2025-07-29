@@ -1,6 +1,7 @@
 ﻿using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
+using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.ViewModels;
 
 using FluentResults;
@@ -40,7 +41,7 @@ public class FileEntryViewModelTests {
             .Setup( s => s.GetChildren( parentModel ) )
             .Returns( Result.Ok<IEnumerable<FileEntry>>( [childModel] ) );
         factoryMock
-            .Setup( f => f.Create( childModel, false ) )
+            .Setup( f => f.Create( childModel, It.IsAny<FileEntryViewModel?>(), CheckState.Unchecked ) )
             .Returns( childViewModel );
 
         var vm = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, parentModel);
@@ -50,9 +51,9 @@ public class FileEntryViewModelTests {
 
         // Assert
         Assert.Single( vm.Children );
-        Assert.Equal( "Child.exp", vm.Children[0].Name );
-        Assert.Equal( "/Parent/Child.exp", vm.Children[0].AbsolutePath );
-        Assert.False( vm.Children[0].IsDirectory );
+        Assert.Equal( "Child.exp", vm.Children[0]?.Name );
+        Assert.Equal( "/Parent/Child.exp", vm.Children[0]?.AbsolutePath );
+        Assert.False( vm.Children[0]?.IsDirectory );
         Assert.Equal( childViewModel, vm.Children[0] );
     }
 
@@ -69,7 +70,7 @@ public class FileEntryViewModelTests {
             .Setup( s => s.GetChildren( parentModel ) )
             .Returns( Result.Ok<IEnumerable<FileEntry>>( [childModel] ) );
         factoryMock
-            .Setup( f => f.Create( childModel, false ) )
+            .Setup( f => f.Create( childModel, It.IsAny<FileEntryViewModel?>(), CheckState.Unchecked ) )
             .Returns( childViewModel );
 
         var vm = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, parentModel);
@@ -81,7 +82,7 @@ public class FileEntryViewModelTests {
 
         // Assert
         Assert.Single( vm.Children );
-        Assert.Equal( "Child.exp", vm.Children[0].Name );
+        Assert.Equal( "Child.exp", vm.Children[0]?.Name );
         serviceMock.Verify( s => s.GetChildren( parentModel ), Times.Once ); // 1回のみ呼ばれる
     }
 
@@ -99,7 +100,7 @@ public class FileEntryViewModelTests {
     }
 
     [Fact]
-    public void ディレクトリでIsSelectedに設定したとき子も同じ状態になる() {
+    public void ディレクトリでCheckStateをCheckedに設定したとき子も同じ状態になる() {
         // Arrange
         var factoryMock = new Mock<IFileEntryViewModelFactory>();
         var serviceMock = new Mock<IFileEntryService>();
@@ -111,10 +112,41 @@ public class FileEntryViewModelTests {
         vm.Children.Add( childViewModel );
 
         // Act
-        vm.IsSelected = true;
+        vm.CheckState = CheckState.Checked;
 
         // Assert
-        Assert.True( vm.IsSelected );
-        Assert.True( childViewModel.IsSelected );
+        Assert.Equal( CheckState.Checked, vm.CheckState );
+        Assert.Equal( CheckState.Checked, childViewModel.CheckState );
     }
+
+    #region GetCheckedModelRecursice
+
+    [Fact]
+    [Trait( "Category", "WindowsOnly" )]
+    public void GetCheckedModelRecursiceは選択された子のみ返す() {
+        // Arrange
+        var factoryMock = new Mock<IFileEntryViewModelFactory>();
+        var serviceMock = new Mock<IFileEntryService>();
+        var parentModel = new FileEntry("Parent", "/Parent", true);
+        var childModel1 = new FileEntry("Child1", "/Parent/Child1", false);
+        var childModel2 = new FileEntry("Child2", "/Parent/Child2", false);
+
+        var childVm1 = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, childModel1);
+        var childVm2 = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, childModel2) { CheckState = CheckState.Checked };
+
+        var parentVm = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, parentModel);
+        parentVm.Children.Clear();
+        parentVm.Children.Add( childVm1 );
+        parentVm.Children.Add( childVm2 );
+
+        // Act
+        var result = parentVm.GetCheckedModelRecursice();
+
+        // Assert
+        Assert.DoesNotContain( childModel1, result );
+        Assert.Contains( childModel2, result );
+        Assert.DoesNotContain( parentModel, result );
+    }
+
+    #endregion
 }

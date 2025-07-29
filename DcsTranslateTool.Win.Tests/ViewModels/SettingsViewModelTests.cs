@@ -52,7 +52,7 @@ public class SettingsViewModelTests {
             mockEnvironmentProvider.Object,
             Mock.Of<AppSettingsService>()
         );
-        settingsVm.OnNavigatedTo( null );
+        settingsVm.OnNavigatedTo( null! );
 
         // Act
         var actual = settingsVm.Theme;
@@ -82,7 +82,7 @@ public class SettingsViewModelTests {
             mockEnvironmentProvider.Object,
             Mock.Of<AppSettingsService>()
         );
-        settingsVm.OnNavigatedTo( null );
+        settingsVm.OnNavigatedTo( null! );
 
         // Act
         var actual = settingsVm.VersionDescription;
@@ -94,7 +94,7 @@ public class SettingsViewModelTests {
     [Fact]
     public void SetThemeCommandはテーマを変更する() {
         // Arrange
-        var expected = AppTheme.Light;
+        const AppTheme expected = AppTheme.Light;
         var mockThemeSelectorService = new Mock<IThemeSelectorService>();
         var settingsVm = new SettingsViewModel(
             new AppConfig(),
@@ -116,10 +116,10 @@ public class SettingsViewModelTests {
     [Fact]
     public void PropertyInitialValuesプロパティの初期値が正しく設定される() {
         // Arrange
-        string expectedAircraftDir = "Path/To/SourceAirCraft";
-        string expectedDlcCampaignDir = "Path/To/SourceDlcCampaign";
-        string expectedUserDir = "Path/To/SourceUser";
-        string expectedTranslateFileDir = "Path/To/TranslateFile";
+        const string expectedAircraftDir = "Path/To/SourceAirCraft";
+        const string expectedDlcCampaignDir = "Path/To/SourceDlcCampaign";
+        const string expectedUserDir = "Path/To/SourceUser";
+        const string expectedTranslateFileDir = "Path/To/TranslateFile";
 
         var mockAppSettingsService = new Mock<IAppSettingsService>();
         mockAppSettingsService.SetupGet( mock => mock.SourceAircraftDir ).Returns( expectedAircraftDir );
@@ -142,7 +142,7 @@ public class SettingsViewModelTests {
         );
 
         // Act
-        vm.OnNavigatedTo( null );
+        vm.OnNavigatedTo( null! );
 
         var actualAircraftDir = vm.SourceAircraftDir;
         var actualDlcCampaignDir = vm.SourceDlcCampaignDir;
@@ -159,8 +159,10 @@ public class SettingsViewModelTests {
     [Fact]
     public void PropertyChangeで設定に保存される() {
         // Arrange
-        var mockAppSettingsService = new Mock<IAppSettingsService>();
-        mockAppSettingsService.CallBase = true;
+        var mockAppSettingsService = new Mock<IAppSettingsService>
+        {
+            CallBase = true
+        };
         var mockThemeSelectorService = new Mock<IThemeSelectorService>();
         mockThemeSelectorService.Setup( s => s.GetCurrentTheme() ).Returns( AppTheme.Default );
 
@@ -175,7 +177,7 @@ public class SettingsViewModelTests {
         );
 
         // Act
-        vm.OnNavigatedTo( null );
+        vm.OnNavigatedTo( null! );
         vm.SourceAircraftDir = "new Aircraft Dir";
         vm.SourceDlcCampaignDir = "new DLC Campaign Dir";
         vm.SourceUserDir = "new User Dir";
@@ -191,8 +193,10 @@ public class SettingsViewModelTests {
     [Fact]
     public void ResetCommandで初期値に戻る() {
         // Arrange
-        var mockAppSettingsService = new Mock<IAppSettingsService>();
-        mockAppSettingsService.CallBase = true;
+        var mockAppSettingsService = new Mock<IAppSettingsService>
+        {
+            CallBase = true
+        };
         var mockThemeSelectorService = new Mock<IThemeSelectorService>();
         mockThemeSelectorService.Setup( s => s.GetCurrentTheme() ).Returns( AppTheme.Default );
 
@@ -204,11 +208,13 @@ public class SettingsViewModelTests {
             Mock.Of<DialogProvider>(),
             Mock.Of<EnvironmentProvider>(),
             mockAppSettingsService.Object
-        );
-        vm.SourceAircraftDir = "A";
-        vm.SourceDlcCampaignDir = "B";
-        vm.SourceUserDir = "C";
-        vm.TranslateFileDir = "D";
+        )
+        {
+            SourceAircraftDir = "A",
+            SourceDlcCampaignDir = "B",
+            SourceUserDir = "C",
+            TranslateFileDir = "D"
+        };
 
         // Act
         vm.ResetSettingsCommand.Execute( null );
@@ -220,7 +226,7 @@ public class SettingsViewModelTests {
         Assert.Equal( string.Empty, vm.SourceUserDir );
         Assert.Equal(
             Path.Combine(
-                Path.GetDirectoryName( System.Reflection.Assembly.GetExecutingAssembly().Location ), "TranslateFiles" ),
+                Path.GetDirectoryName( System.Reflection.Assembly.GetExecutingAssembly().Location )!, "TranslateFiles" ),
             vm.TranslateFileDir );
     }
 }

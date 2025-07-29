@@ -2,7 +2,7 @@
 
 using DcsTranslateTool.Core.Models;
 
-using DcsTranslateTool.Win.ViewModels;
+using DcsTranslateTool.Win.Enums;
 
 namespace DcsTranslateTool.Win.Contracts.ViewModels;
 
@@ -31,9 +31,9 @@ public interface IFileEntryViewModel {
     FileEntry Model { get; }
 
     /// <summary>
-    /// 選択状態かどうかを取得または設定する
+    /// チェック状態を取得または設定する
     /// </summary>
-    bool IsSelected { get; set; }
+    CheckState CheckState { get; set; }
 
     /// <summary>
     /// 展開状態かどうかを取得または設定する
@@ -48,7 +48,7 @@ public interface IFileEntryViewModel {
     /// <summary>
     /// 子エントリのコレクションを取得する
     /// </summary>
-    ObservableCollection<FileEntryViewModel?> Children { get; }
+    ObservableCollection<IFileEntryViewModel?> Children { get; }
 
     /// <summary>
     /// 子エントリを読み込む
@@ -60,4 +60,10 @@ public interface IFileEntryViewModel {
     /// 子エントリの取得中にエラーが発生した場合にスローされる可能性がある
     /// </exception>
     void LoadChildren();
+
+    /// <summary>
+    /// 選択状態の子要素の <see cref="FileEntry"/> を再帰的に取得する
+    /// </summary>
+    /// <returns>選択状態の <see cref="FileEntry"/> の一覧</returns>
+    List<FileEntry> GetCheckedModelRecursice();
 }

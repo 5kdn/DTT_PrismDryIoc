@@ -1,4 +1,3 @@
-using System;
 using System.Globalization;
 using System.Windows.Data;
 
@@ -16,8 +15,8 @@ public class MultiplyConverter : IValueConverter {
     /// <param name="parameter">倍率を示す文字列</param>
     /// <param name="culture">カルチャ</param>
     /// <returns>計算結果</returns>
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-        if (value is double baseValue && parameter is string paramStr && double.TryParse(paramStr, out var scale)) {
+    public object Convert( object value, Type targetType, object parameter, CultureInfo culture ) {
+        if(value is double baseValue && parameter is string paramStr && double.TryParse( paramStr, out var scale )) {
             return baseValue * scale;
         }
 
@@ -32,8 +31,8 @@ public class MultiplyConverter : IValueConverter {
     /// <param name="parameter">倍率を示す文字列</param>
     /// <param name="culture">カルチャ</param>
     /// <returns>計算結果</returns>
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-        if (value is double baseValue && parameter is string paramStr && double.TryParse(paramStr, out var scale) && scale != 0) {
+    public object ConvertBack( object value, Type targetType, object parameter, CultureInfo culture ) {
+        if(value is double baseValue && parameter is string paramStr && double.TryParse( paramStr, out var scale ) && scale != 0) {
             return baseValue / scale;
         }
 

@@ -12,7 +12,13 @@
     <StackPanel Margin="{StaticResource MediumLeftTopRightBottomMargin}">
         <!--アップロードするファイル一覧-->
         <Expander Header="アップロードするファイルリスト" Margin="{StaticResource MediumBottomMargin}" IsExpanded="True">
-            <ListView ItemsSource="{Binding Files}"/>
+            <ListView ItemsSource="{Binding Files}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding AbsolutePath}"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </Expander>
         <!--PRの作成エリア-->
         <StackPanel>

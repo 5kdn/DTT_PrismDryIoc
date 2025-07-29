@@ -116,8 +116,8 @@ public class FileServiceTests : IDisposable {
         // Assert
         Assert.True( File.Exists( filePath ) );
         var actual = JsonConvert.DeserializeObject<DummyClass>(File.ReadAllText(filePath));
-        Assert.Equal( "John", actual.Name );
-        Assert.Equal( 42, actual.Age );
+        Assert.Equal( "John", actual?.Name );
+        Assert.Equal( 42, actual?.Age );
     }
 
     [Fact]

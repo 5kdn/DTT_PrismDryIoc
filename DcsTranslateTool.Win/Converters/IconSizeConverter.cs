@@ -1,4 +1,3 @@
-using System;
 using System.Globalization;
 using System.Windows.Data;
 
@@ -16,8 +15,8 @@ public class IconSizeConverter : IMultiValueConverter {
     /// <param name="parameter">倍率を示す文字列</param>
     /// <param name="culture">カルチャ</param>
     /// <returns>計算結果</returns>
-    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-        if (values.Length == 2 && values[0] is double width && values[1] is double height) {
+    public object Convert( object[] values, Type targetType, object parameter, CultureInfo culture ) {
+        if(values.Length == 2 && values[0] is double width && values[1] is double height) {
             var min = Math.Min(width, height);
             var scale = parameter is string paramStr && double.TryParse(paramStr, out var s) ? s : 1.0;
             return min * scale;
@@ -34,7 +33,7 @@ public class IconSizeConverter : IMultiValueConverter {
     /// <param name="parameter">倍率</param>
     /// <param name="culture">カルチャ</param>
     /// <returns>計算結果</returns>
-    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+    public object[] ConvertBack( object value, Type[] targetTypes, object parameter, CultureInfo culture ) {
         throw new NotImplementedException();
     }
 }

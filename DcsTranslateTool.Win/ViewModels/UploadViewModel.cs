@@ -3,6 +3,7 @@ using System.IO;
 
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
+using DcsTranslateTool.Win.Contracts.ViewModels;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.Extensions;
@@ -33,7 +34,9 @@ public class UploadViewModel(
     /// </summary>
     public int SelectedTabIndex {
         get => _selectedTabIndex;
-        set => SetProperty( ref _selectedTabIndex, value );
+        set {
+            if(SetProperty( ref _selectedTabIndex, value )) UpdateCreatePullRequestDialogButton();
+        }
     }
 
     ///<summary>
@@ -103,11 +106,16 @@ public class UploadViewModel(
     /// </summary>
     private void OnOpenSettings() => regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
 
+    /// <summary>
+    /// ローカルツリーのノードを展開する
+    /// </summary>
+    /// <param name="parameter">展開対象のノード</param>
     private void OnLoadLocalTree( object? parameter ) {
         if(parameter is not FileEntryViewModel node) return;
 
         if(node.IsChildrenLoaded) return;
         node.LoadChildren();
+        SubscribeSelectionChanged( node );
         node.IsChildrenLoaded = true;
     }
 
@@ -116,9 +124,15 @@ public class UploadViewModel(
     /// </summary>
     private void OnOpenCreatePullRequestDialog() {
         IsCreatePullRequestDialogButtonEnabled = false;
-        var parameters = new DialogParameters(){
-            {"files", new string[]{"files1", "files2", "files3" } }
+
+        var checkedEntries = Tabs[SelectedTabIndex]
+            .Root
+            .GetCheckedModelRecursice();
+
+        var parameters = new DialogParameters {
+            { "files", checkedEntries }
         };
+
         dialogService.ShowDialog( PageKeys.CreatePullRequestDialog, parameters, r => {
             // ダイアログの処理
             if(r.Result == ButtonResult.OK) {
@@ -127,8 +141,8 @@ public class UploadViewModel(
             else if(r.Result == ButtonResult.Cancel) {
                 // キャンセルボタンが押された場合の処理
             }
-            //    // ダイアログ終了後処理
-            IsCreatePullRequestDialogButtonEnabled = true;
+            // ダイアログ終了後処理
+            UpdateCreatePullRequestDialogButton();
         } );
     }
 
@@ -138,12 +152,49 @@ public class UploadViewModel(
     private void RefleshTabs() {
         var tabs = Enum.GetValues<RootTabType>().Select(tabType =>{
             var fileEntryVM = fileEntryViewModelFactory.Create(
-                    Path.Join([appSettingsService.TranslateFileDir, ..tabType.GetRepoDirRoot()]),true);
+                    Path.Join([appSettingsService.TranslateFileDir, ..tabType.GetRepoDirRoot()]),
+                    true,
+                    null,
+                    CheckState.Checked);
             fileEntryVM.LoadChildren();
+            SubscribeSelectionChanged( fileEntryVM as IFileEntryViewModel );
             return new UploadTabItemViewModel(tabType, fileEntryVM);
         });
         Tabs.Clear();
         Tabs = [.. tabs];
+        UpdateCreatePullRequestDialogButton();
+    }
+
+    /// <summary>
+    /// ファイルエントリの選択状態変更時に呼び出される
+    /// </summary>
+    /// <param name="sender">イベント送信元</param>
+    /// <param name="_">未使用</param>
+    private void OnFileEntrySelectedChanged( object? sender, CheckState _ ) => UpdateCreatePullRequestDialogButton();
+
+    /// <summary>
+    /// ファイルエントリの選択状態変更イベントを購読する
+    /// </summary>
+    /// <param name="node">対象のノード</param>
+    private void SubscribeSelectionChanged( IFileEntryViewModel node ) {
+        if(node is FileEntryViewModel concrete) {
+            concrete.CheckStateChanged += OnFileEntrySelectedChanged;
+        }
+        foreach(var child in node.Children) {
+            if(child is not null) SubscribeSelectionChanged( child );
+        }
+    }
+
+    /// <summary>
+    /// Pull Request 作成ボタンの有効状態を更新する
+    /// </summary>
+    private void UpdateCreatePullRequestDialogButton() {
+        if(Tabs.Count == 0) {
+            IsCreatePullRequestDialogButtonEnabled = false;
+            return;
+        }
+
+        IsCreatePullRequestDialogButtonEnabled = Tabs[SelectedTabIndex].Root.CheckState.IsSelectedLike();
     }
 
     #endregion
