@@ -1,8 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Windows;
 
 using DcsTranslateTool.Core.Models;
+using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.Models;
 
 namespace DcsTranslateTool.Win.ViewModels;
@@ -13,6 +15,8 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
     public static string Title => "PR作成ダイアログ";
     private IEnumerable<FileEntry>? _files;
     private string _prComment = "[概要]\n簡潔に変更内容を記載してください。\n\n[変更内容]\n- mizファイル単位で箇条書きで記載してください\n- 機体やキャンペーン全体に関連する場合、機体やキャンペーンごとの記載でも大丈夫です\n\n[備考]\n- 気になる点があれば箇条書きで記載してください";
+
+    private RootTabType _category;
 
     private DelegateCommand? _createPullRequestCommand;
 
@@ -28,17 +32,36 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
         set => SetProperty( ref _files, value );
     }
 
-    public string Category {
-        get {
-            // TODO: 取得ファイル(_files)からカテゴリを自動的に決定するロジックを実装する
-            return "Cat";
-        }
-    }
+    /// <summary>
+    /// 選択されたタブのカテゴリを取得する
+    /// </summary>
+    public RootTabType Category => _category;
 
+    /// <summary>
+    /// 選択ファイルの共通ディレクトリ名を取得する
+    /// </summary>
     public string Subcategory {
         get {
-            // TODO: 取得ファイル(_files)からカテゴリを自動的に決定するロジックを実装する
-            return "Sub";
+            if(Files is null || !Files.Any()) return string.Empty;
+
+            var directories = Files
+                .Select(f => Path.GetDirectoryName(f.AbsolutePath) ?? string.Empty)
+                .Select(p => p.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar, System.StringSplitOptions.RemoveEmptyEntries))
+                .ToList();
+
+            if(directories.Count == 0) return string.Empty;
+
+            int minLength = directories.Min(arr => arr.Length);
+            int prefixLength = 0;
+            for(int i = 0; i < minLength; i++) {
+                var segment = directories[0][i];
+                if(directories.All(a => string.Equals(a[i], segment, System.StringComparison.OrdinalIgnoreCase))) {
+                    prefixLength = i + 1;
+                }
+                else break;
+            }
+
+            return prefixLength == 0 ? string.Empty : directories[0][prefixLength - 1];
         }
     }
 
@@ -116,8 +139,14 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
 
     public bool CanCloseDialog() => true;
     public void OnDialogClosed() { }
+
+    /// <summary>
+    /// ダイアログが開いたときに呼び出される
+    /// </summary>
+    /// <param name="parameters">ダイアログ引数</param>
     public void OnDialogOpened( IDialogParameters parameters ) {
         _files = parameters.GetValue<IEnumerable<FileEntry>>( "files" );
+        _category = parameters.GetValue<RootTabType>( "Category" );
     }
 
     public IEnumerable<PullRequestChangeKind> SelectedChangeKinds =>

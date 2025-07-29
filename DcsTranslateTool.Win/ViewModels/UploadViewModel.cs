@@ -130,7 +130,8 @@ public class UploadViewModel(
             .GetCheckedModelRecursice();
 
         var parameters = new DialogParameters {
-            { "files", checkedEntries }
+            { "files", checkedEntries },
+            { "Category", Tabs[SelectedTabIndex].TabType }
         };
 
         dialogService.ShowDialog( PageKeys.CreatePullRequestDialog, parameters, r => {
