@@ -4,6 +4,7 @@ using System.IO;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
+using DcsTranslateTool.Win.Contracts.ViewModels;
 using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.Extensions;
 

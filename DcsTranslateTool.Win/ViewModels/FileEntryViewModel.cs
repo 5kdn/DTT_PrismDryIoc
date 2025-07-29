@@ -5,6 +5,7 @@ using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Contracts.ViewModels;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 using DcsTranslateTool.Win.Enums;
+using DcsTranslateTool.Win.Extensions;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
@@ -133,12 +134,20 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     /// <returns>選択状態の <see cref="FileEntry"/> の一覧</returns>
     public List<FileEntry> GetCheckedModelRecursice() {
         List<FileEntry> checkedChildrenModels = [];
-        if(CheckState == CheckState.Checked && !IsDirectory) checkedChildrenModels.Add( Model );
+
+        if(CheckState.IsSelectedLike() && !IsDirectory) {
+            checkedChildrenModels.Add( Model );
+        }
+
+        if(!IsChildrenLoaded && CheckState.IsSelectedLike()) {
+            LoadChildren();
+        }
 
         foreach(var child in Children) {
             if(child is null) continue;
             checkedChildrenModels.AddRange( child.GetCheckedModelRecursice() );
         }
+
         return checkedChildrenModels;
     }
 }
