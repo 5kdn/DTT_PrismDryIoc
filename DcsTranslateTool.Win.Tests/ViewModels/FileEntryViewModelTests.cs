@@ -51,9 +51,9 @@ public class FileEntryViewModelTests {
 
         // Assert
         Assert.Single( vm.Children );
-        Assert.Equal( "Child.exp", vm.Children[0].Name );
-        Assert.Equal( "/Parent/Child.exp", vm.Children[0].AbsolutePath );
-        Assert.False( vm.Children[0].IsDirectory );
+        Assert.Equal( "Child.exp", vm.Children[0]?.Name );
+        Assert.Equal( "/Parent/Child.exp", vm.Children[0]?.AbsolutePath );
+        Assert.False( vm.Children[0]?.IsDirectory );
         Assert.Equal( childViewModel, vm.Children[0] );
     }
 
@@ -82,7 +82,7 @@ public class FileEntryViewModelTests {
 
         // Assert
         Assert.Single( vm.Children );
-        Assert.Equal( "Child.exp", vm.Children[0].Name );
+        Assert.Equal( "Child.exp", vm.Children[0]?.Name );
         serviceMock.Verify( s => s.GetChildren( parentModel ), Times.Once ); // 1回のみ呼ばれる
     }
 
@@ -122,7 +122,7 @@ public class FileEntryViewModelTests {
     #region GetCheckedModelRecursice
 
     [Fact]
-    [Trait("Category", "WindowsOnly")]
+    [Trait( "Category", "WindowsOnly" )]
     public void GetCheckedModelRecursiceは選択された子のみ返す() {
         // Arrange
         var factoryMock = new Mock<IFileEntryViewModelFactory>();
@@ -136,16 +136,16 @@ public class FileEntryViewModelTests {
 
         var parentVm = new FileEntryViewModel(factoryMock.Object, serviceMock.Object, parentModel);
         parentVm.Children.Clear();
-        parentVm.Children.Add(childVm1);
-        parentVm.Children.Add(childVm2);
+        parentVm.Children.Add( childVm1 );
+        parentVm.Children.Add( childVm2 );
 
         // Act
         var result = parentVm.GetCheckedModelRecursice();
 
         // Assert
-        Assert.DoesNotContain(childModel1, result);
-        Assert.Contains(childModel2, result);
-        Assert.DoesNotContain(parentModel, result);
+        Assert.DoesNotContain( childModel1, result );
+        Assert.Contains( childModel2, result );
+        Assert.DoesNotContain( parentModel, result );
     }
 
     #endregion

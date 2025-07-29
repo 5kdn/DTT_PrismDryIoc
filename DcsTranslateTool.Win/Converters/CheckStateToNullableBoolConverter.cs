@@ -1,4 +1,3 @@
-using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
@@ -14,7 +13,8 @@ public class CheckStateToNullableBoolConverter : IValueConverter {
     /// <inheritdoc />
     public object? Convert( object? value, Type targetType, object? parameter, CultureInfo culture ) {
         if(value is CheckState state) {
-            return state switch {
+            return state switch
+            {
                 CheckState.Unchecked => false,
                 CheckState.Checked => true,
                 CheckState.Indeterminate => null,
@@ -26,7 +26,8 @@ public class CheckStateToNullableBoolConverter : IValueConverter {
 
     /// <inheritdoc />
     public object? ConvertBack( object? value, Type targetType, object? parameter, CultureInfo culture ) {
-        return value switch {
+        return value switch
+        {
             bool b when b => CheckState.Checked,
             bool b when !b => CheckState.Unchecked,
             null => CheckState.Indeterminate,
