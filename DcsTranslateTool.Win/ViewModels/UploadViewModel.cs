@@ -105,6 +105,10 @@ public class UploadViewModel(
     /// </summary>
     private void OnOpenSettings() => regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
 
+    /// <summary>
+    /// ローカルツリーのノードを展開する
+    /// </summary>
+    /// <param name="parameter">展開対象のノード</param>
     private void OnLoadLocalTree( object? parameter ) {
         if(parameter is not FileEntryViewModel node) return;
 
@@ -152,7 +156,7 @@ public class UploadViewModel(
                     null,
                     CheckState.Checked);
             fileEntryVM.LoadChildren();
-            SubscribeSelectionChanged( fileEntryVM );
+            SubscribeSelectionChanged( fileEntryVM as IFileEntryViewModel );
             return new UploadTabItemViewModel(tabType, fileEntryVM);
         });
         Tabs.Clear();
@@ -160,8 +164,17 @@ public class UploadViewModel(
         UpdateCreatePullRequestDialogButton();
     }
 
-    private void OnFileEntrySelectedChanged( object? sender, CheckState _) => UpdateCreatePullRequestDialogButton();
+    /// <summary>
+    /// ファイルエントリの選択状態変更時に呼び出される
+    /// </summary>
+    /// <param name="sender">イベント送信元</param>
+    /// <param name="_">未使用</param>
+    private void OnFileEntrySelectedChanged( object? sender, CheckState _ ) => UpdateCreatePullRequestDialogButton();
 
+    /// <summary>
+    /// ファイルエントリの選択状態変更イベントを購読する
+    /// </summary>
+    /// <param name="node">対象のノード</param>
     private void SubscribeSelectionChanged( IFileEntryViewModel node ) {
         if(node is FileEntryViewModel concrete) {
             concrete.CheckStateChanged += OnFileEntrySelectedChanged;
@@ -171,16 +184,16 @@ public class UploadViewModel(
         }
     }
 
+    /// <summary>
+    /// Pull Request 作成ボタンの有効状態を更新する
+    /// </summary>
     private void UpdateCreatePullRequestDialogButton() {
         if(Tabs.Count == 0) {
             IsCreatePullRequestDialogButtonEnabled = false;
             return;
         }
 
-        IsCreatePullRequestDialogButtonEnabled = Tabs[SelectedTabIndex]
-            .Root
-            .GetCheckedModelRecursice()
-            .Any();
+        IsCreatePullRequestDialogButtonEnabled = Tabs[SelectedTabIndex].Root.CheckState.IsSelectedLike();
     }
 
     #endregion
