@@ -4,17 +4,15 @@ using System.IO;
 using System.Windows;
 using System.Threading.Tasks;
 
-using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Core.Contracts.Services;
+using DcsTranslateTool.Core.Models;
 using FluentResults;
 using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.Models;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
-public class CreatePullRequestDialogViewModel(
-    IRepositoryService repositoryService
-) : BindableBase, IDialogAware {
+public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
     #region Fields
 
     public static string Title => "PR作成ダイアログ";
@@ -22,6 +20,8 @@ public class CreatePullRequestDialogViewModel(
     private string _prComment = "[概要]\n簡潔に変更内容を記載してください。\n\n[変更内容]\n- mizファイル単位で箇条書きで記載してください\n- 機体やキャンペーン全体に関連する場合、機体やキャンペーンごとの記載でも大丈夫です\n\n[備考]\n- 気になる点があれば箇条書きで記載してください";
 
     private RootTabType _category;
+
+    private readonly IRepositoryService repositoryService;
 
     private DelegateCommand? _createPullRequestCommand;
 
@@ -98,7 +98,9 @@ public class CreatePullRequestDialogViewModel(
     /// <summary>
     /// クラスの新しいインスタンスを生成する
     /// </summary>
-    public CreatePullRequestDialogViewModel() {
+    /// <param name="repositoryService">リポジトリサービス</param>
+    public CreatePullRequestDialogViewModel( IRepositoryService repositoryService ) {
+        this.repositoryService = repositoryService;
         PullRequestChangeKinds = new ObservableCollection<PullRequestChangeKindItem>(
             Enum.GetValues( typeof( PullRequestChangeKind ) )
                 .Cast<PullRequestChangeKind>()
