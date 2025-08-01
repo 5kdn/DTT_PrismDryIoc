@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
+using DcsTranslateTool.Win.Contracts.Services;
 using FluentResults;
 using DcsTranslateTool.Win.Enums;
+using DcsTranslateTool.Win.Extensions;
 using DcsTranslateTool.Win.Models;
 
 namespace DcsTranslateTool.Win.ViewModels;
@@ -20,7 +22,7 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
     private string _prComment = "[概要]\n簡潔に変更内容を記載してください。\n\n[変更内容]\n- mizファイル単位で箇条書きで記載してください\n- 機体やキャンペーン全体に関連する場合、機体やキャンペーンごとの記載でも大丈夫です\n\n[備考]\n- 気になる点があれば箇条書きで記載してください";
 
     private RootTabType _category;
-
+    private readonly IAppSettingsService appSettingsService;
     private readonly IRepositoryService repositoryService;
 
     private DelegateCommand? _createPullRequestCommand;
@@ -49,22 +51,21 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
         get {
             if(Files?.Any() != true) return string.Empty;
 
-            var directories = Files
-                .Select(f => Path.GetDirectoryName(f.AbsolutePath) ?? string.Empty)
-                .Select(p => p.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar, System.StringSplitOptions.RemoveEmptyEntries))
-                .ToList();
+            string[] prefixParts = appSettingsService.TranslateFileDir
+                .Split(
+                    Path.DirectorySeparatorChar,
+                    Path.AltDirectorySeparatorChar,
+                    StringSplitOptions.RemoveEmptyEntries
+                );
+            string[] parts = Files.ToList()[0].AbsolutePath
+                .Split(
+                    Path.DirectorySeparatorChar,
+                    Path.AltDirectorySeparatorChar,
+                    StringSplitOptions.RemoveEmptyEntries
+                );
+            parts = [.. parts.Skip( prefixParts.Length + Category.GetRepoDirRoot().Length )];
 
-            if(directories.Count == 0) return string.Empty;
-
-            int minLength = directories.Min(arr => arr.Length);
-            int prefixLength = 0;
-            for(int i = 0; i < minLength; i++) {
-                var segment = directories[0][i];
-                if(!directories.All( a => string.Equals( a[i], segment, System.StringComparison.OrdinalIgnoreCase ) )) break;
-                prefixLength = i + 1;
-            }
-
-            return prefixLength == 0 ? string.Empty : directories[0][prefixLength - 1];
+            return parts[0];
         }
     }
 
@@ -99,7 +100,11 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
     /// クラスの新しいインスタンスを生成する
     /// </summary>
     /// <param name="repositoryService">リポジトリサービス</param>
-    public CreatePullRequestDialogViewModel( IRepositoryService repositoryService ) {
+    public CreatePullRequestDialogViewModel(
+        IAppSettingsService appSettingsService,
+        IRepositoryService repositoryService
+    ) {
+        this.appSettingsService = appSettingsService;
         this.repositoryService = repositoryService;
         PullRequestChangeKinds = new ObservableCollection<PullRequestChangeKindItem>(
             Enum.GetValues( typeof( PullRequestChangeKind ) )
