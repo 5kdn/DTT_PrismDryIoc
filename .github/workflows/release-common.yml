@@ -90,11 +90,11 @@ jobs:
             ${{ runner.os }}-nuget-${{ inputs.dotnet_version }}-
 
       - name: Restore
-        run: dotnet restore EnvLoad.sln --locked-mode
+        run: dotnet restore DcsTranslateTool.sln --locked-mode
 
       - name: Publish (Self-contained SingleFile)
         run: >
-          dotnet publish EnvLoad/EnvLoad.csproj
+          dotnet publish DcsTranslateTool.Win/DcsTranslateTool.Win.csproj
           -c Release
           -r ${{ env.RID }}
           --self-contained true
