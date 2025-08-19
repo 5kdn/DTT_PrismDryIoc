@@ -7,10 +7,12 @@ using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Services;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Providers;
+using DcsTranslateTool.Win.Contracts.Securities;
 using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 using DcsTranslateTool.Win.Models;
 using DcsTranslateTool.Win.Providers;
+using DcsTranslateTool.Win.Securities;
 using DcsTranslateTool.Win.Services;
 using DcsTranslateTool.Win.ViewModels;
 using DcsTranslateTool.Win.ViewModels.Factories;
@@ -51,6 +53,9 @@ public partial class App : PrismApplication {
 
     protected override void RegisterTypes( IContainerRegistry containerRegistry ) {
         // Core Services
+        containerRegistry.RegisterSingleton<IMetadataProvider, MetadataProvider>();
+        containerRegistry.RegisterSingleton<IDecryptService, DecryptService>();
+        containerRegistry.RegisterSingleton<IDecrypter, AesGcmV1Decrypter>();
         containerRegistry.Register<IFileEntryService, FileEntryService>();
         containerRegistry.Register<IFileService, FileService>();
 
