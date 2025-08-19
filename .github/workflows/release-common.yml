@@ -1,0 +1,181 @@
+name: Reusable Release Workflow
+
+on:
+  workflow_call:
+    inputs:
+      mode:
+        description: 'draft or publish'
+        required: true
+        type: string
+      cancel_in_progress:
+        description: 'concurrency.cancel-in-progress'
+        required: true
+        type: boolean
+      fail_fast:
+        description: 'strategy.fail-fast'
+        required: false
+        default: true
+        type: boolean
+      rid_list:
+        description: 'JSON array of RIDs'
+        required: false
+        default: '["win-x64","win-x86"]'
+        type: string
+      dotnet_version:
+        description: '.NET version'
+        required: false
+        default: '8.0.x'
+        type: string
+      version_name:
+        description: 'version string for asset naming (e.g., 1.2.3)'
+        required: true
+        type: string
+    secrets:
+      GH_APP_PRIVATE_KEY:
+        description: 'Temporary variable'
+        required: true
+
+jobs:
+  build:
+    name: ${{ inputs.mode }}-release-${{ matrix.rid }}-${{inputs.dotnet_version}}
+    runs-on: windows-latest
+    concurrency:
+      group: ${{ inputs.mode }}-${{ github.ref }}-${{ inputs.dotnet_version }}-${{ matrix.rid }}
+      cancel-in-progress: ${{ inputs.cancel_in_progress }}
+    strategy:
+      fail-fast: ${{ inputs.fail_fast }}
+      matrix:
+        rid: ${{ fromJSON(inputs.rid_list) }}
+    env:
+      APP_NAME: ${{ github.event.repository.name }}
+      VERSION: ${{ inputs.version_name }}
+      DOTNET_MULTILEVEL_LOOKUP: 0
+      NUGET_PACKAGES: ${{ github.workspace }}\.nuget\packages
+      RID: ${{ matrix.rid }}
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: 1
+      IS_PUBLISH_MODE: ${{ inputs.mode == 'publish' }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check .NET SDK presence
+        id: check_sdk
+        shell: pwsh
+        run: |
+          $need='${{ inputs.dotnet_version }}' # 例: 8.0.x or 8.0.401
+          $list = dotnet --list-sdks 2>$null
+          if (-not $?) { echo "present=false" >> $env:GITHUB_OUTPUT; exit 0 }
+          $ok = $false
+          if ($need -like '*x') { if ($list -match '^8\.0\.\d+') { $ok=$true } }
+          else { if ($list -match "^$([regex]::Escape($need))") { $ok=$true } }
+          echo "present=$ok" >> $env:GITHUB_OUTPUT
+
+      - name: Setup .NET (fallback)
+        if: steps.check_sdk.outputs.present != 'true'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet_version }}
+          cache: true  # NuGet自動キャッシュ
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: ${{ runner.os }}-nuget-${{ inputs.dotnet_version }}-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-${{ inputs.dotnet_version }}-
+
+      - name: Restore
+        run: dotnet restore EnvLoad.sln --locked-mode
+
+      - name: Publish (Self-contained SingleFile)
+        run: >
+          dotnet publish EnvLoad/EnvLoad.csproj
+          -c Release
+          -r ${{ env.RID }}
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:PublishTrimmed=false
+          -p:PublishReadyToRun=false
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:IncludeAllContentForSelfExtract=true
+          -p:EnableCompressionInSingleFile=${{ env.IS_COMPRESSION_IN_SINGLE_FILE }}
+          -p:ContinuousIntegrationBuild=${{ env.IS_CONTINUOUS_INTEGRATION_BUILD }}
+          ${{ env.IS_PUBLISH_MODE == 'true' && '-p:DebugType=none -p:DebugSymbols=false' || '' }}
+          -o publish/${{ env.RID }}
+          --no-restore
+        env:
+          IS_COMPRESSION_IN_SINGLE_FILE: true
+          IS_CONTINUOUS_INTEGRATION_BUILD: true
+          GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          Algo: ${{ vars.ALGO }}
+
+      - name: Archive artifacts
+        shell: pwsh
+        run: |
+          $dest = "${{ env.APP_NAME }}-${{ env.VERSION }}-${{ env.RID }}.zip"
+          if (Test-Path $dest) { Remove-Item $dest -Force }
+          Compress-Archive -Path "publish/${{ env.RID }}/*" -DestinationPath $dest -CompressionLevel ${{ env.COMPRESSION_LEVEL }}
+          # generate SHA256 checksum
+          $hash = Get-FileHash -Path $dest -Algorithm SHA256
+          $shaFile = "$dest.sha256"
+          Set-Content -Path $shaFile -Value "$($hash.Hash)  $(Split-Path $dest -Leaf)"
+        env:
+          COMPRESSION_LEVEL: ${{ env.IS_PUBLISH_MODE == 'true' && 'Optimal' || 'Fastest' }}
+
+      - name: Upload artifact (zip + sha256)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-${{ env.RID }}
+          path: |
+            ${{ env.APP_NAME }}-${{ env.VERSION }}-${{ env.RID }}.zip
+            ${{ env.APP_NAME }}-${{ env.VERSION }}-${{ env.RID }}.zip.sha256
+          if-no-files-found: error
+
+  release:
+    name: publish-release
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+    env:
+      IS_PUBLISH_MODE: ${{ inputs.mode == 'publish' }}
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: List files & verify checksums
+        shell: bash
+        run: |
+          echo "=== File list ==="
+          find dist -type f -printf "%f\t%k KB\n"
+
+          echo "=== Verifying checksums ==="
+          # 各 .sha256 があるディレクトリで sha256sum -c を実行
+          find dist -type f -name "*.sha256" | while read -r shaFile; do
+            ( cd "$(dirname "$shaFile")" && sha256sum -c "$(basename "$shaFile")" )
+          done
+          echo "All checksums OK."
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: ${{ inputs.mode == 'draft' }}
+          prerelease: false
+          generate_release_notes: true
+          name: ${{ (env.IS_PUBLISH_MODE == 'true' && format('v{0}', inputs.version_name)) || format('{0}-draft', inputs.version_name) }}
+          tag_name: ${{ env.IS_PUBLISH_MODE == 'true' && github.ref_name || format('{0}-draft', inputs.version_name) }}
+          make_latest: ${{ env.IS_PUBLISH_MODE }}
+          files: |
+            dist/*.zip
+            dist/*.zip.sha256
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
