@@ -9,33 +9,61 @@ public class RepositoryService( IGitHubApiClient gitHubApiClient ) : IRepository
     private const string MainBranch = "master";
 
     /// <inheritdoc/>
-    public async Task<Result<IEnumerable<RepoEntry>>> GetRepositoryEntryAsync() =>
-        Result.Ok( await gitHubApiClient.GetRepositoryEntriesAsync( MainBranch ) );
+    public async Task<Result<IEnumerable<RepoEntry>>> GetRepositoryEntryAsync() {
+        try {
+            var entries = await gitHubApiClient.GetRepositoryEntriesAsync( MainBranch );
+            return Result.Ok( entries );
+        }
+        catch(Exception ex) {
+            return Result.Fail( new Error( "リポジトリエントリーの取得に失敗しました" ).CausedBy( ex ) );
+        }
+    }
 
     /// <inheritdoc/>
-    public async Task<Result<byte[]>> GetFileAsync( string path ) => Result.Ok( await gitHubApiClient.GetFileAsync( path ) );
+    public async Task<Result<byte[]>> GetFileAsync( string path ) {
+        try {
+            var data =  await gitHubApiClient.GetFileAsync( path );
+            return Result.Ok( data );
+        }
+        catch(Exception ex) {
+            return Result.Fail( new Error( "ファイルの取得に失敗しました" ).CausedBy( ex ) );
+        }
+    }
 
     /// <inheritdoc/>
     public async Task<Result> CreateBranchAsync( string branchName ) {
-        await gitHubApiClient.CreateBranchAsync( MainBranch, branchName );
-        return Result.Ok();
+        try {
+            await gitHubApiClient.CreateBranchAsync( MainBranch, branchName );
+            return Result.Ok();
+        }
+        catch(Exception ex) {
+            return Result.Fail( new Error( "ブランチの作成に失敗しました" ).CausedBy( ex ) );
+        }
     }
 
     /// <inheritdoc/>
     public async Task<Result> CommitAsync( string branchName, IEnumerable<CommitFile> files, string message ) {
-        await gitHubApiClient.CommitAsync( branchName, files, message );
-        return Result.Ok();
+        try {
+            await gitHubApiClient.CommitAsync( branchName, files, message );
+            return Result.Ok();
+        }
+        catch(Exception ex) {
+            return Result.Fail( new Error( "コミットに失敗しました" ).CausedBy( ex ) );
+        }
     }
 
     /// <inheritdoc/>
-    public async Task<Result> CommitAsync( string branchName, CommitFile file, string message ) {
+    public async Task<Result> CommitAsync( string branchName, CommitFile file, string message ) =>
         await CommitAsync( branchName, [file], message );
-        return Result.Ok();
-    }
 
     /// <inheritdoc/>
     public async Task<Result> CreatePullRequestAsync( string branchName, string title, string message ) {
-        await gitHubApiClient.CreatePullRequestAsync( branchName, MainBranch, title, message );
-        return Result.Ok();
+        try {
+            await gitHubApiClient.CreatePullRequestAsync( branchName, MainBranch, title, message );
+            return Result.Ok();
+        }
+        catch(Exception ex) {
+            return Result.Fail( new Error( "プルリクエストの作成に失敗しました" ).CausedBy( ex ) );
+        }
     }
 }

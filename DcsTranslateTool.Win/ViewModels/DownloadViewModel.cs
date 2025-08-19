@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 
 using DcsTranslateTool.Core.Contracts.Services;
@@ -106,6 +107,7 @@ public class DownloadViewModel(
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedTo( NavigationContext navigationContext ) {
+        Debug.WriteLine( "DownloadViewModel.OnNavigatedTo called" );
         OnFetch();
     }
 
@@ -126,9 +128,11 @@ public class DownloadViewModel(
     /// リポジトリからツリーを取得する
     /// </summary>
     private async void OnFetch() {
+        Debug.WriteLine( "DownloadViewModel.OnFetch called" );
         var result = await repositoryService.GetRepositoryEntryAsync();
         if(result.IsFailed) {
             // TODO: エラーハンドリング
+            foreach(var error in result.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {error.Message}" );
             return;
         }
         IEnumerable<RepoEntry> entries = result.Value;

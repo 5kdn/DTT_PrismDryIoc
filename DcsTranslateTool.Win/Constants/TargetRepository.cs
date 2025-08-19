@@ -7,7 +7,7 @@
 /// </summary>
 public static class TargetRepository {
     private const string owner = "5kdn";
-    private const string repo = "DcsTranslateTool";
+    private const string repo = "test_DCS";
 
     /// <summary>
     /// GitHub リポジトリの所有者名。

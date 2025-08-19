@@ -7,8 +7,8 @@
 /// </summary>
 public static class GitHubAppSettings {
     private const string appName = "DcsTranslateTool";
-    private const int appId = 123456;
-    private const long installationId = 1234567890;
+    private const int appId = 1510695;
+    private const long installationId = 74330212;
 
     /// <summary>
     /// アプリケーション名。

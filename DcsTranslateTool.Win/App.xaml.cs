@@ -53,16 +53,15 @@ public partial class App : PrismApplication {
 
     protected override void RegisterTypes( IContainerRegistry containerRegistry ) {
         // Core Services
-        containerRegistry.RegisterSingleton<IMetadataProvider, MetadataProvider>();
-        containerRegistry.RegisterSingleton<IDecryptService, DecryptService>();
-        containerRegistry.RegisterSingleton<IDecrypter, AesGcmV1Decrypter>();
-        containerRegistry.Register<IFileEntryService, FileEntryService>();
         containerRegistry.Register<IFileService, FileService>();
-
-        // Share Service
         containerRegistry.Register<IRepositoryService, RepositoryService>();
 
         // App Services
+        containerRegistry.RegisterSingleton<IMetadataProvider, MetadataProvider>();
+        containerRegistry.RegisterSingleton<IDecryptService, DecryptService>();
+        containerRegistry.RegisterSingleton<IDecrypter, AesGcmV1Decrypter>();
+        containerRegistry.RegisterSingleton<IGitHubApiClient, GitHubApiClient>();
+        containerRegistry.Register<IFileEntryService, FileEntryService>();
         containerRegistry.Register<IApplicationInfoService, ApplicationInfoService>();
         containerRegistry.Register<ISystemService, SystemService>();
         containerRegistry.Register<IPersistAndRestoreService, PersistAndRestoreService>();
@@ -91,12 +90,6 @@ public partial class App : PrismApplication {
         // Register configurations to IoC
         containerRegistry.RegisterInstance<IConfiguration>( configuration );
         containerRegistry.RegisterInstance<AppConfig>( appConfig );
-
-        // カスタム引数
-        var dryIoc = containerRegistry.GetContainer();
-        dryIoc.RegisterDelegate<IRepositoryService>(
-            () => new RepositoryService( new GitHubApiClient( "5kdn", "test_DCS", "DCSTranslateTool", 1510695, 74330212 ) ),
-            DryIoc.Reuse.Transient );
     }
 
     private IConfiguration BuildConfiguration() {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 
 using DcsTranslateTool.Win.Constants;
@@ -91,6 +92,7 @@ public class UploadViewModel(
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedTo( NavigationContext navigationContext ) {
+        Debug.WriteLine( "UploadViewModel.OnNavigatedTo called" );
         RefleshTabs();
     }
 
@@ -150,12 +152,13 @@ public class UploadViewModel(
     /// TabsをTranslateFileDirから初期化
     /// </summary>
     private void RefleshTabs() {
+        Debug.WriteLine( "UploadViewModel.RefleshTabs called" );
         var tabs = Enum.GetValues<RootTabType>().Select(tabType =>{
             var fileEntryVM = fileEntryViewModelFactory.Create(
-                    Path.Join([appSettingsService.TranslateFileDir, ..tabType.GetRepoDirRoot()]),
-                    true,
-                    null,
-                    CheckState.Checked);
+                Path.Join([appSettingsService.TranslateFileDir, ..tabType.GetRepoDirRoot()]),
+                true,
+                null,
+                CheckState.Checked);
             fileEntryVM.LoadChildren();
             SubscribeSelectionChanged( fileEntryVM as IFileEntryViewModel );
             return new UploadTabItemViewModel(tabType, fileEntryVM);
@@ -163,6 +166,7 @@ public class UploadViewModel(
         Tabs.Clear();
         Tabs = [.. tabs];
         UpdateCreatePullRequestDialogButton();
+        Debug.WriteLine( $"UploadViewModel.RefleshTabs: {Tabs.Count} tabs loaded." );
     }
 
     /// <summary>
