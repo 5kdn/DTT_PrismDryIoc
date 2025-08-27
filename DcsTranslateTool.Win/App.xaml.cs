@@ -7,11 +7,15 @@ using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Services;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Providers;
+using DcsTranslateTool.Win.Contracts.Securities;
 using DcsTranslateTool.Win.Contracts.Services;
+using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 using DcsTranslateTool.Win.Models;
 using DcsTranslateTool.Win.Providers;
+using DcsTranslateTool.Win.Securities;
 using DcsTranslateTool.Win.Services;
 using DcsTranslateTool.Win.ViewModels;
+using DcsTranslateTool.Win.ViewModels.Factories;
 using DcsTranslateTool.Win.Views;
 
 using Microsoft.Extensions.Configuration;
@@ -25,7 +29,7 @@ namespace DcsTranslateTool.Win;
 // If you need to support other cultures make sure you add converters and review dates and numbers in your UI to ensure everything adapts correctly.
 // Tracking issue for improving this is https://github.com/dotnet/wpf/issues/1946
 public partial class App : PrismApplication {
-    private string[] _startUpArgs;
+    private string[] _startUpArgs = [];
 
     public App() { }
 
@@ -50,8 +54,14 @@ public partial class App : PrismApplication {
     protected override void RegisterTypes( IContainerRegistry containerRegistry ) {
         // Core Services
         containerRegistry.Register<IFileService, FileService>();
+        containerRegistry.Register<IRepositoryService, RepositoryService>();
 
         // App Services
+        containerRegistry.RegisterSingleton<IMetadataProvider, MetadataProvider>();
+        containerRegistry.RegisterSingleton<IDecryptService, DecryptService>();
+        containerRegistry.RegisterSingleton<IDecrypter, AesGcmV1Decrypter>();
+        containerRegistry.RegisterSingleton<IGitHubApiClient, GitHubApiClient>();
+        containerRegistry.Register<IFileEntryService, FileEntryService>();
         containerRegistry.Register<IApplicationInfoService, ApplicationInfoService>();
         containerRegistry.Register<ISystemService, SystemService>();
         containerRegistry.Register<IPersistAndRestoreService, PersistAndRestoreService>();
@@ -60,16 +70,22 @@ public partial class App : PrismApplication {
         containerRegistry.Register<IEnvironmentProvider, EnvironmentProvider>();
         containerRegistry.Register<IAppSettingsService, AppSettingsService>();
 
+        // ViewModel Factories
+        containerRegistry.Register<IFileEntryViewModelFactory, FileEntryViewModelFactory>();
+
         // Views
-        containerRegistry.RegisterForNavigation<SettingsPage, SettingsViewModel>( PageKeys.Settings );
         containerRegistry.RegisterForNavigation<MainPage, MainViewModel>( PageKeys.Main );
+        containerRegistry.RegisterForNavigation<DownloadPage, DownloadViewModel>( PageKeys.Download );
+        containerRegistry.RegisterForNavigation<UploadPage, UploadViewModel>( PageKeys.Upload );
+        containerRegistry.RegisterDialog<CreatePullRequestDialog, CreatePullRequestDialogViewModel>( PageKeys.CreatePullRequestDialog );
+        containerRegistry.RegisterForNavigation<SettingsPage, SettingsViewModel>( PageKeys.Settings );
         containerRegistry.RegisterForNavigation<ShellWindow, ShellViewModel>();
 
         // Configuration
         var configuration = BuildConfiguration();
         var appConfig = configuration
             .GetSection(nameof(AppConfig))
-            .Get<AppConfig>();
+            .Get<AppConfig>() ?? throw new InvalidOperationException("AppConfig section is missing or invalid.");
 
         // Register configurations to IoC
         containerRegistry.RegisterInstance<IConfiguration>( configuration );
@@ -77,7 +93,10 @@ public partial class App : PrismApplication {
     }
 
     private IConfiguration BuildConfiguration() {
-        var appLocation = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+        var entryAssembly = Assembly.GetEntryAssembly()
+            ?? throw new InvalidOperationException("Could not determine entry assembly.");
+        var appLocation = Path.GetDirectoryName( entryAssembly.Location )
+            ?? throw new InvalidOperationException("Could not determine application directory.");
         return new ConfigurationBuilder()
             .SetBasePath( appLocation )
             .AddJsonFile( "appsettings.json" )

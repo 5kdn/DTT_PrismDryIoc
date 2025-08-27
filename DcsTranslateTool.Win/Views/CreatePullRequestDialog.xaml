@@ -1,0 +1,76 @@
+﻿<UserControl x:Class="DcsTranslateTool.Win.Views.CreatePullRequestDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
+        mc:Ignorable="d"
+        Style="{StaticResource BaseUserControlStyle}"
+        d:Width="800">
+    <StackPanel Margin="{StaticResource MediumLeftTopRightBottomMargin}">
+        <!--アップロードするファイル一覧-->
+        <Expander Header="アップロードするファイルリスト" Margin="{StaticResource MediumBottomMargin}" IsExpanded="True">
+            <ListView ItemsSource="{Binding Files}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding AbsolutePath}"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Expander>
+        <!--PRの作成エリア-->
+        <StackPanel>
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="PRタイトル: " Style="{StaticResource SubtitleTextStyle}"/>
+                    <TextBlock Grid.Column="1"
+                        Text="{Binding PRTitle}"
+                        Style="{StaticResource SubtitleTextStyle}"/>
+                </Grid>
+                <StackPanel Margin="{StaticResource SmallTopMargin}">
+                    <TextBlock Text="主な変更点" Style="{StaticResource ListTitleStyle}"/>
+                    <ItemsControl ItemsSource="{Binding PullRequestChangeKinds}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Content="{Binding DisplayName}"
+                                          Margin="{StaticResource SmallLeftMargin}"
+                                          IsChecked="{Binding IsChecked, Mode=TwoWay}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </StackPanel>
+            <TextBox Text="{Binding PRComment, Mode=TwoWay}" Margin="{StaticResource SmallTopMargin}"/>
+        </StackPanel>
+        <!--Confirmation-->
+        <StackPanel Margin="{StaticResource SmallTopMargin}">
+            <TextBlock Text="確認事項" Style="{StaticResource ListTitleStyle}"/>
+            <ItemsControl ItemsSource="{Binding AgreementItems}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <CheckBox
+                            Margin="{StaticResource XSmallTopMargin}"
+                            Content="{Binding Message}"
+                            IsChecked="{Binding IsAgreed, Mode=TwoWay}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+        <Button
+            Margin="{StaticResource MediumTopMargin}"
+            Content="Create PR"
+            IsEnabled="{Binding CanCreatePR}"
+            Command="{Binding CreatePullRequestCommand}"/>
+    </StackPanel>
+</UserControl>

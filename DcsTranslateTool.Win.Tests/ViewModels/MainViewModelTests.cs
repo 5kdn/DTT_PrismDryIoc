@@ -1,4 +1,10 @@
-﻿using DcsTranslateTool.Win.ViewModels;
+﻿using DcsTranslateTool.Core.Contracts.Services;
+using DcsTranslateTool.Core.Services;
+using DcsTranslateTool.Win.Contracts.Services;
+using DcsTranslateTool.Win.Services;
+using DcsTranslateTool.Win.ViewModels;
+
+using Moq;
 
 using Xunit;
 
@@ -10,6 +16,9 @@ public class MainViewModelTests {
     public MainViewModelTests() {
         _container = new Container();
         _container.Register<IRegionManager, RegionManager>( Reuse.Singleton );
+        _container.Register<IAppSettingsService, AppSettingsService>( Reuse.Singleton );
+        _container.Register<IFileService, FileService>( Reuse.Transient );
+        _container.RegisterDelegate<IRepositoryService>( () => Mock.Of<IRepositoryService>() );
         // ViewModels
         _container.Register<MainViewModel>( Reuse.Singleton );
     }

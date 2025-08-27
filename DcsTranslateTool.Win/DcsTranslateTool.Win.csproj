@@ -6,21 +6,25 @@
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
+    <NeutralLanguage>ja-JP</NeutralLanguage>
+    <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
   </PropertyGroup>
 
-  <ItemGroup>
+	<ItemGroup>
+    <PackageReference Include="GitHubJwt" Version="0.0.6" />
     <PackageReference Include="MahApps.Metro" Version="2.4.10" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.6" />
+    <PackageReference Include="MahApps.Metro.IconPacks.Material" Version="5.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.7" />
+    <PackageReference Include="Octokit" Version="14.0.0" />
     <PackageReference Include="Prism.DryIoc" Version="9.0.537" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DcsTranslateTool.Core\DcsTranslateTool.Core.csproj" />
-    <ProjectReference Include="..\DcsTranslateTool.Share\DcsTranslateTool.Share.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -52,4 +56,71 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+
+  <PropertyGroup Label="ビルド用変数">
+    <_BuildTasks>$(MSBuildProjectDirectory)\..\BuildTasks</_BuildTasks>
+    <_BuildTasksProj>$(_BuildTasks)\BuildTasks.csproj</_BuildTasksProj>
+    <_BuildTasksDll>$(_BuildTasks)\bin\$(Configuration)\net8.0\BuildTasks.dll</_BuildTasksDll>
+  </PropertyGroup>
+
+
+  <ItemGroup Label="プロジェクトの依存関係を明示（参照はしない）">
+    <ProjectReference Include="$(_BuildTasksProj)" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+
+  <Target Label="BuildTasks ライブラリをビルドする"
+          Name="_BuildTaskLib"
+          Condition="'$(DesignTimeBuild)' != 'true' AND '$(MSBuildRuntimeType)' == 'Core'" >
+    <Message Text="BuildTasks プロジェクトをビルドします。" Importance="high" />
+    <MSBuild Projects="$(_BuildTasksProj)"
+             Targets="Build"
+             Properties="Configuration=$(Configuration);RuntimeIdentifier=;SelfContained=false;PublishSingleFile=false" />
+  </Target>
+
+
+  <!-- BuildTasksプロジェクトで値を生成する -->
+  <UsingTask TaskName="BuildTasks.EncryptWithAesGcm" AssemblyFile="$(_BuildTasksDll)" />
+
+
+  <Target Label="暗号化に必要な変数を取得する"
+          Name="SetEnvValue"
+          DependsOnTargets="_BuildTaskLib"
+          Condition="'$(DesignTimeBuild)' != 'true'">
+    <Error Condition="'$(GH_APP_PRIVATE_KEY)'  == ''" Text="環境変数 GH_APP_PRIVATE_KEY が設定されていません。" />
+    <Error Condition="'$(Algo)' == ''" Text="環境変数 Algo が設定されていません。" />
+
+    <!-- ローカル環境では環境変数から直接読み込む -->
+    <Message Text="環境変数からデータ読み込みます。" Importance="high" Condition="'$(BuildingInsideVisualStudio)' == 'true'" />
+    <Error Condition="'$(BuildingInsideVisualStudio)' == 'true' AND '$(EncryptedValue)' == ''" Text="環境変数 EncryptedValue が設定されていません。" />
+
+    <!-- CI/CD ではBuildTasksで生成する -->
+    <Message Text="BuildTasksからデータ読み込みます。" Importance="high" Condition="'$(BuildingInsideVisualStudio)' != 'true'" />
+    <Error Condition="'$(BuildingInsideVisualStudio)' != 'true' AND !Exists('$(_BuildTasksDll)')" Text="BuildTasks.dll が見つかりません。BuildTasks をビルドしてください。" />
+    <Error Condition="'$(BuildingInsideVisualStudio)' == 'true' AND '$(Version)' == ''" Text="Version が設定されていません。" />
+
+    <BuildTasks.EncryptWithAesGcm Condition="'$(BuildingInsideVisualStudio)' != 'true'"
+                                  Plaintext="$(GH_APP_PRIVATE_KEY)"
+                                  Algo="$(Algo)"
+                                  AssemblyName="$(AssemblyName)"
+                                  AssemblyVersion="$([System.Version]::Parse('$(Version).0').ToString(4))">
+      <Output PropertyName="EncryptedValue" TaskParameter="Result" />
+      <Output PropertyName="AAD" TaskParameter="Aad" />
+    </BuildTasks.EncryptWithAesGcm>
+  </Target>
+
+
+  <Target Label="AssemblyMetadataに暗号化した情報を埋め込む"
+          Name="SetAssemblyMetadata"
+          BeforeTargets="BeforeCompile"
+          DependsOnTargets="SetEnvValue"
+          Condition="'$(DesignTimeBuild)' != 'true'">
+    <Message Text="aad: $(AAD)" Importance="high" />
+    <ItemGroup>
+      <AssemblyMetadata Include="Algo" Value="$(Algo)" />
+      <AssemblyMetadata Include="EncryptedValue" Value="$(EncryptedValue)" />
+    </ItemGroup>
+  </Target>
+
 </Project>

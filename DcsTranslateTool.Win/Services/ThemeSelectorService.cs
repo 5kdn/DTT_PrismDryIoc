@@ -52,8 +52,7 @@ public class ThemeSelectorService : IThemeSelectorService {
     public AppTheme GetCurrentTheme() {
         if(App.Current.Properties.Contains( "Theme" )) {
             var themeName = App.Current.Properties["Theme"]?.ToString();
-            Enum.TryParse( themeName, out AppTheme theme );
-            return theme;
+            if(Enum.TryParse( themeName, out AppTheme theme )) return theme;
         }
 
         return AppTheme.Default;

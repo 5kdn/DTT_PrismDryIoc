@@ -1,0 +1,161 @@
+# ------------------------------------------------------------
+# Workflow Name : Publish to GitHub Release
+# Trigger       : release type publish
+# Purpose       :
+#   - releaseに対してAssetを追加
+# ------------------------------------------------------------
+name: Publish to GitHub Release
+
+on:
+  release:
+    types: [published]
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: 1
+  APP_NAME: ${{ github.event.repository.name }}
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.out.outputs.version }}
+    steps:
+      - id: out
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" != "tag" ]]; then
+            echo "Not a tag. Exiting."
+            exit 1
+          fi
+          tag="${GITHUB_REF_NAME}"
+          pattern='^v([0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9._-]+)?)$'
+          if [[ ! $tag =~ $pattern ]]; then
+            echo "Tag does not match expected format, exiting."
+            exit 1
+          fi
+          version="${tag#v}"
+          echo "version=$version" >> $GITHUB_OUTPUT
+
+  Release:
+    name: Release(${{ matrix.rid }})
+    runs-on: windows-latest
+    needs: prep
+    permissions:
+      actions: write
+      contents: read
+    strategy:
+      matrix:
+        dotnet-version: ["8.0.x"]
+        rid: ["win-x64", "win-x86"]
+        release-target: ["DummyWPF/DummyWPF.csproj"]
+    env:
+      VERSION: ${{needs.prep.outputs.version}}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Caching Nuget packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.nuget/packages
+          key: nuget-${{ runner.os }}-dotnet-${{ matrix.dotnet-version }}-${{ hashFiles('**/packages.lock.json','**/Directory.Packages.props','global.json','NuGet.config') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-dotnet-${{ matrix.dotnet-version }}-
+            nuget-${{ runner.os }}-
+
+      - name: Cache HTTP v3 cache (Windows)
+        uses: actions/cache@v4
+        with:
+          path: |
+            $LOCALAPPDATA\NuGet\v3-cache
+          key: nugethttp-${{ runner.os }}-dotnet-${{ matrix.dotnet-version }}-${{ hashFiles('**/packages.lock.json', '**/Directory.Packages.props', 'global.json', 'NuGet.config') }}
+          restore-keys: |
+            nugethttp-${{ runner.os }}-${{ matrix.rid }}-dotnet-${{ matrix.dotnet-version }}-
+            nugethttp-${{ runner.os }}-${{ matrix.rid }}-
+            nugethttp-${{ runner.os }}-
+
+      - name: Setup .NET ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Restore (${{ matrix.rid }})
+        shell: pwsh
+        run:  dotnet restore --locked-mode
+
+      - name: Publish
+        shell: pwsh
+        run: >
+          dotnet publish ${{ matrix.release-target }}
+          -c Release
+          -r ${{ matrix.rid }}
+          -o publish/${{ matrix.rid }}
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:PublishTrimmed=false
+          -p:PublishReadyToRun=false
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:IncludeAllContentForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:ContinuousIntegrationBuild=true
+          -p:DebugType=none
+          -p:DebugSymbols=false
+          --no-restore
+
+      - name: Archive artifacts
+        shell: pwsh
+        run: |
+          $dest = "${{ env.APP_NAME }}-${{ env.VERSION }}-${{ matrix.rid }}.zip"
+          if (Test-Path $dest) { Remove-Item $dest -Force }
+          Compress-Archive -Path "publish/${{ matrix.rid }}/*" -DestinationPath $dest -CompressionLevel Optimal
+          # generate SHA256 checksum
+          $hash = Get-FileHash -Path $dest -Algorithm SHA256
+          $shaFile = "$dest.sha256"
+          Set-Content -Path $shaFile -Value "$($hash.Hash)  $(Split-Path $dest -Leaf)"
+
+      - name: Upload artifact (zip + sha256)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-${{ matrix.rid }}
+          path: |
+            ${{ env.APP_NAME }}-${{env.VERSION}}-${{ matrix.rid }}.zip
+            ${{ env.APP_NAME }}-${{env.VERSION}}-${{ matrix.rid }}.zip.sha256
+          if-no-files-found: error
+
+  Publish-to-GitHub-Release:
+    name: publish-release
+    runs-on: ubuntu-latest
+    needs: ["Release"]
+    permissions:
+      contents: write
+      actions: read
+    env:
+      VERSION: ${{ needs.prep.outputs.version }}
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v5
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: verify checksums
+        shell: bash
+        run: |
+          # 各 .sha256 があるディレクトリで sha256sum -c を実行
+          find dist -type f -name "*.sha256" -print0 | while IFS= read -r -d '' shaFile; do
+            (
+              cd -- "$(dirname -- "$shaFile")" &&
+              tr -d '\r' < "$(basename -- "$shaFile")" | sha256sum -c -
+            )
+          done
+
+      - name: Attach assets to the current Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.zip
+            dist/*.zip.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

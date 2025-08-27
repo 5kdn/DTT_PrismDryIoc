@@ -1,28 +1,49 @@
-using DcsTranslateTool.Win.Constants;
+﻿using DcsTranslateTool.Win.Constants;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
-/// <summary>
-/// メイン画面の表示ロジックを保持する ViewModel
-/// </summary>
-public class MainViewModel : BindableBase {
-    private readonly IRegionManager _regionManager;
-    private DelegateCommand _openSettingsCommand;
+public class MainViewModel( IRegionManager regionManager ) : BindableBase, INavigationAware {
+    private DelegateCommand? _openSettingsCommand;
+    private DelegateCommand? _openDownloadCommand;
+    private DelegateCommand? _openUploadCommand;
 
     /// <summary>
     /// 設定画面を開くコマンド
     /// </summary>
-    public DelegateCommand OpenSettingsCommand =>
-        _openSettingsCommand ??= new DelegateCommand( OnOpenSettings );
+    public DelegateCommand OpenSettingsCommand => _openSettingsCommand ??= new DelegateCommand( OnOpenSettings );
 
     /// <summary>
-    /// ViewModel の新しいインスタンスを生成する
+    /// ダウンロード画面を開くコマンド
     /// </summary>
-    /// <param name="regionManager">ナビゲーション管理用の IRegionManager</param>
-    public MainViewModel( IRegionManager regionManager ) {
-        _regionManager = regionManager;
-    }
+    public DelegateCommand OpenDownloadCommand => _openDownloadCommand ??= new DelegateCommand( OnOpenDownload );
 
-    private void OnOpenSettings()
-        => _regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
+    /// <summary>
+    /// アップロード画面を開くコマンド
+    /// </summary>
+    public DelegateCommand OpenUploadCommand => _openUploadCommand ??= new DelegateCommand( OnOpenUpload );
+
+    /// <summary>
+    /// ナビゲーションターゲットかどうかを示す
+    /// </summary>
+    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
+    /// <returns>常に true</returns>
+    public bool IsNavigationTarget( NavigationContext navigationContext ) => true;
+
+    /// <summary>
+    /// ナビゲーション前の処理を行う
+    /// </summary>
+    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
+    public void OnNavigatedFrom( NavigationContext navigationContext ) { }
+
+    /// <summary>
+    /// ナビゲーション後の処理を行う
+    /// </summary>
+    /// <param name="navigationContext">ナビゲーションコンテキスト</param>
+    public void OnNavigatedTo( NavigationContext navigationContext ) { }
+
+    private void OnOpenSettings() => regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
+
+    private void OnOpenDownload() => regionManager.RequestNavigate( Regions.Main, PageKeys.Download );
+
+    private void OnOpenUpload() => regionManager.RequestNavigate( Regions.Main, PageKeys.Upload );
 }

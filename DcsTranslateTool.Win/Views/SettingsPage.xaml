@@ -9,8 +9,7 @@
     xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     Style="{StaticResource BaseUserControlStyle}"
-    mc:Ignorable="d"
-    d:DesignHeight="450" d:DesignWidth="800">
+    mc:Ignorable="d">
     <UserControl.Resources>
         <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" EnumType="models:AppTheme" />
     </UserControl.Resources>

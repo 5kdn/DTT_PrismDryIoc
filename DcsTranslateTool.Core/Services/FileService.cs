@@ -11,30 +11,92 @@ namespace DcsTranslateTool.Core.Services;
 /// </summary>
 public class FileService : IFileService {
     /// <inheritdoc/>
-    public T Read<T>( string folderPath, string fileName ) {
-        var path = Path.Combine(folderPath, fileName);
-        if(File.Exists( path )) {
-            var json = File.ReadAllText(path);
+    public T? ReadFromJson<T>( string folderPath, string fileName ) {
+        if(string.IsNullOrWhiteSpace( folderPath )) throw new ArgumentException( "値が空です", nameof( folderPath ) );
+        if(string.IsNullOrWhiteSpace( fileName )) throw new ArgumentException( "値が空です", nameof( fileName ) );
+
+        var path = Path.Combine( folderPath, fileName );
+        if(!File.Exists( path )) return default;
+
+        try {
+            var json = File.ReadAllText( path );
             return JsonConvert.DeserializeObject<T>( json );
         }
-
-        return default;
+        catch(IOException ex) {
+            throw new IOException( $"ファイルの読み込みに失敗した: {path}", ex );
+        }
+        catch(JsonException ex) {
+            throw new JsonException( $"JSON の解析に失敗した: {path}", ex );
+        }
     }
 
     /// <inheritdoc/>
-    public void Save<T>( string folderPath, string fileName, T content ) {
-        if(!Directory.Exists( folderPath )) {
-            Directory.CreateDirectory( folderPath );
-        }
+    public void SaveToJson<T>( string folderPath, string fileName, T content ) {
+        if(string.IsNullOrWhiteSpace( folderPath ))
+            throw new ArgumentException( "値が null または空です", nameof( folderPath ) );
+        if(string.IsNullOrWhiteSpace( fileName ))
+            throw new ArgumentException( "値が null または空です", nameof( fileName ) );
 
-        var fileContent = JsonConvert.SerializeObject(content);
-        File.WriteAllText( Path.Combine( folderPath, fileName ), fileContent, Encoding.UTF8 );
+        try {
+            if(!Directory.Exists( folderPath )) {
+                Directory.CreateDirectory( folderPath );
+            }
+
+            var fileContent = JsonConvert.SerializeObject( content );
+            File.WriteAllText( Path.Combine( folderPath, fileName ), fileContent, Encoding.UTF8 );
+        }
+        catch(IOException ex) {
+            throw new IOException( $"ファイルの保存に失敗した: {Path.Combine( folderPath, fileName )}", ex );
+        }
+        catch(JsonException ex) {
+            throw new JsonException( "JSON へのシリアライズに失敗した", ex );
+        }
     }
 
     /// <inheritdoc/>
     public void Delete( string folderPath, string fileName ) {
-        if(fileName != null && File.Exists( Path.Combine( folderPath, fileName ) )) {
-            File.Delete( Path.Combine( folderPath, fileName ) );
+        if(string.IsNullOrWhiteSpace( folderPath ))
+            throw new ArgumentException( "値が空です", nameof( folderPath ) );
+        if(string.IsNullOrWhiteSpace( fileName ))
+            throw new ArgumentException( "値が空です", nameof( fileName ) );
+
+        var path = Path.Combine( folderPath, fileName );
+        if(!File.Exists( path )) return;
+
+        try {
+            File.Delete( path );
+        }
+        catch(IOException ex) {
+            throw new IOException( $"ファイルの削除に失敗した: {path}", ex );
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task SaveAsync( string path, string content ) {
+        if(string.IsNullOrWhiteSpace( path ))
+            throw new ArgumentException( "保存先のパスが空です", nameof( path ) );
+
+        string? dirName = Path.GetDirectoryName( path );
+        try {
+            if(!string.IsNullOrEmpty( dirName )) Directory.CreateDirectory( dirName );
+            await File.WriteAllTextAsync( path, content );
+        }
+        catch(IOException ex) {
+            throw new IOException( $"ファイルの保存に失敗した: {path}", ex );
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task SaveAsync( string path, byte[] content ) {
+        if(string.IsNullOrWhiteSpace( path ))
+            throw new ArgumentException( "保存先のパスが空です", nameof( path ) );
+        string? dirName = Path.GetDirectoryName( path );
+        try {
+            if(!string.IsNullOrEmpty( dirName )) Directory.CreateDirectory( dirName );
+            await File.WriteAllBytesAsync( path, content );
+        }
+        catch(IOException ex) {
+            throw new IOException( $"ファイルの保存に失敗した: {path}", ex );
         }
     }
 }

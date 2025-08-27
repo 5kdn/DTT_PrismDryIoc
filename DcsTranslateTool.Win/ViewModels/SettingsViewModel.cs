@@ -11,27 +11,28 @@ namespace DcsTranslateTool.Win.ViewModels;
 /// <summary>
 /// 設定ページを制御する ViewModel
 /// </summary>
-public class SettingsViewModel : BindableBase, INavigationAware {
-    private readonly AppConfig _appConfig;
-    private readonly IThemeSelectorService _themeSelectorService;
-    private readonly ISystemService _systemService;
-    private readonly IApplicationInfoService _applicationInfoService;
-    private readonly IDialogProvider _dialogProvider;
-    private readonly IEnvironmentProvider _environmentProvider;
-    private readonly IAppSettingsService _appSettingsService;
+public class SettingsViewModel(
+    AppConfig appConfig,
+    IThemeSelectorService themeSelectorService,
+    ISystemService systemService,
+    IApplicationInfoService applicationInfoService,
+    IDialogProvider dialogProvider,
+    IEnvironmentProvider environmentProvider,
+    IAppSettingsService appSettingsService
+    ) : BindableBase, INavigationAware {
     private AppTheme _theme;
-    private string _versionDescription;
-    private string _sourceAircraftDir;
-    private string _sourceDlcCampaignDir;
-    private string _sourceUserDir;
-    private string _translateFileDir;
-    private ICommand _setThemeCommand;
-    private ICommand _privacyStatementCommand;
-    private ICommand _selectAircraftDirCommand;
-    private ICommand _selectDlcCampaignDirCommand;
-    private ICommand _selectUserDirCommand;
-    private ICommand _selectTranslateFileDirCommand;
-    private ICommand _resetSettingsCommand;
+    private string _versionDescription = string.Empty;
+    private string _sourceAircraftDir = string.Empty;
+    private string _sourceDlcCampaignDir = string.Empty;
+    private string _sourceUserDir = string.Empty;
+    private string _translateFileDir = string.Empty;
+    private ICommand? _setThemeCommand;
+    private ICommand? _privacyStatementCommand;
+    private ICommand? _selectAircraftDirCommand;
+    private ICommand? _selectDlcCampaignDirCommand;
+    private ICommand? _selectUserDirCommand;
+    private ICommand? _selectTranslateFileDirCommand;
+    private ICommand? _resetSettingsCommand;
 
     public AppTheme Theme {
         get { return _theme; }
@@ -47,7 +48,7 @@ public class SettingsViewModel : BindableBase, INavigationAware {
         get { return _sourceAircraftDir; }
         set {
             if(SetProperty( ref _sourceAircraftDir, value )) {
-                _appSettingsService.SourceAircraftDir = value;
+                appSettingsService.SourceAircraftDir = value;
             }
         }
     }
@@ -56,7 +57,7 @@ public class SettingsViewModel : BindableBase, INavigationAware {
         get { return _sourceDlcCampaignDir; }
         set {
             if(SetProperty( ref _sourceDlcCampaignDir, value )) {
-                _appSettingsService.SourceDlcCampaignDir = value;
+                appSettingsService.SourceDlcCampaignDir = value;
             }
         }
     }
@@ -65,7 +66,7 @@ public class SettingsViewModel : BindableBase, INavigationAware {
         get { return _sourceUserDir; }
         set {
             if(SetProperty( ref _sourceUserDir, value )) {
-                _appSettingsService.SourceUserDir = value;
+                appSettingsService.SourceUserDir = value;
             }
         }
     }
@@ -74,60 +75,28 @@ public class SettingsViewModel : BindableBase, INavigationAware {
         get { return _translateFileDir; }
         set {
             if(SetProperty( ref _translateFileDir, value )) {
-                _appSettingsService.TranslateFileDir = value;
+                appSettingsService.TranslateFileDir = value;
             }
         }
     }
 
-    public ICommand SetThemeCommand =>
-        _setThemeCommand
-        ?? (_setThemeCommand = new DelegateCommand<string>( OnSetTheme ));
+    public ICommand SetThemeCommand => _setThemeCommand ??= new DelegateCommand<string>( OnSetTheme );
 
-    public ICommand PrivacyStatementCommand =>
-        _privacyStatementCommand
-        ?? (_privacyStatementCommand = new DelegateCommand( OnPrivacyStatement ));
+    public ICommand PrivacyStatementCommand => _privacyStatementCommand ??= new DelegateCommand( OnPrivacyStatement );
 
-    public ICommand SelectAircraftDirCommand =>
-        _selectAircraftDirCommand
-        ?? (_selectAircraftDirCommand = new DelegateCommand( OnSelectAircraftDir ));
+    public ICommand SelectAircraftDirCommand => _selectAircraftDirCommand ??= new DelegateCommand( OnSelectAircraftDir );
 
-    public ICommand SelectDlcCampaignDirCommand =>
-        _selectDlcCampaignDirCommand
-        ?? (_selectDlcCampaignDirCommand = new DelegateCommand( OnSelectDlcCampaignDir ));
+    public ICommand SelectDlcCampaignDirCommand => _selectDlcCampaignDirCommand ??= new DelegateCommand( OnSelectDlcCampaignDir );
 
-    public ICommand SelectUserDirCommand =>
-        _selectUserDirCommand
-        ?? (_selectUserDirCommand = new DelegateCommand( OnSelectUserDir ));
+    public ICommand SelectUserDirCommand => _selectUserDirCommand ??= new DelegateCommand( OnSelectUserDir );
 
-    public ICommand SelectTranslateFileDirCommand =>
-        _selectTranslateFileDirCommand
-        ?? (_selectTranslateFileDirCommand = new DelegateCommand( OnSelectTranslateFileDir ));
+    public ICommand SelectTranslateFileDirCommand => _selectTranslateFileDirCommand ??= new DelegateCommand( OnSelectTranslateFileDir );
 
-    public ICommand ResetSettingsCommand =>
-        _resetSettingsCommand
-        ?? (_resetSettingsCommand = new DelegateCommand( OnResetSettings ));
-
-    public SettingsViewModel(
-        AppConfig appConfig,
-        IThemeSelectorService themeSelectorService,
-        ISystemService systemService,
-        IApplicationInfoService applicationInfoService,
-        IDialogProvider dialogProvider,
-        IEnvironmentProvider environmentProvider,
-        IAppSettingsService appSettingsService
-    ) {
-        _appConfig = appConfig;
-        _themeSelectorService = themeSelectorService;
-        _systemService = systemService;
-        _applicationInfoService = applicationInfoService;
-        _dialogProvider = dialogProvider;
-        _environmentProvider = environmentProvider;
-        _appSettingsService = appSettingsService;
-    }
+    public ICommand ResetSettingsCommand => _resetSettingsCommand ??= new DelegateCommand( OnResetSettings );
 
     public void OnNavigatedTo( NavigationContext navigationContext ) {
-        VersionDescription = $"{Properties.Resources.AppDisplayName} - {_applicationInfoService.GetVersion()}";
-        Theme = _themeSelectorService.GetCurrentTheme();
+        VersionDescription = $"{Properties.Resources.AppDisplayName} - {applicationInfoService.GetVersion()}";
+        Theme = themeSelectorService.GetCurrentTheme();
         LoadSettings();
     }
 
@@ -135,32 +104,32 @@ public class SettingsViewModel : BindableBase, INavigationAware {
 
     private void OnSetTheme( string themeName ) {
         var theme = (AppTheme)Enum.Parse(typeof(AppTheme), themeName);
-        _themeSelectorService.SetTheme( theme );
+        themeSelectorService.SetTheme( theme );
     }
 
     private void OnPrivacyStatement()
-        => _systemService.OpenInWebBrowser( _appConfig.PrivacyStatement );
+        => systemService.OpenInWebBrowser( appConfig.PrivacyStatement );
 
     private void OnSelectAircraftDir() {
-        if(_dialogProvider.ShowFolderPicker( SourceAircraftDir, out var path )) {
+        if(dialogProvider.ShowFolderPicker( SourceAircraftDir, out var path )) {
             SourceAircraftDir = path;
         }
     }
 
     private void OnSelectDlcCampaignDir() {
-        if(_dialogProvider.ShowFolderPicker( SourceDlcCampaignDir, out var path )) {
+        if(dialogProvider.ShowFolderPicker( SourceDlcCampaignDir, out var path )) {
             SourceDlcCampaignDir = path;
         }
     }
 
     private void OnSelectUserDir() {
-        if(_dialogProvider.ShowFolderPicker( SourceUserDir, out var path )) {
+        if(dialogProvider.ShowFolderPicker( SourceUserDir, out var path )) {
             SourceUserDir = path;
         }
     }
 
     private void OnSelectTranslateFileDir() {
-        if(_dialogProvider.ShowFolderPicker( TranslateFileDir, out var path )) {
+        if(dialogProvider.ShowFolderPicker( TranslateFileDir, out var path )) {
             TranslateFileDir = path;
         }
     }
@@ -175,21 +144,21 @@ public class SettingsViewModel : BindableBase, INavigationAware {
     /// 保存された設定を読み込む
     /// </summary>
     private void LoadSettings() {
-        SourceAircraftDir = _appSettingsService.SourceAircraftDir;
-        SourceDlcCampaignDir = _appSettingsService.SourceDlcCampaignDir;
-        SourceUserDir = string.IsNullOrEmpty( _appSettingsService.SourceUserDir )
+        SourceAircraftDir = appSettingsService.SourceAircraftDir;
+        SourceDlcCampaignDir = appSettingsService.SourceDlcCampaignDir;
+        SourceUserDir = string.IsNullOrEmpty( appSettingsService.SourceUserDir )
             ? GetDefaultUserDir()
-            : _appSettingsService.SourceUserDir;
-        TranslateFileDir = string.IsNullOrEmpty( _appSettingsService.TranslateFileDir )
+            : appSettingsService.SourceUserDir;
+        TranslateFileDir = string.IsNullOrEmpty( appSettingsService.TranslateFileDir )
             ? GetDefaultTranslateDir()
-            : _appSettingsService.TranslateFileDir;
+            : appSettingsService.TranslateFileDir;
     }
 
     /// <summary>
     /// 初期値を設定する
     /// </summary>
     private void ResetToDefault() {
-        _appSettingsService.Reset();
+        appSettingsService.Reset();
         SourceAircraftDir = string.Empty;
         SourceDlcCampaignDir = string.Empty;
         SourceUserDir = GetDefaultUserDir();
@@ -201,7 +170,7 @@ public class SettingsViewModel : BindableBase, INavigationAware {
     /// </summary>
     /// <returns>取得したパス</returns>
     private string GetDefaultUserDir() {
-        var userProfile = _environmentProvider.GetUserProfilePath();
+        var userProfile = environmentProvider.GetUserProfilePath();
         var openBeta = Path.Combine( userProfile, "DCS.openbeta" );
         var release = Path.Combine( userProfile, "DCS" );
         if(Directory.Exists( openBeta )) {
@@ -217,11 +186,10 @@ public class SettingsViewModel : BindableBase, INavigationAware {
     /// 翻訳ファイルの保存先初期値を取得する
     /// </summary>
     /// <returns>取得したパス</returns>
-    private string GetDefaultTranslateDir() {
+    private static string GetDefaultTranslateDir() {
         var exeDir = Path.GetDirectoryName( Assembly.GetEntryAssembly()?.Location );
         return Path.Combine( exeDir!, "TranslateFiles" );
     }
 
-    public bool IsNavigationTarget( NavigationContext navigationContext )
-        => true;
+    public bool IsNavigationTarget( NavigationContext navigationContext ) => true;
 }

@@ -6,4 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DcsTranslateTool.Core\DcsTranslateTool.Core.csproj" />
+  </ItemGroup>
 </Project>

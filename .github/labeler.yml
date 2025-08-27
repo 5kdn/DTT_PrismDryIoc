@@ -1,0 +1,78 @@
+# ------------------------------------------------------------
+# .github/labeler.yml
+# Purpose:
+#   - PR の変更ファイルパスに応じて自動ラベル付与
+#   - ラベルは事前にリポジトリ側で作成しておくこと（Settings > Labels）
+# Notes:
+#   - actions/labeler@v5 形式（changed-files / any-glob-to-any-file）
+#   - ここにないラベル（prio/*, status/* など）は人手または他Automationで付与
+#   - パターンは必要に応じて編集してください
+# ------------------------------------------------------------
+
+
+"WPF / XAML":
+  - "**/*.xaml"
+  - "**/*.xaml.cs"
+  - "**/App.xaml"
+  - "**/App.xaml.cs"
+  - "**/*Window.xaml"
+  - "**/*Page.xaml"
+  - "**/*UserControl.xaml"
+
+"View / UI":
+  - "**/Views/**/*.xaml"
+  - "**/Views/**/*.xaml.cs"
+
+"ViewModel":
+  - "**/ViewModels/**/*.cs"
+  - "**/*ViewModel.cs"
+
+"Model / Business Logic":
+  - "**/Models/**/*.cs"
+  - "**/*Service.cs"
+  - "**/*Repository.cs"
+
+"Build / MSBuild":
+  - "**/*.csproj"
+  - "**/*.props"
+  - "**/*.targets"
+  - "Directory.Build.*"
+
+"Dependencies / NuGet":
+  - "**/Directory.Packages.props"
+  - "**/packages.lock.json"
+  - "nuget.config"
+
+"Tests":
+  - "*Tests/**"
+
+"CI / GitHub Actions":
+  - ".github/workflows/**"
+
+"Docs":
+  - "README.md"
+  - "docs/**"
+  - "**/*.md"
+
+"Localization":
+  - "**/*.resx"
+
+"Assets / Images":
+  - "**/*.png"
+  - "**/*.jpg"
+  - "**/*.jpeg"
+  - "**/*.ico"
+  - "**/*.svg"
+
+"Packaging / Installer":
+  - "**/*.msix*"
+  - "**/*.appinstaller"
+  - "**/*.wxs"
+  - "**/*.wixproj"
+  - "installer/**"
+
+"Code Style / Analyzer":
+  - ".editorconfig"
+  - ".globalconfig"
+  - "stylecop.json"
+  - "**/*.ruleset"
