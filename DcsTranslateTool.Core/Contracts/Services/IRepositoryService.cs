@@ -9,10 +9,10 @@ namespace DcsTranslateTool.Core.Contracts.Services;
 /// </summary>
 public interface IRepositoryService {
     /// <summary>
-    /// リポジトリのファイルリスト<see cref="RepoEntry">を取得する
+    /// リポジトリのファイルリスト<see cref="Entry"/>を取得する。
     /// </summary>
     /// <returns>リポジトリエントリー</returns>
-    Task<Result<IEnumerable<RepoEntry>>> GetRepositoryEntryAsync();
+    Task<Result<IEnumerable<Entry>>> GetRepositoryEntryAsync();
 
     /// <summary>
     /// ファイルをバイナリ形式で取得する

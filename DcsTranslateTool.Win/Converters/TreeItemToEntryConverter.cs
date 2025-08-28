@@ -3,8 +3,8 @@
 using Octokit;
 
 namespace DcsTranslateTool.Win.Converters;
-public static class TreeItemToRepoEntryConverter {
-    public static RepoEntry Convert( TreeItem item ) =>
+public static class TreeItemToEntryConverter {
+    public static Entry Convert( TreeItem item ) =>
         new(
             item.Path.Split( "/" )[^1],
             item.Path,

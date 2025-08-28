@@ -22,7 +22,7 @@ public class FileEntryServiceTests : IDisposable {
     [Fact]
     public void ディレクトリが空の状態でGetChildrenを実行したとき空列挙が返る() {
         // Arrange
-        var entry = new FileEntry("empty", _tempDir, true);
+        var entry = new Entry("empty", _tempDir, true);
         var sut = new FileEntryService();
 
         // Act
@@ -40,7 +40,7 @@ public class FileEntryServiceTests : IDisposable {
         Directory.CreateDirectory( subDir );
         var file = Path.Join(_tempDir, "file.txt");
         File.WriteAllText( file, null );
-        var entry = new FileEntry("parent", _tempDir, true);
+        var entry = new Entry("parent", _tempDir, true);
         var sut = new FileEntryService();
 
         // Act
@@ -59,7 +59,7 @@ public class FileEntryServiceTests : IDisposable {
         // Arrange
         var filePath = Path.Join(_tempDir, "file.txt");
         File.WriteAllText( filePath, null );
-        var entry = new FileEntry("file.txt", filePath, false);
+        var entry = new Entry("file.txt", filePath, false);
         var sut = new FileEntryService();
 
         // Act
@@ -74,7 +74,7 @@ public class FileEntryServiceTests : IDisposable {
     public void 存在しないディレクトリパスに対してGetChildrenを実行したとき失敗する() {
         // Arrange
         var notExistDir = Path.Join(_tempDir, "notExist");
-        var entry = new FileEntry("notExist", notExistDir, true);
+        var entry = new Entry("notExist", notExistDir, true);
         var sut = new FileEntryService();
 
         // Act

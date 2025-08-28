@@ -10,7 +10,7 @@ namespace DcsTranslateTool.Win.ViewModels.Factories;
 public class FileEntryViewModelFactory( IResolverContext resolver ) : IFileEntryViewModelFactory {
     /// <inheritdoc />
     public FileEntryViewModel Create(
-        FileEntry model,
+        Entry model,
         FileEntryViewModel? parent = null,
         CheckState checkState = CheckState.Unchecked
     ) {
@@ -30,7 +30,7 @@ public class FileEntryViewModelFactory( IResolverContext resolver ) : IFileEntry
         CheckState checkState = CheckState.Unchecked
     ) {
         return Create(
-            new FileEntry( Path.GetFileName( absolutePath ), absolutePath, isDirectory ),
+            new Entry( Path.GetFileName( absolutePath ), absolutePath, isDirectory ),
             parent,
             checkState );
     }

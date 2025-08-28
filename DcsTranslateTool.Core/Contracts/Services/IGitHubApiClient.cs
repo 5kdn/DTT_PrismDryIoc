@@ -12,7 +12,7 @@ public interface IGitHubApiClient {
     /// <param name="branch">取得対象のブランチ名。省略時は "master"。</param>
     /// <returns><see cref="TreeItem"/> のリストを返す。</returns>
     /// <exception cref="Exception">GitHub API の呼び出しに失敗した場合に送出する。</exception>
-    Task<IEnumerable<RepoEntry>> GetRepositoryEntriesAsync( string branch = "master" );
+    Task<IEnumerable<Entry>> GetRepositoryEntriesAsync( string branch = "master" );
 
     /// <summary>
     /// 指定したパス・ブランチのファイルを取得する。

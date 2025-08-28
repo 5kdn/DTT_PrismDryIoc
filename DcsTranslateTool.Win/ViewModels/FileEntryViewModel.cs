@@ -32,7 +32,7 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     public bool IsDirectory => this.Model.IsDirectory;
 
     /// <inheritdoc/>
-    public FileEntry Model { get; }
+    public Entry Model { get; }
 
     /// <inheritdoc/>
     public CheckState CheckState {
@@ -80,7 +80,7 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     public FileEntryViewModel(
         IFileEntryViewModelFactory factory,
         IFileEntryService fileEntryService,
-        FileEntry model ) {
+        Entry model ) {
         _factory = factory;
         _fileEntryService = fileEntryService;
         this.Model = model;
@@ -129,11 +129,11 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     }
 
     /// <summary>
-    /// 選択状態の子要素の <see cref="FileEntry"/> を再帰的に取得する
+    /// 選択状態の子要素の <see cref="Entry"/> を再帰的に取得する。
     /// </summary>
-    /// <returns>選択状態の <see cref="FileEntry"/> の一覧</returns>
-    public List<FileEntry> GetCheckedModelRecursice() {
-        List<FileEntry> checkedChildrenModels = [];
+    /// <returns>選択状態の <see cref="Entry"/> の一覧</returns>
+    public List<Entry> GetCheckedModelRecursice() {
+        List<Entry> checkedChildrenModels = [];
 
         if(CheckState.IsSelectedLike() && !IsDirectory) {
             checkedChildrenModels.Add( Model );

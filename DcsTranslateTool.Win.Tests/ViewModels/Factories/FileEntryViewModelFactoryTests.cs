@@ -22,7 +22,7 @@ public class FileEntryViewModelFactoryTests {
         container.Register<IFileEntryService, FileEntryService>( Reuse.Transient );
 
         var factory = container.Resolve<IFileEntryViewModelFactory>();
-        var fileEntry = new FileEntry("test.txt", @"C:\Test\test.txt", false);
+        var fileEntry = new Entry("test.txt", @"C:\Test\test.txt", false);
 
         // Act
         var viewModel = factory.Create(fileEntry);

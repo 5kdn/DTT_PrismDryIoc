@@ -1,5 +1,9 @@
-﻿namespace DcsTranslateTool.Core.Models;
-public class FileEntry( string name, string absolutePath, bool isDirectory ) {
+namespace DcsTranslateTool.Core.Models;
+
+/// <summary>
+/// ファイルまたはディレクトリのエントリを表現するクラスである。
+/// </summary>
+public class Entry( string name, string absolutePath, bool isDirectory ) {
     /// <summary>
     /// ファイルまたはディレクトリの名称を取得する。
     /// </summary>
@@ -12,7 +16,8 @@ public class FileEntry( string name, string absolutePath, bool isDirectory ) {
 
     /// <summary>
     /// ディレクトリかどうかを取得する。
-    /// ディレクトリの場合は <see langword="true"/>、ファイルの場合は <see langword="false"/> とする。
+    /// ディレクトリの場合は <see langword="true"/>
+    /// ファイルの場合は <see langword="false"/> とする。
     /// </summary>
     public bool IsDirectory => isDirectory;
 }

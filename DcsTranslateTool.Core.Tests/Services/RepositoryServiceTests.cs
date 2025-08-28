@@ -13,7 +13,7 @@ public class RepositoryServiceTests {
     #region GetRepositoryEntryAsync
 
     [Fact]
-    public async Task GetRepositoryTreeAsyncはリポジトリツリーが存在するときにRepoEntryリストを返す() {
+    public async Task GetRepositoryTreeAsyncはリポジトリツリーが存在するときにEntryリストを返す() {
         // Arrange
         var mockClient = new Mock<IGitHubApiClient>();
         var service = new RepositoryService( mockClient.Object );
