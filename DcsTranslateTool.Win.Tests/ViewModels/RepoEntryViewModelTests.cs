@@ -13,7 +13,7 @@ public class RepoEntryViewModelTests {
     [Trait( "Category", "WindowsOnly" )]
     public void SetSelectRecursiveはファイルエントリで呼び出したとき自身のIsSelectedのみが設定値になる( bool value ) {
         // Arrange
-        var fileEntry = new RepoEntry("file.txt", "file.txt", value);
+        var fileEntry = new Entry("file.txt", "file.txt", value);
         var fileVm = new RepoEntryViewModel(fileEntry);
 
         // Act
@@ -29,7 +29,7 @@ public class RepoEntryViewModelTests {
     [Trait( "Category", "WindowsOnly" )]
     public void SetSelectRecursiveは子なしディレクトリで呼び出したとき自身のIsSelectedが設定値_になる( bool value ) {
         // Arrange
-        var entry = new RepoEntry("folder", "folder", value);
+        var entry = new Entry("folder", "folder", value);
         var vm = new RepoEntryViewModel(entry);
 
         // Act
@@ -45,10 +45,10 @@ public class RepoEntryViewModelTests {
     [Trait( "Category", "WindowsOnly" )]
     public void SetSelectRecursiveは子を持つディレクトリで呼び出したとき自身と全ての子のIsSelectedが設定値になる( bool value ) {
         // Arrange
-        var parent = new RepoEntry("parent", "parent", true);
-        var child1 = new RepoEntry("child1", "parent/child1", false);
-        var child2 = new RepoEntry("child2", "parent/child2", false);
-        var child3 = new RepoEntry("child2", "parent/child2", true);
+        var parent = new Entry("parent", "parent", true);
+        var child1 = new Entry("child1", "parent/child1", false);
+        var child2 = new Entry("child2", "parent/child2", false);
+        var child3 = new Entry("child2", "parent/child2", true);
 
         var parentVm = new RepoEntryViewModel(parent);
         var childVm1 = new RepoEntryViewModel(child1);
@@ -75,11 +75,11 @@ public class RepoEntryViewModelTests {
     [Trait( "Category", "WindowsOnly" )]
     public void SetSelectRecursiveは孫要素を持つとき全階層のIsSelectedが設定値になる( bool value ) {
         // Arrange
-        var parent = new RepoEntry("parent", "parent", true);
-        var child1 = new RepoEntry("child", "parent/child1", true);
-        var child2 = new RepoEntry("child", "parent/child2", false);
-        var grandChild1 = new RepoEntry("grandChild", "parent/child1/grandChild1", false);
-        var grandChild2 = new RepoEntry("grandChild", "parent/child1/grandChild2", true);
+        var parent = new Entry("parent", "parent", true);
+        var child1 = new Entry("child", "parent/child1", true);
+        var child2 = new Entry("child", "parent/child2", false);
+        var grandChild1 = new Entry("grandChild", "parent/child1/grandChild1", false);
+        var grandChild2 = new Entry("grandChild", "parent/child1/grandChild2", true);
 
         var parentVm = new RepoEntryViewModel(parent);
         var childVm1 = new RepoEntryViewModel(child1);

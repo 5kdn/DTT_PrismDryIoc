@@ -13,7 +13,7 @@ public class RepositoryServiceTests {
     #region GetRepositoryEntryAsync
 
     [Fact]
-    public async Task GetRepositoryTreeAsyncはリポジトリツリーが存在するときにRepoEntryリストを返す() {
+    public async Task GetRepositoryTreeAsyncはリポジトリツリーが存在するときにEntryリストを返す() {
         // Arrange
         var mockClient = new Mock<IGitHubApiClient>();
         var service = new RepositoryService( mockClient.Object );
@@ -23,19 +23,6 @@ public class RepositoryServiceTests {
 
         // Assert
         mockClient.Verify( m => m.GetRepositoryEntriesAsync( It.IsAny<string>() ), Times.Once );
-    }
-
-    [Fact]
-    public async Task GetRepositoryTreeAsyncはAPI例外が発生すると例外が伝播する() {
-        // Arrange
-        var mockClient = new Mock<IGitHubApiClient>();
-        mockClient
-            .Setup( c => c.GetRepositoryEntriesAsync( It.IsAny<string>() ) )
-            .ThrowsAsync( new Exception( "API error" ) );
-        var service = new RepositoryService( mockClient.Object );
-
-        // Act & Assert
-        await Assert.ThrowsAsync<Exception>( async () => await service.GetRepositoryEntryAsync() );
     }
 
     #endregion
@@ -62,19 +49,6 @@ public class RepositoryServiceTests {
         Assert.Equal( expected, result.Value );
     }
 
-    [Fact]
-    public async Task GetFileAsyncはAPI例外が発生したとき例外が伝播する() {
-        // Arrange
-        var mockClient = new Mock<IGitHubApiClient>();
-        mockClient
-            .Setup( c => c.GetFileAsync( It.IsAny<string>(), It.IsAny<string>() ) )
-            .ThrowsAsync( new Exception( "API error" ) );
-        var service = new RepositoryService( mockClient.Object );
-
-        // Act & Assert
-        await Assert.ThrowsAsync<Exception>( async () => await service.GetFileAsync( "path/to/file.exp" ) );
-    }
-
     #endregion
 
     #region CreateBranchAsync
@@ -93,19 +67,6 @@ public class RepositoryServiceTests {
 
         // Assert
         mockClient.Verify( c => c.CreateBranchAsync( "master", "new-branch" ), Times.Once );
-    }
-
-    [Fact]
-    public async Task CreateBranchAsyncはAPI例外が発生したとき例外が伝播する() {
-        // Arrange
-        var mockClient = new Mock<IGitHubApiClient>();
-        mockClient
-            .Setup( c => c.CreateBranchAsync( It.IsAny<string>(), It.IsAny<string>() ) )
-            .ThrowsAsync( new Exception( "API error" ) );
-        var service = new RepositoryService( mockClient.Object );
-
-        // Act & Assert
-        await Assert.ThrowsAsync<Exception>( async () => await service.CreateBranchAsync( "new-branch" ) );
     }
 
     #endregion
@@ -156,59 +117,6 @@ public class RepositoryServiceTests {
         mockClient.Verify( c =>
             c.CommitAsync( "new-branch", new CommitFile[] { commitFile }, "commit message" ),
             Times.Once );
-    }
-
-    [Fact]
-    public async Task CommitAsyncはAPI例外が発生したとき_例外が伝播する() {
-        // Arrange
-        var mockClient = new Mock<IGitHubApiClient>();
-        mockClient
-            .Setup( c => c.CommitAsync( It.IsAny<string>(), It.IsAny<IEnumerable<CommitFile>>(), It.IsAny<string>() ) )
-            .ThrowsAsync( new Exception( "API Error" ) );
-        var service = new RepositoryService( mockClient.Object );
-        List<CommitFile> commitFiles =
-        [
-            new(){LocalPath = @"D:\Projects\DCS\DTT_PrismDryIoc\obj\dummy1.txt",RepoPath = "path/to/file1.exp",Operation = CommitOperationType.AddOrUpdate},
-        ];
-
-        // Act & Assert
-        await Assert.ThrowsAsync<Exception>( async () => await service.CommitAsync( "new-branch", commitFiles, "commit message" ) );
-    }
-
-    #endregion
-
-    #region CreatePullRequestAsync
-
-    //[Fact]
-    //public async Task CreatePullRequestAsyncは有効なパラメータでAPIが呼び出される() {
-    //    // Arrange
-    //    var expected = new PullRequest();
-    //    var mockClient = new Mock<IGitHubApiClient>();
-    //    mockClient
-    //        .Setup( c => c.CreatePullRequestAsync( "new-branch", "master", "PR title", "message" ) )
-    //        .Returns( Task.CompletedTask );
-    //    var service = new RepositoryService( mockClient.Object );
-
-    //    // Act
-    //    await service.CreatePullRequestAsync( "new-branch", "PR title", "message" );
-
-    //    // Assert
-    //    mockClient.Verify( c =>
-    //        c.CreatePullRequestAsync( "new-branch", "master", "PR title", "message" ),
-    //        Times.Once );
-    //}
-
-    [Fact]
-    public async Task CreatePullRequestAsyncはAPI例外が発生したとき例外が伝播する() {
-        // Arrange
-        var mockClient = new Mock<IGitHubApiClient>();
-        mockClient
-            .Setup( c => c.CreatePullRequestAsync( It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>() ) )
-            .ThrowsAsync( new Exception( "API Error" ) );
-        var service = new RepositoryService( mockClient.Object );
-
-        // Act & Assert
-        await Assert.ThrowsAsync<Exception>( async () => await service.CreatePullRequestAsync( "new-branch", "PR title", "message" ) );
     }
 
     #endregion

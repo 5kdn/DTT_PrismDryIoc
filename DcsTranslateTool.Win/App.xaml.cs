@@ -18,6 +18,8 @@ using DcsTranslateTool.Win.ViewModels;
 using DcsTranslateTool.Win.ViewModels.Factories;
 using DcsTranslateTool.Win.Views;
 
+using DryIoc;
+
 using Microsoft.Extensions.Configuration;
 
 namespace DcsTranslateTool.Win;
@@ -61,7 +63,8 @@ public partial class App : PrismApplication {
         containerRegistry.RegisterSingleton<IDecryptService, DecryptService>();
         containerRegistry.RegisterSingleton<IDecrypter, AesGcmV1Decrypter>();
         containerRegistry.RegisterSingleton<IGitHubApiClient, GitHubApiClient>();
-        containerRegistry.Register<IFileEntryService, FileEntryService>();
+        containerRegistry.Register<IFileEntryService>(
+            c => new FileEntryService( c.Resolve<IAppSettingsService>().TranslateFileDir ) );
         containerRegistry.Register<IApplicationInfoService, ApplicationInfoService>();
         containerRegistry.Register<ISystemService, SystemService>();
         containerRegistry.Register<IPersistAndRestoreService, PersistAndRestoreService>();

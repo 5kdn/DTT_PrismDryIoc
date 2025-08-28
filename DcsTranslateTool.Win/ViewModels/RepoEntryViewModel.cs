@@ -4,7 +4,7 @@ using DcsTranslateTool.Core.Models;
 
 namespace DcsTranslateTool.Win.ViewModels;
 public class RepoEntryViewModel(
-    RepoEntry model
+    Entry model
     ) : BindableBase {
     #region Fields
 
@@ -21,9 +21,9 @@ public class RepoEntryViewModel(
     public string Name => this.Model.Name;
 
     /// <summary>
-    /// リポジトリ上の絶対パスを取得する
+    /// リポジトリルートからのパスを取得する
     /// </summary>
-    public string AbsolutePath => this.Model.AbsolutePath;
+    public string Path => this.Model.Path;
 
     /// <summary>
     /// ディレクトリかどうかを判定する
@@ -31,9 +31,9 @@ public class RepoEntryViewModel(
     public bool IsDirectory => this.Model.IsDirectory;
 
     /// <summary>
-    /// 実際の<see cref="RepoEntry"/>を取得する
+    /// 実際の<see cref="Entry"/>を取得する。
     /// </summary>
-    public RepoEntry Model { get; } = model;
+    public Entry Model { get; } = model;
 
     /// <summary>
     /// チェックボックス選択されているかどうかを取得または設定する
@@ -76,11 +76,11 @@ public class RepoEntryViewModel(
     }
 
     /// <summary>
-    /// セレクト状態の子要素の<see cref="RepoEntry"/>を再帰的に取得する
+    /// セレクト状態の子要素の<see cref="Entry"/>を再帰的に取得する。
     /// </summary>
     /// <returns>セレクト状態の子要素のリスト</returns>
-    public List<RepoEntry> GetCheckedModelRecursice() {
-        List<RepoEntry> checkedChildrenModels = [];
+    public List<Entry> GetCheckedModelRecursice() {
+        List<Entry> checkedChildrenModels = [];
 
         if(IsSelected) checkedChildrenModels.Add( Model );
 

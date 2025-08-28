@@ -135,8 +135,8 @@ public class DownloadViewModel(
             foreach(var error in result.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {error.Message}" );
             return;
         }
-        IEnumerable<RepoEntry> entries = result.Value;
-        RepoEntryViewModel rootVm = new( new RepoEntry( "", "", true ) );
+        IEnumerable<Entry> entries = result.Value;
+        RepoEntryViewModel rootVm = new( new Entry( "", "", true ) );
         foreach(var entry in entries) AddRepoEntryToRepoEntryViewModel( rootVm, entry );
 
         ResetTabs();
@@ -156,13 +156,13 @@ public class DownloadViewModel(
         var targetEntries = _tabs[SelectedTabIndex].GetCheckedEntries();
         foreach(var entry in targetEntries) {
             if(entry.IsDirectory) continue;
-            var result = await repositoryService.GetFileAsync( entry.AbsolutePath );
+            var result = await repositoryService.GetFileAsync( entry.Path );
             if(result.IsFailed) {
                 // TODO: エラーハンドリング
                 return;
             }
             byte[] data = result.Value;
-            var savePath = Path.Join( appSettingsService.TranslateFileDir, entry.AbsolutePath );
+            var savePath = Path.Join( appSettingsService.TranslateFileDir, entry.Path );
             await fileService.SaveAsync( savePath, data );
         }
     }
@@ -186,17 +186,17 @@ public class DownloadViewModel(
     /// </summary>
     private void ResetTabs() {
         Tabs = [..Enum.GetValues<RootTabType>().Select(tabType=>
-            new DownloadTabItemViewModel(tabType, new RepoEntryViewModel(new RepoEntry("", "", true) ))
+            new DownloadTabItemViewModel(tabType, new RepoEntryViewModel(new Entry("", "", true) ))
         )];
     }
 
     /// <summary>
-    /// <see cref="RepoEntry"/>を<see cref="RepoEntryViewModel"/>に変換し、ツリー構造に追加する"/>
+    /// <see cref="Entry"/>を<see cref="RepoEntryViewModel"/>に変換し、ツリー構造に追加する。
     /// </summary>
     /// <param name="root">ルートViewModel</param>
     /// <param name="entry">追加するエントリー</param>
-    private static void AddRepoEntryToRepoEntryViewModel( RepoEntryViewModel root, RepoEntry entry ) {
-        string[] parts = entry.AbsolutePath.Split( "/", StringSplitOptions.RemoveEmptyEntries );
+    private static void AddRepoEntryToRepoEntryViewModel( RepoEntryViewModel root, Entry entry ) {
+        string[] parts = entry.Path.Split( "/", StringSplitOptions.RemoveEmptyEntries );
         if(parts.IsNullOrEmpty()) return;
         RepoEntryViewModel current = root;
         string absolutePath = "";
@@ -205,7 +205,7 @@ public class DownloadViewModel(
             absolutePath += absolutePath.Length == 0 ? part : "/" + part;
             var next = current.Children.FirstOrDefault(c => c.Name == part && c.IsDirectory);
             if(next is null) {
-                next = new RepoEntryViewModel( new RepoEntry( part, absolutePath, true ) );
+                next = new RepoEntryViewModel( new Entry( part, absolutePath, true ) );
                 current.Children.Add( next );
             }
             current = next;
@@ -213,7 +213,7 @@ public class DownloadViewModel(
 
         var last = parts[^1];
         if(!current.Children.Any( c => c.Name == last )) {
-            current.Children.Add( new RepoEntryViewModel( new RepoEntry( last, entry.AbsolutePath, entry.IsDirectory ) ) );
+            current.Children.Add( new RepoEntryViewModel( new Entry( last, entry.Path, entry.IsDirectory, null, entry.RepoSha ) ) );
         }
     }
     #endregion

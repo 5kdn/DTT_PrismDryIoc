@@ -16,9 +16,9 @@ public interface IFileEntryViewModel {
     string Name { get; }
 
     /// <summary>
-    /// ファイルまたはディレクトリの絶対パスを取得する
+    /// 翻訳ルートからのパスを取得する
     /// </summary>
-    string AbsolutePath { get; }
+    string Path { get; }
 
     /// <summary>
     /// エントリがディレクトリかどうかを示す値を取得する
@@ -26,9 +26,9 @@ public interface IFileEntryViewModel {
     bool IsDirectory { get; }
 
     /// <summary>
-    /// このViewModelが表すファイルエントリのモデルを取得する
+    /// このViewModelが表すエントリのモデルを取得する。
     /// </summary>
-    FileEntry Model { get; }
+    Entry Model { get; }
 
     /// <summary>
     /// チェック状態を取得または設定する
@@ -62,8 +62,8 @@ public interface IFileEntryViewModel {
     void LoadChildren();
 
     /// <summary>
-    /// 選択状態の子要素の <see cref="FileEntry"/> を再帰的に取得する
+    /// 選択状態の子要素の <see cref="Entry"/> を再帰的に取得する。
     /// </summary>
-    /// <returns>選択状態の <see cref="FileEntry"/> の一覧</returns>
-    List<FileEntry> GetCheckedModelRecursice();
+    /// <returns>選択状態の <see cref="Entry"/> の一覧</returns>
+    List<Entry> GetCheckedModelRecursice();
 }

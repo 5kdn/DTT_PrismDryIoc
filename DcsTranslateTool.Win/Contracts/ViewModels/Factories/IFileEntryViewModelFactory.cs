@@ -5,7 +5,7 @@ using DcsTranslateTool.Win.ViewModels;
 namespace DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 public interface IFileEntryViewModelFactory {
     FileEntryViewModel Create(
-        FileEntry model,
+        Entry model,
         FileEntryViewModel? parent = null,
         CheckState checkState = CheckState.Unchecked );
 

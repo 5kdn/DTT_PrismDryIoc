@@ -20,8 +20,8 @@ public class DownloadTabItemViewModel( RootTabType tabType, RepoEntryViewModel r
     public void SetCheckRecursive( bool value ) => Root.SetSelectRecursive( value );
 
     /// <summary>
-    /// チェック状態のエントリを取得するメソッド
+    /// チェック状態のエントリを取得するメソッド。
     /// </summary>
-    /// <returns><see cref="RepoEntry"/>のリスト</returns>
-    public List<RepoEntry> GetCheckedEntries() => Root.GetCheckedModelRecursice();
+    /// <returns><see cref="Entry"/>のリスト</returns>
+    public List<Entry> GetCheckedEntries() => Root.GetCheckedModelRecursice();
 }

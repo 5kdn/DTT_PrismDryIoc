@@ -15,7 +15,7 @@
             <ListView ItemsSource="{Binding Files}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding AbsolutePath}"/>
+                        <TextBlock Text="{Binding Path}"/>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
