@@ -8,6 +8,7 @@ using DcsTranslateTool.Win.ViewModels;
 using DcsTranslateTool.Win.ViewModels.Factories;
 
 using DryIoc;
+
 using Moq;
 
 using Xunit;
