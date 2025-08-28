@@ -8,20 +8,30 @@ using DcsTranslateTool.Win.ViewModels;
 using DcsTranslateTool.Win.ViewModels.Factories;
 
 using DryIoc;
+
 using Moq;
 
 using Xunit;
 
 namespace DcsTranslateTool.Win.Tests.ViewModels.Factories;
 
+/// <summary>
+/// <see cref="FileEntryViewModelFactory"/> のテストである。
+/// </summary>
 public class FileEntryViewModelFactoryTests : IDisposable {
     private readonly string _tempDir;
 
+    /// <summary>
+    /// コンストラクターで一時ディレクトリを作成する。
+    /// </summary>
     public FileEntryViewModelFactoryTests() {
         _tempDir = Path.Join( Path.GetTempPath(), Guid.NewGuid().ToString() );
         Directory.CreateDirectory( _tempDir );
     }
 
+    /// <summary>
+    /// 一時ディレクトリを削除する。
+    /// </summary>
     public void Dispose() {
         if(Directory.Exists( _tempDir )) Directory.Delete( _tempDir, true );
         GC.SuppressFinalize( this );
@@ -29,6 +39,9 @@ public class FileEntryViewModelFactoryTests : IDisposable {
 
     #region Create_FileEntry
 
+    /// <summary>
+    /// Entryを指定したときファイルエントリービューモデルを生成する。
+    /// </summary>
     [Fact]
     [Trait( "Category", "WindowsOnly" )]
     public void CreateはEntryを指定したときFileEntryViewModelを生成する() {
@@ -36,7 +49,12 @@ public class FileEntryViewModelFactoryTests : IDisposable {
         var container = new Container();
         container.Register<IFileEntryViewModelFactory, FileEntryViewModelFactory>( Reuse.Transient );
         container.Register<IFileEntryViewModel, FileEntryViewModel>( Reuse.Transient );
-        container.Register<IFileEntryService, FileEntryService>( Reuse.Transient );
+        var appSettingsMock = new Mock<IAppSettingsService>();
+        appSettingsMock.SetupGet( a => a.TranslateFileDir ).Returns( _tempDir );
+        container.RegisterInstance<IAppSettingsService>( appSettingsMock.Object );
+        container.RegisterDelegate<IFileEntryService>(
+            c => new FileEntryService( c.Resolve<IAppSettingsService>().TranslateFileDir ),
+            Reuse.Transient );
 
         var factory = container.Resolve<IFileEntryViewModelFactory>();
         var entry = new Entry( "test.txt", "test.txt", false );
@@ -53,6 +71,9 @@ public class FileEntryViewModelFactoryTests : IDisposable {
 
     #region Create_path
 
+    /// <summary>
+    /// Pathとディレクトリ指定からファイルエントリービューモデルを生成する。
+    /// </summary>
     [Fact]
     [Trait( "Category", "WindowsOnly" )]
     public void CreateはPathとIsDirectoryを指定してEntryViewModelを生成する() {
@@ -60,10 +81,12 @@ public class FileEntryViewModelFactoryTests : IDisposable {
         var container = new Container();
         container.Register<IFileEntryViewModelFactory, FileEntryViewModelFactory>( Reuse.Transient );
         container.Register<IFileEntryViewModel, FileEntryViewModel>( Reuse.Transient );
-        container.Register<IFileEntryService, FileEntryService>( Reuse.Transient );
         var appSettingsMock = new Mock<IAppSettingsService>();
         appSettingsMock.SetupGet( a => a.TranslateFileDir ).Returns( _tempDir );
         container.RegisterInstance<IAppSettingsService>( appSettingsMock.Object );
+        container.RegisterDelegate<IFileEntryService>(
+            c => new FileEntryService( c.Resolve<IAppSettingsService>().TranslateFileDir ),
+            Reuse.Transient );
         var factory = container.Resolve<IFileEntryViewModelFactory>();
         string path = Path.Combine( _tempDir, "folder" );
         const bool isDirectory = true;
