@@ -71,7 +71,9 @@ jobs:
       matrix:
         dotnet-version: ["8.0.x"]
         rid: ["win-x64", "win-x86"]
-        test-project: ["DummyWPFTests/DummyWPFTests.csproj"]
+        test-project:
+          - "DcsTranslateTool.Core.Tests/DcsTranslateTool.Core.Tests.csproj"
+          - "DcsTranslateTool.Core.Tests/DcsTranslateTool.Win.Tests.csproj"
     steps:
       - uses: actions/checkout@v5
 
