@@ -1,4 +1,5 @@
 ﻿using DcsTranslateTool.Core.Models;
+using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.ViewModels;
 
 using Xunit;
@@ -101,6 +102,53 @@ public class RepoEntryViewModelTests {
         Assert.Equal( value, childVm2.IsSelected );
         Assert.Equal( value, grandChildVm1.IsSelected );
         Assert.Equal( value, grandChildVm2.IsSelected );
+    }
+
+    #endregion
+
+    #region ApplyFilter
+
+    [Fact]
+    [Trait("Category", "WindowsOnly")]
+    public void ApplyFilterはフィルタがDownloadedのときStatusがDownloadedのノードのみIsVisibleがTrueになる() {
+        // Arrange
+        var parent = new RepoEntry("parent", "parent", true);
+        var child1 = new RepoEntry("child1", "parent/child1", false);
+        var child2 = new RepoEntry("child2", "parent/child2", false);
+
+        var parentVm = new RepoEntryViewModel(parent, DownloadStatus.NotDownloaded);
+        var childVm1 = new RepoEntryViewModel(child1, DownloadStatus.Downloaded);
+        var childVm2 = new RepoEntryViewModel(child2, DownloadStatus.NotDownloaded);
+
+        parentVm.Children.Add(childVm1);
+        parentVm.Children.Add(childVm2);
+
+        // Act
+        parentVm.ApplyFilter(DownloadFilterType.Downloaded);
+
+        // Assert
+        Assert.True(parentVm.IsVisible);
+        Assert.True(childVm1.IsVisible);
+        Assert.False(childVm2.IsVisible);
+    }
+
+    [Fact]
+    [Trait("Category", "WindowsOnly")]
+    public void ApplyFilterは子が全て非表示のとき親ディレクトリも非表示になる() {
+        // Arrange
+        var parent = new RepoEntry("parent", "parent", true);
+        var child = new RepoEntry("child", "parent/child", false);
+
+        var parentVm = new RepoEntryViewModel(parent, DownloadStatus.NotDownloaded);
+        var childVm = new RepoEntryViewModel(child, DownloadStatus.NotDownloaded);
+        parentVm.Children.Add(childVm);
+
+        // Act
+        parentVm.ApplyFilter(DownloadFilterType.Downloaded);
+
+        // Assert
+        Assert.False(parentVm.IsVisible);
+        Assert.False(childVm.IsVisible);
     }
 
     #endregion

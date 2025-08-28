@@ -30,6 +30,7 @@ public class DownloadViewModel(
 
     private ObservableCollection<DownloadTabItemViewModel> _tabs = [];
     private int _selectedTabIndex;
+    private DownloadFilterType _selectedFilter = DownloadFilterType.All;
 
     private DelegateCommand? _openSettingsCommand;
     private DelegateCommand? _fetchCommand;
@@ -56,6 +57,18 @@ public class DownloadViewModel(
     public ObservableCollection<DownloadTabItemViewModel> Tabs {
         get => _tabs;
         set => SetProperty( ref _tabs, value );
+    }
+
+    /// <summary>
+    /// 選択中のフィルター
+    /// </summary>
+    public DownloadFilterType SelectedFilter {
+        get => _selectedFilter;
+        set {
+            if(SetProperty(ref _selectedFilter, value)) {
+                ApplyFilter();
+            }
+        }
     }
 
     #endregion
@@ -147,6 +160,8 @@ public class DownloadViewModel(
                     node?.Children.FirstOrDefault(c=>c.Name == part));
             if(target != null) Tabs.FindFirst( t => t.TabType == tabType ).Root = target;
         } );
+
+        ApplyFilter();
     }
 
     /// <summary>
@@ -188,6 +203,15 @@ public class DownloadViewModel(
         Tabs = [..Enum.GetValues<RootTabType>().Select(tabType=>
             new DownloadTabItemViewModel(tabType, new RepoEntryViewModel(new RepoEntry("", "", true) ))
         )];
+    }
+
+    /// <summary>
+    /// 各タブにフィルターを適用する
+    /// </summary>
+    private void ApplyFilter() {
+        foreach(var tab in _tabs) {
+            tab.Root.ApplyFilter( SelectedFilter );
+        }
     }
 
     /// <summary>

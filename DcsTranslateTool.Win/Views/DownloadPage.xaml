@@ -10,11 +10,17 @@
     xmlns:views="clr-namespace:DcsTranslateTool.Win.Views"
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:enums="clr-namespace:DcsTranslateTool.Win.Enums"
+    xmlns:converters="clr-namespace:DcsTranslateTool.Win.Converters"
     Style="{StaticResource BaseUserControlStyle}"
     mc:Ignorable="d">
+    <UserControl.Resources>
+        <converters:EnumToBooleanConverter x:Key="FilterConverter" EnumType="{x:Type enums:DownloadFilterType}" />
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="48" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
@@ -40,8 +46,21 @@
             </Button>
         </Grid>
 
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="{StaticResource MediumLeftRightMargin}">
+            <RadioButton Content="DL済" GroupName="Filter"
+                         IsChecked="{Binding SelectedFilter, Mode=TwoWay, Converter={StaticResource FilterConverter}, ConverterParameter=Downloaded}"/>
+            <RadioButton Content="未DL" GroupName="Filter" Margin="{StaticResource SmallLeftMargin}"
+                         IsChecked="{Binding SelectedFilter, Mode=TwoWay, Converter={StaticResource FilterConverter}, ConverterParameter=NotDownloaded}"/>
+            <RadioButton Content="新規" GroupName="Filter" Margin="{StaticResource SmallLeftMargin}"
+                         IsChecked="{Binding SelectedFilter, Mode=TwoWay, Converter={StaticResource FilterConverter}, ConverterParameter=New}"/>
+            <RadioButton Content="更新有" GroupName="Filter" Margin="{StaticResource SmallLeftMargin}"
+                         IsChecked="{Binding SelectedFilter, Mode=TwoWay, Converter={StaticResource FilterConverter}, ConverterParameter=Updated}"/>
+            <RadioButton Content="全て" GroupName="Filter" Margin="{StaticResource SmallLeftMargin}"
+                         IsChecked="{Binding SelectedFilter, Mode=TwoWay, Converter={StaticResource FilterConverter}, ConverterParameter=All}"/>
+        </StackPanel>
+
         <mah:MetroTabControl
-            Grid.Row="1"
+            Grid.Row="2"
             Margin="{StaticResource MediumLeftRightMargin}"
             SelectedIndex="{Binding SelectedTabIndex}"
             ItemsSource="{Binding Tabs}">
@@ -57,6 +76,12 @@
                         <TreeView.ItemContainerStyle>
                             <Style TargetType="TreeViewItem">
                                 <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                                <Setter Property="Visibility" Value="Visible" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsVisible}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
                             </Style>
                         </TreeView.ItemContainerStyle>
                         <TreeView.ItemTemplate>
@@ -81,7 +106,7 @@
             </mah:MetroTabControl.ContentTemplate>
         </mah:MetroTabControl>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal">
+        <StackPanel Grid.Row="3" Orientation="Horizontal">
             <Button Width="96" Content="Download" Command="{Binding DownloadCommand}"/>
             <Button Width="96" Margin="{StaticResource SmallLeftMargin}" Content="Apply" Command="{Binding ApplyCommand}"/>
             <Button Width="96" Margin="{StaticResource SmallLeftMargin}" Content="Reset" Command="{Binding ResetCheckCommand}"/>
