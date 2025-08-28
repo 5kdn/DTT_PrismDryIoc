@@ -1,14 +1,18 @@
-﻿using DcsTranslateTool.Core.Contracts.Services;
+using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Core.Services;
+using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Contracts.ViewModels;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 using DcsTranslateTool.Win.ViewModels;
 using DcsTranslateTool.Win.ViewModels.Factories;
 
+using DryIoc;
+using Moq;
 using Xunit;
 
 namespace DcsTranslateTool.Win.Tests.ViewModels.Factories;
+
 public class FileEntryViewModelFactoryTests {
     #region Create_FileEntry
 
@@ -19,13 +23,13 @@ public class FileEntryViewModelFactoryTests {
         var container = new Container();
         container.Register<IFileEntryViewModelFactory, FileEntryViewModelFactory>( Reuse.Transient );
         container.Register<IFileEntryViewModel, FileEntryViewModel>( Reuse.Transient );
-        container.Register<IFileEntryService, FileEntryService>( Reuse.Transient );
+        container.Register<IFileEntryService>( Made.Of( () => new FileEntryService( "C:\\Test" ) ), Reuse.Transient );
 
         var factory = container.Resolve<IFileEntryViewModelFactory>();
-        var fileEntry = new Entry("test.txt", @"C:\Test\test.txt", false);
+        var fileEntry = new Entry( "test.txt", "test.txt", false );
 
         // Act
-        var viewModel = factory.Create(fileEntry);
+        var viewModel = factory.Create( fileEntry );
 
         // Assert
         Assert.NotNull( viewModel );
@@ -43,23 +47,26 @@ public class FileEntryViewModelFactoryTests {
         var container = new Container();
         container.Register<IFileEntryViewModelFactory, FileEntryViewModelFactory>( Reuse.Transient );
         container.Register<IFileEntryViewModel, FileEntryViewModel>( Reuse.Transient );
-        container.Register<IFileEntryService, FileEntryService>( Reuse.Transient );
+        container.Register<IFileEntryService>( Made.Of( () => new FileEntryService( "C:\\Test" ) ), Reuse.Transient );
+        var appSettingsMock = new Mock<IAppSettingsService>();
+        appSettingsMock.SetupGet( a => a.TranslateFileDir ).Returns( "C:\\Test" );
+        container.RegisterInstance<IAppSettingsService>( appSettingsMock.Object );
         var factory = container.Resolve<IFileEntryViewModelFactory>();
         const string absolutePath = @"C:\Test\folder";
         const bool isDirectory = true;
 
         // Act
-        var viewModel = factory.Create(absolutePath, isDirectory);
+        var viewModel = factory.Create( absolutePath, isDirectory );
 
         // Assert
         var actualModel = viewModel.Model;
         Assert.NotNull( viewModel );
         Assert.Equal( "folder", viewModel.Name );
-        Assert.Equal( absolutePath, viewModel.AbsolutePath );
+        Assert.Equal( "folder", viewModel.Path );
         Assert.True( viewModel.IsDirectory );
         Assert.NotNull( actualModel );
         Assert.Equal( "folder", actualModel.Name );
-        Assert.Equal( absolutePath, actualModel.AbsolutePath );
+        Assert.Equal( "folder", actualModel.Path );
         Assert.True( actualModel.IsDirectory );
     }
 

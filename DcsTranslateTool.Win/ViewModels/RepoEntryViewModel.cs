@@ -21,9 +21,9 @@ public class RepoEntryViewModel(
     public string Name => this.Model.Name;
 
     /// <summary>
-    /// リポジトリ上の絶対パスを取得する
+    /// リポジトリルートからのパスを取得する
     /// </summary>
-    public string AbsolutePath => this.Model.AbsolutePath;
+    public string Path => this.Model.Path;
 
     /// <summary>
     /// ディレクトリかどうかを判定する

@@ -156,13 +156,13 @@ public class DownloadViewModel(
         var targetEntries = _tabs[SelectedTabIndex].GetCheckedEntries();
         foreach(var entry in targetEntries) {
             if(entry.IsDirectory) continue;
-            var result = await repositoryService.GetFileAsync( entry.AbsolutePath );
+            var result = await repositoryService.GetFileAsync( entry.Path );
             if(result.IsFailed) {
                 // TODO: エラーハンドリング
                 return;
             }
             byte[] data = result.Value;
-            var savePath = Path.Join( appSettingsService.TranslateFileDir, entry.AbsolutePath );
+            var savePath = Path.Join( appSettingsService.TranslateFileDir, entry.Path );
             await fileService.SaveAsync( savePath, data );
         }
     }
@@ -196,7 +196,7 @@ public class DownloadViewModel(
     /// <param name="root">ルートViewModel</param>
     /// <param name="entry">追加するエントリー</param>
     private static void AddRepoEntryToRepoEntryViewModel( RepoEntryViewModel root, Entry entry ) {
-        string[] parts = entry.AbsolutePath.Split( "/", StringSplitOptions.RemoveEmptyEntries );
+        string[] parts = entry.Path.Split( "/", StringSplitOptions.RemoveEmptyEntries );
         if(parts.IsNullOrEmpty()) return;
         RepoEntryViewModel current = root;
         string absolutePath = "";
@@ -213,7 +213,7 @@ public class DownloadViewModel(
 
         var last = parts[^1];
         if(!current.Children.Any( c => c.Name == last )) {
-            current.Children.Add( new RepoEntryViewModel( new Entry( last, entry.AbsolutePath, entry.IsDirectory ) ) );
+            current.Children.Add( new RepoEntryViewModel( new Entry( last, entry.Path, entry.IsDirectory, null, entry.RepoSha ) ) );
         }
     }
     #endregion

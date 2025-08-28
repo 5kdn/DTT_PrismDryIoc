@@ -16,9 +16,9 @@ public interface IFileEntryViewModel {
     string Name { get; }
 
     /// <summary>
-    /// ファイルまたはディレクトリの絶対パスを取得する
+    /// 翻訳ルートからのパスを取得する
     /// </summary>
-    string AbsolutePath { get; }
+    string Path { get; }
 
     /// <summary>
     /// エントリがディレクトリかどうかを示す値を取得する

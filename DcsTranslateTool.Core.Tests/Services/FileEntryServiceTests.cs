@@ -22,8 +22,8 @@ public class FileEntryServiceTests : IDisposable {
     [Fact]
     public void ディレクトリが空の状態でGetChildrenを実行したとき空列挙が返る() {
         // Arrange
-        var entry = new Entry("empty", _tempDir, true);
-        var sut = new FileEntryService();
+        var entry = new Entry("empty", "", true);
+        var sut = new FileEntryService( _tempDir );
 
         // Act
         var result = sut.GetChildren(entry);
@@ -39,9 +39,9 @@ public class FileEntryServiceTests : IDisposable {
         var subDir = Path.Join(_tempDir, "sub");
         Directory.CreateDirectory( subDir );
         var file = Path.Join(_tempDir, "file.txt");
-        File.WriteAllText( file, null );
-        var entry = new Entry("parent", _tempDir, true);
-        var sut = new FileEntryService();
+        File.WriteAllText( file, "test" );
+        var entry = new Entry("parent", "", true);
+        var sut = new FileEntryService( _tempDir );
 
         // Act
         var result = sut.GetChildren(entry);
@@ -50,32 +50,32 @@ public class FileEntryServiceTests : IDisposable {
         Assert.True( result.IsSuccess );
         var children = result.Value.ToArray();
         Assert.Equal( 2, children.Length );
-        Assert.Contains( children, c => c.IsDirectory && c.Name == "sub" && c.AbsolutePath == subDir );
-        Assert.Contains( children, c => !c.IsDirectory && c.Name == "file.txt" && c.AbsolutePath == file );
+        Assert.Contains( children, c => c.IsDirectory && c.Name == "sub" && c.Path == "sub" );
+        Assert.Contains( children, c => !c.IsDirectory && c.Name == "file.txt" && c.Path == "file.txt" && c.LocalSha != null );
     }
 
     [Fact]
     public void ファイルエントリに対してGetChildrenを実行したとき失敗する() {
         // Arrange
         var filePath = Path.Join(_tempDir, "file.txt");
-        File.WriteAllText( filePath, null );
-        var entry = new Entry("file.txt", filePath, false);
-        var sut = new FileEntryService();
+        File.WriteAllText( filePath, "test" );
+        var entry = new Entry("file.txt", "file.txt", false);
+        var sut = new FileEntryService( _tempDir );
 
         // Act
         var result = sut.GetChildren(entry);
 
         // Assert
         Assert.True( result.IsFailed );
-        Assert.Contains( $"ディレクトリではないエントリが指定されました: {filePath}", result.Errors[0].Message );
+        Assert.Contains( "ディレクトリではないエントリが指定されました", result.Errors[0].Message );
     }
 
     [Fact]
     public void 存在しないディレクトリパスに対してGetChildrenを実行したとき失敗する() {
         // Arrange
         var notExistDir = Path.Join(_tempDir, "notExist");
-        var entry = new Entry("notExist", notExistDir, true);
-        var sut = new FileEntryService();
+        var entry = new Entry("notExist", "notExist", true);
+        var sut = new FileEntryService( _tempDir );
 
         // Act
         var result = sut.GetChildren(entry);

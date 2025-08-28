@@ -26,7 +26,7 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     public string Name => this.Model.Name;
 
     /// <inheritdoc/>
-    public string AbsolutePath => this.Model.AbsolutePath;
+    public string Path => this.Model.Path;
 
     /// <inheritdoc/>
     public bool IsDirectory => this.Model.IsDirectory;

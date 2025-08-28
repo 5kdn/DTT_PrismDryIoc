@@ -8,6 +8,8 @@ public static class TreeItemToEntryConverter {
         new(
             item.Path.Split( "/" )[^1],
             item.Path,
-            item.Type == TreeType.Tree
+            item.Type == TreeType.Tree,
+            null,
+            item.Sha
         );
 }
