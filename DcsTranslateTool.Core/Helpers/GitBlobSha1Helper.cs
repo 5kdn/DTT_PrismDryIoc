@@ -18,13 +18,12 @@ public static class GitBlobSha1Helper {
             using FileStream stream = new( filePath, FileMode.Open, FileAccess.Read, FileShare.Read );
             byte[] content = new byte[stream.Length];
             stream.ReadExactly( content );
-            string header = $"blob {content.Length}\0";
-            byte[] data = Encoding.UTF8.GetBytes( header ).Concat( content ).ToArray();
-            using SHA1 sha1 = SHA1.Create();
-            byte[] hash = sha1.ComputeHash( data );
+            var header = $"blob {content.Length}\0";
+            byte[] data = [.. Encoding.UTF8.GetBytes( header ), .. content];
+            byte[] hash = SHA1.HashData( data );
             return Convert.ToHexString( hash ).ToLowerInvariant();
         }
-        catch( IOException ) {
+        catch(IOException) {
             return null;
         }
     }

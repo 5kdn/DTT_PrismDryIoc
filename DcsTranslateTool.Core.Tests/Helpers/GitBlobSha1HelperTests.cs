@@ -4,13 +4,25 @@ using Xunit;
 
 namespace DcsTranslateTool.Core.Tests.Helpers;
 
-public class GitBlobSha1HelperTests {
+public class GitBlobSha1HelperTests : IDisposable {
+    private readonly string _tempDir;
+
+    public GitBlobSha1HelperTests() {
+        _tempDir = Path.Join( Path.GetTempPath(), Guid.NewGuid().ToString() );
+        Directory.CreateDirectory( _tempDir );
+    }
+
+    public void Dispose() {
+        if(Directory.Exists( _tempDir )) Directory.Delete( _tempDir, true );
+        GC.SuppressFinalize( this );
+    }
+
     #region Calculate
 
     [Fact]
     public void Calculateはファイルが読み取り可能なときSHA1を返す() {
         // Arrange
-        var temp = Path.GetTempFileName();
+        var temp = Path.Combine( _tempDir, "test.txt" );
         File.WriteAllText( temp, "test" );
 
         // Act
@@ -18,14 +30,13 @@ public class GitBlobSha1HelperTests {
 
         // Assert
         Assert.Equal( "30d74d258442c7c65512eafab474568dd706c430", sha );
-
-        File.Delete( temp );
     }
 
     [Fact]
     public void Calculateはファイルがロックされているときnullを返す() {
         // Arrange
-        var temp = Path.GetTempFileName();
+        var temp = Path.Combine( _tempDir, "test.txt" );
+        File.WriteAllText( temp, "test" );
         using var _ = new FileStream( temp, FileMode.Open, FileAccess.Read, FileShare.None );
 
         // Act
@@ -33,8 +44,6 @@ public class GitBlobSha1HelperTests {
 
         // Assert
         Assert.Null( sha );
-
-        File.Delete( temp );
     }
 
     #endregion

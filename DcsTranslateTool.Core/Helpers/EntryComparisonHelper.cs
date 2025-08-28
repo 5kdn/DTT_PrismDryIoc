@@ -22,8 +22,8 @@ public static class EntryComparisonHelper {
             e => new Entry( e.Name, e.Path, e.IsDirectory, e.LocalSha, null )
         );
 
-        foreach( Entry repo in repoEntries ) {
-            if( result.TryGetValue( repo.Path, out Entry? local ) ) {
+        foreach(Entry repo in repoEntries) {
+            if(result.TryGetValue( repo.Path, out Entry? local )) {
                 result[repo.Path] = new Entry( repo.Name, repo.Path, repo.IsDirectory, local.LocalSha, repo.RepoSha );
             }
             else {
