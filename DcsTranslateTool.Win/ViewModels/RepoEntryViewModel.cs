@@ -115,21 +115,13 @@ public class RepoEntryViewModel(
     /// <summary>
     /// フィルターを適用して<see cref="IsVisible"/>を設定する
     /// </summary>
-    /// <param name="filter">適用するフィルター</param>
-    public void ApplyFilter(DownloadFilterType filter) {
+    /// <param name="filters">表示対象とする状態の集合</param>
+    public void ApplyFilter(IReadOnlyCollection<DownloadStatus> filters) {
         foreach(var child in Children) {
-            child.ApplyFilter(filter);
+            child.ApplyFilter(filters);
         }
 
-        bool match = filter switch {
-            DownloadFilterType.All => true,
-            DownloadFilterType.Downloaded => Status == DownloadStatus.Downloaded,
-            DownloadFilterType.NotDownloaded => Status == DownloadStatus.NotDownloaded,
-            DownloadFilterType.New => Status == DownloadStatus.New,
-            DownloadFilterType.Updated => Status == DownloadStatus.Updated,
-            _ => true,
-        };
-
+        bool match = filters.Contains(Status);
         IsVisible = IsDirectory ? Children.Any(c => c.IsVisible) : match;
     }
 

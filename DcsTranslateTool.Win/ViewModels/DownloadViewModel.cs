@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -30,7 +31,12 @@ public class DownloadViewModel(
 
     private ObservableCollection<DownloadTabItemViewModel> _tabs = [];
     private int _selectedTabIndex;
-    private DownloadFilterType _selectedFilter = DownloadFilterType.All;
+    private bool _filterAll = true;
+    private bool _filterDownloaded = true;
+    private bool _filterNotDownloaded = true;
+    private bool _filterNew = true;
+    private bool _filterUpdated = true;
+    private bool _suppressFilterAllUpdate;
 
     private DelegateCommand? _openSettingsCommand;
     private DelegateCommand? _fetchCommand;
@@ -60,13 +66,74 @@ public class DownloadViewModel(
     }
 
     /// <summary>
-    /// 選択中のフィルター
+    /// 全ての状態を対象にするかどうかを取得または設定する
     /// </summary>
-    public DownloadFilterType SelectedFilter {
-        get => _selectedFilter;
+    public bool FilterAll {
+        get => _filterAll;
         set {
-            if(SetProperty(ref _selectedFilter, value)) {
+            if(SetProperty(ref _filterAll, value)) {
+                _suppressFilterAllUpdate = true;
+                if(value) {
+                    FilterDownloaded = true;
+                    FilterNotDownloaded = true;
+                    FilterNew = true;
+                    FilterUpdated = true;
+                } else {
+                    FilterDownloaded = false;
+                    FilterNotDownloaded = false;
+                    FilterNew = false;
+                    FilterUpdated = false;
+                }
+                _suppressFilterAllUpdate = false;
                 ApplyFilter();
+            }
+        }
+    }
+
+    /// <summary>
+    /// ダウンロード済みを対象にするかどうかを取得または設定する
+    /// </summary>
+    public bool FilterDownloaded {
+        get => _filterDownloaded;
+        set {
+            if(SetProperty(ref _filterDownloaded, value)) {
+                OnIndividualFilterChanged();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 未ダウンロードを対象にするかどうかを取得または設定する
+    /// </summary>
+    public bool FilterNotDownloaded {
+        get => _filterNotDownloaded;
+        set {
+            if(SetProperty(ref _filterNotDownloaded, value)) {
+                OnIndividualFilterChanged();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 新規ファイルを対象にするかどうかを取得または設定する
+    /// </summary>
+    public bool FilterNew {
+        get => _filterNew;
+        set {
+            if(SetProperty(ref _filterNew, value)) {
+                OnIndividualFilterChanged();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 更新があるファイルを対象にするかどうかを取得または設定する
+    /// </summary>
+    public bool FilterUpdated {
+        get => _filterUpdated;
+        set {
+            if(SetProperty(ref _filterUpdated, value)) {
+                OnIndividualFilterChanged();
             }
         }
     }
@@ -209,9 +276,28 @@ public class DownloadViewModel(
     /// 各タブにフィルターを適用する
     /// </summary>
     private void ApplyFilter() {
+        List<DownloadStatus> filters = [];
+        if(FilterDownloaded) filters.Add(DownloadStatus.Downloaded);
+        if(FilterNotDownloaded) filters.Add(DownloadStatus.NotDownloaded);
+        if(FilterNew) filters.Add(DownloadStatus.New);
+        if(FilterUpdated) filters.Add(DownloadStatus.Updated);
         foreach(var tab in _tabs) {
-            tab.Root.ApplyFilter( SelectedFilter );
+            tab.Root.ApplyFilter(filters);
         }
+    }
+
+    /// <summary>
+    /// 個別フィルターの変更時処理を行う
+    /// </summary>
+    private void OnIndividualFilterChanged() {
+        if(!_suppressFilterAllUpdate) {
+            bool all = _filterDownloaded && _filterNotDownloaded && _filterNew && _filterUpdated;
+            if(_filterAll != all) {
+                _filterAll = all;
+                RaisePropertyChanged(nameof(FilterAll));
+            }
+        }
+        ApplyFilter();
     }
 
     /// <summary>

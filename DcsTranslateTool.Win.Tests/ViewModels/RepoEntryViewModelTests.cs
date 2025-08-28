@@ -124,7 +124,7 @@ public class RepoEntryViewModelTests {
         parentVm.Children.Add(childVm2);
 
         // Act
-        parentVm.ApplyFilter(DownloadFilterType.Downloaded);
+        parentVm.ApplyFilter(new[]{DownloadStatus.Downloaded});
 
         // Assert
         Assert.True(parentVm.IsVisible);
@@ -144,7 +144,7 @@ public class RepoEntryViewModelTests {
         parentVm.Children.Add(childVm);
 
         // Act
-        parentVm.ApplyFilter(DownloadFilterType.Downloaded);
+        parentVm.ApplyFilter(new[]{DownloadStatus.Downloaded});
 
         // Assert
         Assert.False(parentVm.IsVisible);
