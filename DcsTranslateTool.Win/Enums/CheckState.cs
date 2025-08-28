@@ -19,4 +19,3 @@ public enum CheckState {
     /// </summary>
     Indeterminate,
 }
-
