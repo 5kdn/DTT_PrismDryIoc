@@ -70,7 +70,6 @@ jobs:
     strategy:
       matrix:
         dotnet-version: ["8.0.x"]
-        rid: ["win-x64", "win-x86"]
         test-project:
           - "DcsTranslateTool.Core.Tests/DcsTranslateTool.Core.Tests.csproj"
           - "DcsTranslateTool.Core.Tests/DcsTranslateTool.Win.Tests.csproj"
@@ -95,8 +94,7 @@ jobs:
             $LOCALAPPDATA\NuGet\v3-cache
           key: nugethttp-${{ runner.os }}-dotnet-${{ matrix.dotnet-version }}-${{ hashFiles('**/packages.lock.json', '**/Directory.Packages.props', 'global.json', 'NuGet.config') }}
           restore-keys: |
-            nugethttp-${{ runner.os }}-${{ matrix.rid }}-dotnet-${{ matrix.dotnet-version }}-
-            nugethttp-${{ runner.os }}-${{ matrix.rid }}-
+            nugethttp-${{ runner.os }}-dotnet-${{ matrix.dotnet-version }}-
             nugethttp-${{ runner.os }}-
 
       - name: Setup .NET ${{ matrix.dotnet-version }}
@@ -104,16 +102,15 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
 
-      - name: Restore (${{ matrix.rid }})
+      - name: Restore
         shell: pwsh
-        run: dotnet restore -r ${{ matrix.rid }} --locked-mode
+        run: dotnet restore --locked-mode
 
-      - name: Build (${{ matrix.rid }})
+      - name: Build
         shell: pwsh
         run: >
           dotnet build ${{ matrix.test-project }}
           -c Release
-          -r ${{ matrix.rid }}
           --no-restore
           --nologo
 
@@ -122,7 +119,6 @@ jobs:
         run: >
           dotnet test
           -c Release
-          -r ${{ matrix.rid }}
           --no-build
           --no-restore
 
