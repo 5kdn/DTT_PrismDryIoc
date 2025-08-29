@@ -1,8 +1,6 @@
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Enums;
@@ -29,16 +27,6 @@ public class DownloadViewModel(
     IRepositoryService repositoryService,
     IFileService fileService
     ) : BindableBase, INavigationAware {
-
-    Filters = [
-        new FilterOptionViewModel("全て", null),
-        new FilterOptionViewModel("DL済", FileChangeType.Unchanged),
-        new FilterOptionViewModel("未DL", FileChangeType.Deleted),
-        new FilterOptionViewModel("追加", FileChangeType.Added),
-        new FilterOptionViewModel("変更/更新", FileChangeType.Modified),
-    ];
-    foreach(var f in Filters) f.CheckedChanged += OnFilterChanged;
-    Filters[0].IsChecked = true;
 
     #region Fields
 
@@ -76,7 +64,7 @@ public class DownloadViewModel(
     /// <summary>
     /// フィルタ項目を取得する。
     /// </summary>
-    public ObservableCollection<FilterOptionViewModel> Filters { get; }
+    public ObservableCollection<FilterOptionViewModel> Filters { get; } = [];
 
     #endregion
 
@@ -128,6 +116,17 @@ public class DownloadViewModel(
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedTo( NavigationContext navigationContext ) {
         Debug.WriteLine( "DownloadViewModel.OnNavigatedTo called" );
+        Filters.Clear();
+        Filters.AddRange( [
+            new FilterOptionViewModel("全て", null),
+            new FilterOptionViewModel("DL済", FileChangeType.Unchanged),
+            new FilterOptionViewModel("未DL", FileChangeType.Deleted),
+            new FilterOptionViewModel("追加", FileChangeType.Added),
+            new FilterOptionViewModel("変更/更新", FileChangeType.Modified),
+        ] );
+        foreach(var f in Filters) f.CheckedChanged += OnFilterChanged;
+        Filters[0].IsChecked = true;
+
         OnFetch();
     }
 
@@ -165,7 +164,7 @@ public class DownloadViewModel(
                 .GetRepoDirRoot()
                 .Aggregate<string, RepoEntryViewModel?>(rootVm, (node, part) =>
                     node?.Children.FirstOrDefault( c => c.Name == part ) );
-            if( target != null ) Tabs.FindFirst( t => t.TabType == tabType ).UpdateRoot( target );
+            if(target != null) Tabs.FindFirst( t => t.TabType == tabType ).UpdateRoot( target );
         } );
         ApplyFilters();
     }
@@ -207,17 +206,17 @@ public class DownloadViewModel(
     /// </summary>
     /// <param name="changed">変更されたフィルタ</param>
     private void OnFilterChanged( FilterOptionViewModel changed ) {
-        if( _isUpdatingFilters ) return;
+        if(_isUpdatingFilters) return;
         _isUpdatingFilters = true;
 
-        if( changed.ChangeType is null && changed.IsChecked ) {
-            foreach( var f in Filters.Where( f => f.ChangeType is not null ) ) f.IsChecked = false;
-        } else if( changed.ChangeType is not null && changed.IsChecked ) {
+        if(changed.ChangeType is null && changed.IsChecked) {
+            foreach(var f in Filters.Where( f => f.ChangeType is not null )) f.IsChecked = false;
+        }
+        else if(changed.ChangeType is not null && changed.IsChecked) {
             var all = Filters.First( f => f.ChangeType is null );
             all.IsChecked = false;
         }
-
-        if( Filters.All( f => !f.IsChecked ) ) {
+        if(Filters.All( f => !f.IsChecked )) {
             Filters.First( f => f.ChangeType is null ).IsChecked = true;
         }
 
@@ -229,11 +228,10 @@ public class DownloadViewModel(
     /// フィルタを各タブに適用する。
     /// </summary>
     private void ApplyFilters() {
-        List<FileChangeType> active = Filters
+        List<FileChangeType> active = [.. Filters
             .Where( f => f.ChangeType is not null && f.IsChecked )
-            .Select( f => f.ChangeType!.Value )
-            .ToList();
-        foreach( var tab in Tabs ) {
+            .Select( f => f.ChangeType!.Value )];
+        foreach(var tab in Tabs) {
             tab.ApplyFilter( active );
         }
     }

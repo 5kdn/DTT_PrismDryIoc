@@ -17,39 +17,39 @@ public class DownloadTabItemViewModelTests {
     /// ApplyFilterはフィルタなしのとき元のルートが設定される。
     /// </summary>
     [Fact]
-    [Trait("Category", "WindowsOnly")]
+    [Trait( "Category", "WindowsOnly" )]
     public void ApplyFilterはフィルタなしのとき元のルートが設定される() {
         // Arrange
         var root = new RepoEntryViewModel(new Entry("root", "", true));
         var vm = new DownloadTabItemViewModel(RootTabType.Aircraft, root);
 
         // Act
-        vm.ApplyFilter([]);
+        vm.ApplyFilter( [] );
 
         // Assert
-        Assert.Same(root, vm.Root);
+        Assert.Same( root, vm.Root );
     }
 
     /// <summary>
     /// ApplyFilterはFileChangeTypeを指定したとき該当するエントリのみ残る。
     /// </summary>
     [Fact]
-    [Trait("Category", "WindowsOnly")]
+    [Trait( "Category", "WindowsOnly" )]
     public void ApplyFilterはFileChangeTypeを指定したとき該当するエントリのみ残る() {
         // Arrange
         var root = new RepoEntryViewModel(new Entry("root", "", true));
         var modified = new RepoEntryViewModel(new Entry("mod.txt", "mod.txt", false, "a", "b"));
         var deleted = new RepoEntryViewModel(new Entry("del.txt", "del.txt", false, null, "a"));
-        root.Children.Add(modified);
-        root.Children.Add(deleted);
+        root.Children.Add( modified );
+        root.Children.Add( deleted );
         var vm = new DownloadTabItemViewModel(RootTabType.Aircraft, root);
 
         // Act
-        vm.ApplyFilter([FileChangeType.Modified]);
+        vm.ApplyFilter( [FileChangeType.Modified] );
 
         // Assert
-        Assert.Single(vm.Root.Children);
-        Assert.Equal("mod.txt", vm.Root.Children[0].Name);
+        Assert.Single( vm.Root.Children );
+        Assert.Equal( "mod.txt", vm.Root.Children[0].Name );
     }
 
     #endregion

@@ -1,11 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
-
 using DcsTranslateTool.Core.Enums;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.Extensions;
-using Prism.Mvvm;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
@@ -54,7 +50,7 @@ public class DownloadTabItemViewModel( RootTabType tabType, RepoEntryViewModel r
     /// </summary>
     /// <param name="types">表示する<see cref="FileChangeType"/>の列挙</param>
     public void ApplyFilter( IEnumerable<FileChangeType> types ) {
-        if( types is null || !types.Any() ) {
+        if(types is null || !types.Any()) {
             Root = OriginalRoot;
             return;
         }
@@ -68,11 +64,11 @@ public class DownloadTabItemViewModel( RootTabType tabType, RepoEntryViewModel r
             .ToList();
 
         bool includeSelf = types.Contains( source.ChangeType );
-        if( !includeSelf && matchedChildren.Count == 0 ) return null;
+        if(!includeSelf && matchedChildren.Count == 0) return null;
 
         var clone = new RepoEntryViewModel( source.Model );
-        foreach( var child in matchedChildren ) {
-            if( child is not null ) clone.Children.Add( child );
+        foreach(var child in matchedChildren) {
+            if(child is not null) clone.Children.Add( child );
         }
         return clone;
     }
