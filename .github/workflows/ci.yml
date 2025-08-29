@@ -72,7 +72,7 @@ jobs:
         dotnet-version: ["8.0.x"]
         test-project:
           - "DcsTranslateTool.Core.Tests/DcsTranslateTool.Core.Tests.csproj"
-          - "DcsTranslateTool.Core.Tests/DcsTranslateTool.Win.Tests.csproj"
+          - "DcsTranslateTool.Win.Tests/DcsTranslateTool.Win.Tests.csproj"
     steps:
       - uses: actions/checkout@v5
 
