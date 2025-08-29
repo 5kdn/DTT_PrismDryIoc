@@ -1,21 +1,24 @@
 using System.Collections.ObjectModel;
 
-using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Contracts.ViewModels;
-using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.Extensions;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
 /// <inheritdoc/>
-public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
-    private readonly IFileEntryViewModelFactory _factory;
-    private readonly IFileEntryService _fileEntryService;
+public class FileEntryViewModel( FileEntry model ) : BindableBase, IFileEntryViewModel {
+
+    #region Fields
+
     private CheckState checkState;
+    private bool isSelected;
     private bool isExpanded;
-    private bool childrenLoaded;
+
+    #endregion
+
+    #region Properties
 
     /// <summary>
     /// 選択状態が変更されたときに通知するイベント
@@ -32,7 +35,15 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     public bool IsDirectory => this.Model.IsDirectory;
 
     /// <inheritdoc/>
-    public Entry Model { get; }
+    public FileEntry Model { get; } = model;
+
+    /// <inheritdoc/>
+    public FileChangeType? ChangeType {
+        get {
+            // TODO: 実装
+            return null;
+        }
+    }
 
     /// <inheritdoc/>
     public CheckState CheckState {
@@ -56,67 +67,73 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     }
 
     /// <inheritdoc/>
-    public bool IsExpanded {
-        get => isExpanded;
+    public bool IsSelected {
+        get => isSelected;
         set {
-            if(SetProperty( ref isExpanded, value ) && value) LoadChildren();
+            SetProperty( ref isSelected, value );
+            // TODO: 一部選択状態を追加
+            if(IsDirectory) {
+                foreach(var child in Children) {
+                    if(child is not null) child.IsSelected = value;
+                }
+            }
         }
     }
 
     /// <inheritdoc/>
-    public bool IsChildrenLoaded {
-        get => childrenLoaded;
-        set => SetProperty( ref childrenLoaded, value );
+    public bool IsExpanded {
+        get => isExpanded;
+        set => SetProperty( ref isExpanded, value );
     }
 
     /// <inheritdoc/>
     public ObservableCollection<IFileEntryViewModel?> Children { get; } = [];
 
-    /// <summary>
-    /// 親ノード（CheckStateの伝播用）
-    /// </summary>
-    public FileEntryViewModel? Parent { get; set; }
+    /// <inheritdoc/>
+    public IFileEntryViewModel? Parent { get; set; }
 
-    public FileEntryViewModel(
-        IFileEntryViewModelFactory factory,
-        IFileEntryService fileEntryService,
-        Entry model ) {
-        _factory = factory;
-        _fileEntryService = fileEntryService;
-        this.Model = model;
-        if(model.IsDirectory) Children.Add( null );     // Placeholder for lazy loading
+    #endregion
+
+    #region Methods
+
+    /// <inheritdoc/>
+    public void SetSelectRecursive( bool value ) {
+        IsSelected = value;
+        foreach(var child in Children) {
+            child?.SetSelectRecursive( value );
+        }
     }
 
     /// <inheritdoc/>
-    public void LoadChildren() {
-        if(!this.Model.IsDirectory || childrenLoaded) return;
-        childrenLoaded = true;
-        var result = _fileEntryService.GetChildren( this.Model );
-        if(!result.IsSuccess) {
-            // TODO: エラーハンドリング
-            return;
-        }
-        Children.Clear();
-        foreach(var child in result.Value!) {
-            var childVm = _factory.Create( child, this, CheckState );
-            childVm.CheckStateChanged += ( _, _ ) => CheckStateChanged?.Invoke( childVm, childVm.CheckState );
-            Children.Add( childVm );
+    public List<FileEntry> GetCheckedModelRecursice( bool fileOnly = false ) {
+        List<FileEntry> checkedChildrenModels = [];
+
+        switch(CheckState.IsSelectedLike(), IsDirectory, fileOnly) {
+            case (true, false, _ ):
+            case (true, true, false ):
+                checkedChildrenModels.Add( Model );
+                break;
         }
 
-        RaisePropertyChanged( nameof( Children ) );
+        foreach(var child in Children) {
+            if(child is not null) checkedChildrenModels.AddRange( child.GetCheckedModelRecursice() );
+        }
+
+        return checkedChildrenModels;
     }
 
-    /// <summary>
-    /// 子要素の状態を確認して自身のCheckStateを更新する
-    /// </summary>
-    private void UpdateCheckStateFromChildren() {
+    /// <inheritdoc/>
+    public void UpdateCheckStateFromChildren() {
         if(!IsDirectory || Children.Count == 0) return;
 
         var allChecked = Children.All(c => c?.CheckState == CheckState.Checked);
         var allUnchecked = Children.All(c => c?.CheckState == CheckState.Unchecked);
 
-        var newState = Children.All(c => c?.CheckState == CheckState.Checked) ? CheckState.Checked :
-            Children.All(c => c?.CheckState == CheckState.Unchecked) ? CheckState.Unchecked :
+        // 全ての子がチェックされている場合はChecked
+        // 全ての子がチェックされていない場合はUnchecked
+        // それ以外はIndeterminate
+        var newState = allChecked ? CheckState.Checked :
+            allUnchecked ? CheckState.Unchecked :
             CheckState.Indeterminate;
 
         if(checkState == newState) return;
@@ -128,26 +145,5 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
         Parent?.UpdateCheckStateFromChildren();
     }
 
-    /// <summary>
-    /// 選択状態の子要素の <see cref="Entry"/> を再帰的に取得する。
-    /// </summary>
-    /// <returns>選択状態の <see cref="Entry"/> の一覧</returns>
-    public List<Entry> GetCheckedModelRecursice() {
-        List<Entry> checkedChildrenModels = [];
-
-        if(CheckState.IsSelectedLike() && !IsDirectory) {
-            checkedChildrenModels.Add( Model );
-        }
-
-        if(!IsChildrenLoaded && CheckState.IsSelectedLike()) {
-            LoadChildren();
-        }
-
-        foreach(var child in Children) {
-            if(child is null) continue;
-            checkedChildrenModels.AddRange( child.GetCheckedModelRecursice() );
-        }
-
-        return checkedChildrenModels;
-    }
+    #endregion
 }

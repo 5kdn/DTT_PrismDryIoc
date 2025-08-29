@@ -3,13 +3,12 @@
 using Octokit;
 
 namespace DcsTranslateTool.Win.Converters;
-public static class TreeItemToEntryConverter {
-    public static Entry Convert( TreeItem item ) =>
-        new(
+public static class TreeItemToFileEntryConverter {
+    public static FileEntry Convert( TreeItem item ) =>
+        new RepoFileEntry(
             item.Path.Split( "/" )[^1],
             item.Path,
             item.Type == TreeType.Tree,
-            null,
             item.Sha
         );
 }

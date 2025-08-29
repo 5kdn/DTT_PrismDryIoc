@@ -9,16 +9,12 @@ using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Providers;
 using DcsTranslateTool.Win.Contracts.Securities;
 using DcsTranslateTool.Win.Contracts.Services;
-using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 using DcsTranslateTool.Win.Models;
 using DcsTranslateTool.Win.Providers;
 using DcsTranslateTool.Win.Securities;
 using DcsTranslateTool.Win.Services;
 using DcsTranslateTool.Win.ViewModels;
-using DcsTranslateTool.Win.ViewModels.Factories;
 using DcsTranslateTool.Win.Views;
-
-using DryIoc;
 
 using Microsoft.Extensions.Configuration;
 
@@ -63,8 +59,7 @@ public partial class App : PrismApplication {
         containerRegistry.RegisterSingleton<IDecryptService, DecryptService>();
         containerRegistry.RegisterSingleton<IDecrypter, AesGcmV1Decrypter>();
         containerRegistry.RegisterSingleton<IGitHubApiClient, GitHubApiClient>();
-        containerRegistry.Register<IFileEntryService>(
-            c => new FileEntryService( c.Resolve<IAppSettingsService>().TranslateFileDir ) );
+        containerRegistry.Register<IFileEntryService, FileEntryService>();
         containerRegistry.Register<IApplicationInfoService, ApplicationInfoService>();
         containerRegistry.Register<ISystemService, SystemService>();
         containerRegistry.Register<IPersistAndRestoreService, PersistAndRestoreService>();
@@ -72,9 +67,6 @@ public partial class App : PrismApplication {
         containerRegistry.Register<IDialogProvider, DialogProvider>();
         containerRegistry.Register<IEnvironmentProvider, EnvironmentProvider>();
         containerRegistry.Register<IAppSettingsService, AppSettingsService>();
-
-        // ViewModel Factories
-        containerRegistry.Register<IFileEntryViewModelFactory, FileEntryViewModelFactory>();
 
         // Views
         containerRegistry.RegisterForNavigation<MainPage, MainViewModel>( PageKeys.Main );

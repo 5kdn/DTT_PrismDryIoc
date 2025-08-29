@@ -743,7 +743,7 @@
       "dcstranslatetool.win": {
         "type": "Project",
         "dependencies": {
-          "DcsTranslateTool.Core": "[0.1.0, )",
+          "DcsTranslateTool.Core": "[1.2.3, )",
           "GitHubJwt": "[0.0.6, )",
           "MahApps.Metro": "[2.4.10, )",
           "MahApps.Metro.IconPacks.Material": "[5.1.0, )",

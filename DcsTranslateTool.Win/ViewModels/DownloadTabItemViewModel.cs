@@ -1,14 +1,15 @@
 ﻿using DcsTranslateTool.Core.Models;
+using DcsTranslateTool.Win.Contracts.ViewModels;
 using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.Extensions;
 
 namespace DcsTranslateTool.Win.ViewModels;
-public class DownloadTabItemViewModel( RootTabType tabType, RepoEntryViewModel rootEntry ) : BindableBase {
+public class DownloadTabItemViewModel( RootTabType tabType, IFileEntryViewModel rootEntry ) : BindableBase {
     public RootTabType TabType { get; } = tabType;
 
     public string Title { get; } = tabType.GetTabTitle();
 
-    public RepoEntryViewModel Root {
+    public IFileEntryViewModel Root {
         get => rootEntry;
         set => SetProperty( ref rootEntry, value );
     }
@@ -22,6 +23,6 @@ public class DownloadTabItemViewModel( RootTabType tabType, RepoEntryViewModel r
     /// <summary>
     /// チェック状態のエントリを取得するメソッド。
     /// </summary>
-    /// <returns><see cref="Entry"/>のリスト</returns>
-    public List<Entry> GetCheckedEntries() => Root.GetCheckedModelRecursice();
+    /// <returns><see cref="FileEntry"/>のリスト</returns>
+    public List<FileEntry> GetCheckedEntries() => Root.GetCheckedModelRecursice();
 }

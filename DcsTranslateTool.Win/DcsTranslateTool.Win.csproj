@@ -70,13 +70,9 @@
   </ItemGroup>
 
 
-  <Target Label="BuildTasks ライブラリをビルドする"
-          Name="_BuildTaskLib"
-          Condition="'$(DesignTimeBuild)' != 'true' AND '$(MSBuildRuntimeType)' == 'Core'" >
+  <Target Label="BuildTasks ライブラリをビルドする" Name="_BuildTaskLib" Condition="'$(DesignTimeBuild)' != 'true' AND '$(MSBuildRuntimeType)' == 'Core'">
     <Message Text="BuildTasks プロジェクトをビルドします。" Importance="high" />
-    <MSBuild Projects="$(_BuildTasksProj)"
-             Targets="Build"
-             Properties="Configuration=$(Configuration);RuntimeIdentifier=;SelfContained=false;PublishSingleFile=false" />
+    <MSBuild Projects="$(_BuildTasksProj)" Targets="Build" Properties="Configuration=$(Configuration);RuntimeIdentifier=;SelfContained=false;PublishSingleFile=false" />
   </Target>
 
 
@@ -84,10 +80,7 @@
   <UsingTask TaskName="BuildTasks.EncryptWithAesGcm" AssemblyFile="$(_BuildTasksDll)" />
 
 
-  <Target Label="暗号化に必要な変数を取得する"
-          Name="SetEnvValue"
-          DependsOnTargets="_BuildTaskLib"
-          Condition="'$(DesignTimeBuild)' != 'true'">
+  <Target Label="暗号化に必要な変数を取得する" Name="SetEnvValue" DependsOnTargets="_BuildTaskLib" Condition="'$(DesignTimeBuild)' != 'true'">
     <Error Condition="'$(GH_APP_PRIVATE_KEY)'  == ''" Text="環境変数 GH_APP_PRIVATE_KEY が設定されていません。" />
     <Error Condition="'$(Algo)' == ''" Text="環境変数 Algo が設定されていません。" />
 
@@ -100,22 +93,14 @@
     <Error Condition="'$(BuildingInsideVisualStudio)' != 'true' AND !Exists('$(_BuildTasksDll)')" Text="BuildTasks.dll が見つかりません。BuildTasks をビルドしてください。" />
     <Error Condition="'$(BuildingInsideVisualStudio)' == 'true' AND '$(Version)' == ''" Text="Version が設定されていません。" />
 
-    <BuildTasks.EncryptWithAesGcm Condition="'$(BuildingInsideVisualStudio)' != 'true'"
-                                  Plaintext="$(GH_APP_PRIVATE_KEY)"
-                                  Algo="$(Algo)"
-                                  AssemblyName="$(AssemblyName)"
-                                  AssemblyVersion="$([System.Version]::Parse('$(Version).0').ToString(4))">
+    <BuildTasks.EncryptWithAesGcm Condition="'$(BuildingInsideVisualStudio)' != 'true'" Plaintext="$(GH_APP_PRIVATE_KEY)" Algo="$(Algo)" AssemblyName="$(AssemblyName)" AssemblyVersion="$([System.Version]::Parse('$(Version).0').ToString(4))">
       <Output PropertyName="EncryptedValue" TaskParameter="Result" />
       <Output PropertyName="AAD" TaskParameter="Aad" />
     </BuildTasks.EncryptWithAesGcm>
   </Target>
 
 
-  <Target Label="AssemblyMetadataに暗号化した情報を埋め込む"
-          Name="SetAssemblyMetadata"
-          BeforeTargets="BeforeCompile"
-          DependsOnTargets="SetEnvValue"
-          Condition="'$(DesignTimeBuild)' != 'true'">
+  <Target Label="AssemblyMetadataに暗号化した情報を埋め込む" Name="SetAssemblyMetadata" BeforeTargets="BeforeCompile" DependsOnTargets="SetEnvValue" Condition="'$(DesignTimeBuild)' != 'true'">
     <Message Text="aad: $(AAD)" Importance="high" />
     <ItemGroup>
       <AssemblyMetadata Include="Algo" Value="$(Algo)" />

@@ -1,8 +1,8 @@
-﻿using DcsTranslateTool.Win.ViewModels;
+﻿using DcsTranslateTool.Win.Contracts.ViewModels;
 
 namespace DcsTranslateTool.Win.Models;
-public class DownloadTabItem( string title, RepoEntryViewModel root ) {
+public class DownloadTabItem( string title, IFileEntryViewModel root ) {
     public string Title { get; } = title;
 
-    public RepoEntryViewModel Root { get; set; } = root;
+    public IFileEntryViewModel Root { get; set; } = root;
 }
