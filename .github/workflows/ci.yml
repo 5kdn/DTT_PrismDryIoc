@@ -113,7 +113,8 @@ jobs:
           -c Release
           --no-restore
           --nologo
-          /p:SkipGhAppKeyCheck=true
+        env:
+          GH_APP_PRIVATE_KEY: "dummy"
 
       - name: Unit Tests
         shell: pwsh
