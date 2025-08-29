@@ -21,11 +21,13 @@ namespace DcsTranslateTool.Win.ViewModels;
 /// <param name="regionManager">ナビゲーション管理用の IRegionManager</param>
 /// <param name="repositoryService">リポジトリサービス</param>
 /// <param name="fileService">ファイルサービス</param>
+/// <param name="fileEntryService">ファイルエントリサービス</param>
 public class DownloadViewModel(
     IAppSettingsService appSettingsService,
     IRegionManager regionManager,
     IRepositoryService repositoryService,
-    IFileService fileService
+    IFileService fileService,
+    IFileEntryService fileEntryService
     ) : BindableBase, INavigationAware {
 
     #region Fields
@@ -144,17 +146,38 @@ public class DownloadViewModel(
     private void OnOpenSettings() => regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
 
     /// <summary>
-    /// リポジトリからツリーを取得する
+    /// リポジトリとローカルのファイルをマージしたツリーを取得する
     /// </summary>
     private async void OnFetch() {
         Debug.WriteLine( "DownloadViewModel.OnFetch called" );
-        var result = await repositoryService.GetRepositoryEntryAsync();
-        if(result.IsFailed) {
+        var repoResult = await repositoryService.GetRepositoryEntryAsync();
+        if(repoResult.IsFailed) {
             // TODO: エラーハンドリング
-            foreach(var error in result.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {error.Message}" );
+            foreach(var error in repoResult.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {error.Message}" );
             return;
         }
-        IEnumerable<Entry> entries = result.Value;
+
+        var localResult = fileEntryService.GetChildrenRecursive( appSettingsService.TranslateFileDir );
+        if(localResult.IsFailed) {
+            // TODO: エラーハンドリング
+            foreach(var error in localResult.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {error.Message}" );
+            return;
+        }
+
+        IEnumerable<Entry> repoEntries = repoResult.Value;
+        IEnumerable<Entry> localEntries = localResult.Value;
+        IEnumerable<Entry> entries = repoEntries.Concat( localEntries )
+            .GroupBy( e => e.Path )
+            .ToDictionary( g => g.Key, g => g.ToList() )
+            .Select( kvp => new Entry(
+                kvp.Value![0].Name,
+                kvp.Key,
+                kvp.Value[0].IsDirectory,
+                kvp.Value.FirstOrDefault( e => e.LocalSha is not null )?.LocalSha,
+                kvp.Value.FirstOrDefault( e => e.RepoSha is not null )?.RepoSha
+                )
+            );
+
         FileEntryViewModel rootVm = new( new Entry( "", "", true ) );
         foreach(var entry in entries) AddEntryToFileEntryViewModel( rootVm, entry );
 
