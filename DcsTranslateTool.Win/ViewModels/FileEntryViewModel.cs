@@ -38,7 +38,14 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     /// <summary>
     /// ファイルの変更種別を取得する。
     /// </summary>
-    public FileChangeType ChangeType => this.Model.ChangeType;
+    public FileChangeType ChangeType => this.Model.LocalSha switch
+    {
+        null when this.Model.RepoSha is null => FileChangeType.Unchanged,
+        null => FileChangeType.Deleted,
+        _ when this.Model.RepoSha is null => FileChangeType.Added,
+        _ when this.Model.LocalSha == this.Model.RepoSha => FileChangeType.Unchanged,
+        _ => FileChangeType.Modified,
+    };
 
     /// <inheritdoc/>
     public CheckState CheckState {

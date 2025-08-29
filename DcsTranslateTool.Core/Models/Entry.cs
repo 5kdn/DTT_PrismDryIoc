@@ -1,5 +1,3 @@
-using DcsTranslateTool.Core.Enums;
-
 namespace DcsTranslateTool.Core.Models;
 
 /// <summary>
@@ -44,16 +42,4 @@ public class Entry(
     /// </summary>
     public string? RepoSha => repoSha;
 
-    /// <summary>
-    /// ローカルとリポジトリの差分種別を取得する。
-    /// </summary>
-    public FileChangeType ChangeType =>
-        LocalSha switch
-        {
-            null when RepoSha is null => FileChangeType.Unchanged,
-            null => FileChangeType.Deleted,
-            _ when RepoSha is null => FileChangeType.Added,
-            _ when LocalSha == RepoSha => FileChangeType.Unchanged,
-            _ => FileChangeType.Modified,
-        };
 }

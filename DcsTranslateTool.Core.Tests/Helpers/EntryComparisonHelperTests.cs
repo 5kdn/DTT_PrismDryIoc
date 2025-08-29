@@ -1,4 +1,3 @@
-using DcsTranslateTool.Core.Enums;
 using DcsTranslateTool.Core.Helpers;
 using DcsTranslateTool.Core.Models;
 
@@ -10,7 +9,7 @@ public class EntryComparisonHelperTests {
     #region Merge
 
     [Fact]
-    public void Mergeは両方に存在し内容が同じときUnchangedになる() {
+    public void Mergeは両方に存在し内容が同じときローカルとリポジトリのSHA1が同じになる() {
         // Arrange
         var local = new Entry( "file.txt", "file.txt", false, "a" );
         var repo = new Entry( "file.txt", "file.txt", false, null, "a" );
@@ -19,11 +18,12 @@ public class EntryComparisonHelperTests {
         var result = EntryComparisonHelper.Merge( [local], [repo] ).First();
 
         // Assert
-        Assert.Equal( FileChangeType.Unchanged, result.ChangeType );
+        Assert.Equal( "a", result.LocalSha );
+        Assert.Equal( "a", result.RepoSha );
     }
 
     [Fact]
-    public void Mergeはローカルのみ存在するときAddedになる() {
+    public void Mergeはローカルのみ存在するときローカルのSHA1のみ設定される() {
         // Arrange
         var local = new Entry( "file.txt", "file.txt", false, "a" );
 
@@ -31,11 +31,12 @@ public class EntryComparisonHelperTests {
         var result = EntryComparisonHelper.Merge( [local], [] ).First();
 
         // Assert
-        Assert.Equal( FileChangeType.Added, result.ChangeType );
+        Assert.Equal( "a", result.LocalSha );
+        Assert.Null( result.RepoSha );
     }
 
     [Fact]
-    public void Mergeはリポジトリのみ存在するときDeletedになる() {
+    public void Mergeはリポジトリのみ存在するときリポジトリのSHA1のみ設定される() {
         // Arrange
         var repo = new Entry( "file.txt", "file.txt", false, null, "a" );
 
@@ -43,11 +44,12 @@ public class EntryComparisonHelperTests {
         var result = EntryComparisonHelper.Merge( [], [repo] ).First();
 
         // Assert
-        Assert.Equal( FileChangeType.Deleted, result.ChangeType );
+        Assert.Null( result.LocalSha );
+        Assert.Equal( "a", result.RepoSha );
     }
 
     [Fact]
-    public void Mergeは内容が異なるときModifiedになる() {
+    public void Mergeは内容が異なるときローカルとリポジトリのSHA1が異なる() {
         // Arrange
         var local = new Entry( "file.txt", "file.txt", false, "a" );
         var repo = new Entry( "file.txt", "file.txt", false, null, "b" );
@@ -56,7 +58,8 @@ public class EntryComparisonHelperTests {
         var result = EntryComparisonHelper.Merge( [local], [repo] ).First();
 
         // Assert
-        Assert.Equal( FileChangeType.Modified, result.ChangeType );
+        Assert.Equal( "a", result.LocalSha );
+        Assert.Equal( "b", result.RepoSha );
     }
 
     #endregion
