@@ -10,19 +10,19 @@ using Xunit;
 namespace DcsTranslateTool.Core.Tests.Services;
 
 public class RepositoryServiceTests {
-    #region GetRepositoryEntryAsync
+    #region GetFileEntryAsync
 
     [Fact]
-    public async Task GetRepositoryTreeAsyncはリポジトリツリーが存在するときにEntryリストを返す() {
+    public async Task GetRepositoryTreeAsyncはAPIを呼び出す() {
         // Arrange
         var mockClient = new Mock<IGitHubApiClient>();
         var service = new RepositoryService( mockClient.Object );
 
         // Act
-        await service.GetRepositoryEntryAsync();
+        await service.GetFileEntriesAsync();
 
         // Assert
-        mockClient.Verify( m => m.GetRepositoryEntriesAsync( It.IsAny<string>() ), Times.Once );
+        mockClient.Verify( m => m.GetFileEntriesAsync( It.IsAny<string>() ), Times.Once );
     }
 
     #endregion
@@ -54,7 +54,7 @@ public class RepositoryServiceTests {
     #region CreateBranchAsync
 
     [Fact]
-    public async Task CreateBranchAsyncはブランチ名が有効なときにAPIが呼び出される() {
+    public async Task CreateBranchAsyncはブランチ名が有効なときにAPIを呼び出す() {
         // Arrange
         var mockClient = new Mock<IGitHubApiClient>();
         mockClient
@@ -74,7 +74,7 @@ public class RepositoryServiceTests {
     #region CommitAsync
 
     [Fact]
-    public async Task CommitAsyncは複数ファイル指定時にAPIが呼び出される() {
+    public async Task CommitAsyncは複数ファイル指定時にAPIを呼び出す() {
         // Arrange
         var mockClient = new Mock<IGitHubApiClient>();
         mockClient
@@ -96,7 +96,7 @@ public class RepositoryServiceTests {
     }
 
     [Fact]
-    public async Task CommitAsyncは単一ファイル指定時にAPIが呼び出される() {
+    public async Task CommitAsyncは単一ファイル指定時にAPIを呼び出す() {
         // Arrange
         var mockClient = new Mock<IGitHubApiClient>();
         mockClient

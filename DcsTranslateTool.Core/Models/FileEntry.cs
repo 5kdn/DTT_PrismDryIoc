@@ -1,5 +1,3 @@
-using DcsTranslateTool.Core.Enums;
-
 namespace DcsTranslateTool.Core.Models;
 
 /// <summary>
@@ -10,7 +8,7 @@ namespace DcsTranslateTool.Core.Models;
 /// <param name="isDirectory">ディレクトリかどうか</param>
 /// <param name="localSha">ローカルのSHA1</param>
 /// <param name="repoSha">リポジトリのSHA1</param>
-public class Entry(
+public class FileEntry(
     string name,
     string path,
     bool isDirectory,
@@ -37,23 +35,31 @@ public class Entry(
     /// <summary>
     /// ローカルのSHA1を取得する。
     /// </summary>
-    public string? LocalSha => localSha;
+    public string? LocalSha { get; set; } = localSha;
 
     /// <summary>
     /// リポジトリのSHA1を取得する。
     /// </summary>
-    public string? RepoSha => repoSha;
+    public string? RepoSha { get; set; } = repoSha;
 
-    /// <summary>
-    /// ローカルとリポジトリの差分種別を取得する。
-    /// </summary>
-    public FileChangeType ChangeType =>
-        LocalSha switch
-        {
-            null when RepoSha is null => FileChangeType.Unchanged,
-            null => FileChangeType.Deleted,
-            _ when RepoSha is null => FileChangeType.Added,
-            _ when LocalSha == RepoSha => FileChangeType.Unchanged,
-            _ => FileChangeType.Modified,
-        };
 }
+
+/// <summary>
+/// リポジトリのファイルまたはディレクトリのエントリを表現するクラスである。
+/// </summary>
+/// <param name="name">名称</param>
+/// <param name="path">翻訳ルートまたはリポジトリルートからのパス</param>
+/// <param name="isDirectory">ディレクトリかどうか</param>
+/// <param name="localSha">ローカルのSHA1</param>
+public class LocalFileEntry( string name, string path, bool isDirectory, string? localSha = null ) :
+    FileEntry( name, path, isDirectory, localSha, null ) { }
+
+/// <summary>
+/// リポジトリのファイルまたはディレクトリのエントリを表現するクラスである。
+/// </summary>
+/// <param name="name">名称</param>
+/// <param name="path">翻訳ルートまたはリポジトリルートからのパス</param>
+/// <param name="isDirectory">ディレクトリかどうか</param>
+/// <param name="repoSha">リポジトリのSHA1</param>
+public class RepoFileEntry( string name, string path, bool isDirectory, string? repoSha = null ) :
+    FileEntry( name, path, isDirectory, null, repoSha ) { }

@@ -1,13 +1,16 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 
+using DcsTranslateTool.Core.Contracts.Services;
+using DcsTranslateTool.Core.Helpers;
+using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Contracts.ViewModels;
-using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.Extensions;
+
+using DryIoc.ImTools;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
@@ -15,7 +18,8 @@ public class UploadViewModel(
     IAppSettingsService appSettingsService,
     IRegionManager regionManager,
     IDialogService dialogService,
-    IFileEntryViewModelFactory fileEntryViewModelFactory
+    IRepositoryService repositoryService,
+    IFileEntryService fileEntryService
     ) : BindableBase, INavigationAware {
     #region Fields
 
@@ -25,11 +29,11 @@ public class UploadViewModel(
 
     private DelegateCommand? _openSettingsCommand;
     private DelegateCommand? _openCreatePullRequestDialogCommand;
-    private DelegateCommand<object?>? _loadLocalTreeCommand;
 
     #endregion
 
     #region Properties
+
     /// <summary>
     /// 選択中のタブインデックス
     /// </summary>
@@ -66,12 +70,6 @@ public class UploadViewModel(
     public DelegateCommand OpenSettingsCommand => _openSettingsCommand ??= new DelegateCommand( OnOpenSettings );
 
     /// <summary>
-    /// ローカルツリーを取得するコマンド
-    /// </summary>
-    public DelegateCommand<object?> LoadLocalTreeCommand =>
-        _loadLocalTreeCommand ??= new DelegateCommand<object?>( OnLoadLocalTree );
-
-    /// <summary>
     /// Pull Request 作成ダイアログを開くコマンド
     /// </summary>
     public DelegateCommand OpenCreatePullRequestDialogCommand =>
@@ -93,7 +91,7 @@ public class UploadViewModel(
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedTo( NavigationContext navigationContext ) {
         Debug.WriteLine( "UploadViewModel.OnNavigatedTo called" );
-        RefleshTabs();
+        _ = RefleshTabs();
     }
 
     /// <summary>
@@ -103,23 +101,14 @@ public class UploadViewModel(
     /// <returns>常に true</returns>
     public bool IsNavigationTarget( NavigationContext navigationContext ) => true;
 
+    #endregion
+
+    #region Private Methods
+
     /// <summary>
     /// 設定ページに遷移する
     /// </summary>
     private void OnOpenSettings() => regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
-
-    /// <summary>
-    /// ローカルツリーのノードを展開する
-    /// </summary>
-    /// <param name="parameter">展開対象のノード</param>
-    private void OnLoadLocalTree( object? parameter ) {
-        if(parameter is not FileEntryViewModel node) return;
-
-        if(node.IsChildrenLoaded) return;
-        node.LoadChildren();
-        SubscribeSelectionChanged( node );
-        node.IsChildrenLoaded = true;
-    }
 
     /// <summary>
     /// Pull Request作成ダイアログを開く
@@ -151,43 +140,66 @@ public class UploadViewModel(
     /// <summary>
     /// TabsをTranslateFileDirから初期化
     /// </summary>
-    private void RefleshTabs() {
+    private async Task RefleshTabs() {
         Debug.WriteLine( "UploadViewModel.RefleshTabs called" );
-        var tabs = Enum.GetValues<RootTabType>().Select(tabType =>{
-            var fileEntryVM = fileEntryViewModelFactory.Create(
-                Path.Join([appSettingsService.TranslateFileDir, ..tabType.GetRepoDirRoot()]),
-                true,
-                null,
-                CheckState.Checked);
-            fileEntryVM.LoadChildren();
-            SubscribeSelectionChanged( fileEntryVM as IFileEntryViewModel );
-            return new UploadTabItemViewModel(tabType, fileEntryVM);
+        var tabIndex = SelectedTabIndex;
+
+        // リポジトリとローカルの FileEntry を取得する
+        var repoResult = await repositoryService.GetFileEntriesAsync();
+        if(repoResult.IsFailed) {
+            foreach(var error in repoResult.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {error.Message}" );
+            return;
+        }
+        var localResult = fileEntryService.GetChildrenRecursive(appSettingsService.TranslateFileDir);
+        if(localResult.IsFailed) {
+            foreach(var error in localResult.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {error.Message}" );
+            return;
+        }
+
+        // リポジトリとローカルの FileEntry をマージする
+        IEnumerable<FileEntry> repoEntries = repoResult.Value;
+        IEnumerable<FileEntry> localEntries = localResult.Value;
+        var newEntries = FileEntryComparisonHelper.Merge(localEntries, repoEntries);
+
+        IFileEntryViewModel rootVm = new FileEntryViewModel( new FileEntry( "", "", true ) );
+        foreach(var entry in newEntries) AddFileEntryToFileEntryViewModel( rootVm, entry );
+
+        var tabs = Enum.GetValues<RootTabType>().Select(tabType => {
+            IFileEntryViewModel? target = rootVm;
+            foreach(var name in tabType.GetRepoDirRoot()) {
+                target = target?.Children.FirstOrDefault( c => c?.Name == name );
+                if(target is null) break;
+            }
+
+            return new UploadTabItemViewModel(tabType, target ?? new FileEntryViewModel(new FileEntry("null","",false)));
         });
+
         Tabs.Clear();
         Tabs = [.. tabs];
+        SelectedTabIndex = tabIndex;
         UpdateCreatePullRequestDialogButton();
         Debug.WriteLine( $"UploadViewModel.RefleshTabs: {Tabs.Count} tabs loaded." );
     }
 
-    /// <summary>
-    /// ファイルエントリの選択状態変更時に呼び出される
-    /// </summary>
-    /// <param name="sender">イベント送信元</param>
-    /// <param name="_">未使用</param>
-    private void OnFileEntrySelectedChanged( object? sender, CheckState _ ) => UpdateCreatePullRequestDialogButton();
+    ///// <summary>
+    ///// ファイルエントリの選択状態変更時に呼び出される
+    ///// </summary>
+    ///// <param name="sender">イベント送信元</param>
+    ///// <param name="_">未使用</param>
+    //private void OnFileEntrySelectedChanged( object? sender, CheckState _ ) => UpdateCreatePullRequestDialogButton();
 
-    /// <summary>
-    /// ファイルエントリの選択状態変更イベントを購読する
-    /// </summary>
-    /// <param name="node">対象のノード</param>
-    private void SubscribeSelectionChanged( IFileEntryViewModel node ) {
-        if(node is FileEntryViewModel concrete) {
-            concrete.CheckStateChanged += OnFileEntrySelectedChanged;
-        }
-        foreach(var child in node.Children) {
-            if(child is not null) SubscribeSelectionChanged( child );
-        }
-    }
+    ///// <summary>
+    ///// ファイルエントリの選択状態変更イベントを購読する
+    ///// </summary>
+    ///// <param name="node">対象のノード</param>
+    //private void SubscribeSelectionChanged( IFileEntryViewModel node ) {
+    //    if(node is FileEntryViewModel concrete) {
+    //        concrete.CheckStateChanged += OnFileEntrySelectedChanged;
+    //    }
+    //    foreach(var child in node.Children) {
+    //        if(child is not null) SubscribeSelectionChanged( child );
+    //    }
+    //}
 
     /// <summary>
     /// Pull Request 作成ボタンの有効状態を更新する
@@ -199,6 +211,33 @@ public class UploadViewModel(
         }
 
         IsCreatePullRequestDialogButtonEnabled = Tabs[SelectedTabIndex].Root.CheckState.IsSelectedLike();
+    }
+
+    /// <summary>
+    /// <see cref="FileEntry"/>を<see cref="RepoEntryViewModel"/>に変換し、ツリー構造に追加する。
+    /// </summary>
+    /// <param name="root">ルートViewModel</param>
+    /// <param name="entry">追加するエントリー</param>
+    private static void AddFileEntryToFileEntryViewModel( IFileEntryViewModel root, FileEntry entry ) {
+        string[] parts = entry.Path.Split( "/", StringSplitOptions.RemoveEmptyEntries );
+        if(parts.IsNullOrEmpty()) return;
+        IFileEntryViewModel current = root;
+        string absolutePath = "";
+        // ディレクトリが確定している場所までディレクトリを作成していく
+        foreach(string part in parts[..^1]) {
+            absolutePath += absolutePath.Length == 0 ? part : "/" + part;
+            var next = current.Children.FirstOrDefault(c => c?.Name == part && c.IsDirectory);
+            if(next is null) {
+                next = new FileEntryViewModel( new FileEntry( part, absolutePath, true ) );
+                current.Children.Add( next );
+            }
+            current = next;
+        }
+
+        var last = parts[^1];
+        if(!current.Children.Any( c => c?.Name == last )) {
+            current.Children.Add( new FileEntryViewModel( new FileEntry( last, entry.Path, entry.IsDirectory, entry.LocalSha, entry.RepoSha ) ) );
+        }
     }
 
     #endregion

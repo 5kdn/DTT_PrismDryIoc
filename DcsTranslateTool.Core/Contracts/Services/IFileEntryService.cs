@@ -5,10 +5,9 @@ using FluentResults;
 namespace DcsTranslateTool.Core.Contracts.Services;
 public interface IFileEntryService {
     /// <summary>
-    /// ディレクトリの子要素を取得する。
-    /// ディレクトリでない場合や取得に失敗した場合はエラー情報を返却する。
+    /// 指定ディレクトリ以下の全てのファイルを再帰的に取得する。
     /// </summary>
-    /// <param name="entry">取得したい親ディレクトリ</param>
-    /// <returns>子要素の<see cref="Entry"/>配列を含むResult、失敗時はエラー情報を返す</returns>
-    Result<IEnumerable<Entry>> GetChildren( Entry entry );
+    /// <param name="path">探索するルートパス</param>
+    /// <returns>フラットな <see cref="FileEntry"/> のコレクション</returns>
+    Result<IEnumerable<FileEntry>> GetChildrenRecursive( string path );
 }

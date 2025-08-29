@@ -1,4 +1,3 @@
-using DcsTranslateTool.Core.Enums;
 using DcsTranslateTool.Core.Helpers;
 using DcsTranslateTool.Core.Models;
 
@@ -6,57 +5,45 @@ using Xunit;
 
 namespace DcsTranslateTool.Core.Tests.Helpers;
 
-public class EntryComparisonHelperTests {
+public class FileEntryComparisonHelperTests {
     #region Merge
 
     [Fact]
-    public void Mergeは両方に存在し内容が同じときUnchangedになる() {
+    public void Mergeはローカルとリポジトリのファイルを統合する() {
         // Arrange
-        var local = new Entry( "file.txt", "file.txt", false, "a" );
-        var repo = new Entry( "file.txt", "file.txt", false, null, "a" );
+        var local = new LocalFileEntry( "file.txt", "file.txt", false, "local-hash" );
+        var repo = new RepoFileEntry( "file.txt", "file.txt", false, "repo-hash" );
 
         // Act
-        var result = EntryComparisonHelper.Merge( [local], [repo] ).First();
+        var result = FileEntryComparisonHelper.Merge( [local], [repo] );
 
         // Assert
-        Assert.Equal( FileChangeType.Unchanged, result.ChangeType );
+        Assert.Single( result );
+        var actualEntry = result.First();
+        Assert.Equal( "local-hash", actualEntry.LocalSha );
+        Assert.Equal( "repo-hash", actualEntry.RepoSha );
     }
 
     [Fact]
-    public void Mergeはローカルのみ存在するときAddedになる() {
+    public void Mergeはローカルとリポジトリの別ファイルを識別する() {
         // Arrange
-        var local = new Entry( "file.txt", "file.txt", false, "a" );
+        var local = new LocalFileEntry( "local_only.txt", "local_only.txt", false, "local-hash" );
+        var repo = new RepoFileEntry( "repo_only.txt", "repo_only.txt", false, "repo-hash" );
 
         // Act
-        var result = EntryComparisonHelper.Merge( [local], [] ).First();
+        var result = FileEntryComparisonHelper.Merge( [local], [repo] );
 
         // Assert
-        Assert.Equal( FileChangeType.Added, result.ChangeType );
-    }
+        Assert.Equal( 2, result.Count() );
+        var actualLocalEntry = result.Where(e=>e.Path=="local_only.txt");
+        Assert.Single( actualLocalEntry );
+        Assert.Equal( "local-hash", actualLocalEntry.First().LocalSha );
+        Assert.Null( actualLocalEntry.First().RepoSha );
 
-    [Fact]
-    public void Mergeはリポジトリのみ存在するときDeletedになる() {
-        // Arrange
-        var repo = new Entry( "file.txt", "file.txt", false, null, "a" );
-
-        // Act
-        var result = EntryComparisonHelper.Merge( [], [repo] ).First();
-
-        // Assert
-        Assert.Equal( FileChangeType.Deleted, result.ChangeType );
-    }
-
-    [Fact]
-    public void Mergeは内容が異なるときModifiedになる() {
-        // Arrange
-        var local = new Entry( "file.txt", "file.txt", false, "a" );
-        var repo = new Entry( "file.txt", "file.txt", false, null, "b" );
-
-        // Act
-        var result = EntryComparisonHelper.Merge( [local], [repo] ).First();
-
-        // Assert
-        Assert.Equal( FileChangeType.Modified, result.ChangeType );
+        var actualRepoEntry = result.Where(e=>e.Path=="repo_only.txt");
+        Assert.Single( actualRepoEntry );
+        Assert.Equal( "repo-hash", actualRepoEntry.First().RepoSha );
+        Assert.Null( actualRepoEntry.First().LocalSha );
     }
 
     #endregion

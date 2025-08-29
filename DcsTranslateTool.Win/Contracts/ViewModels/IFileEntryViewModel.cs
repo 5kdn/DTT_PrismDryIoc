@@ -10,6 +10,8 @@ namespace DcsTranslateTool.Win.Contracts.ViewModels;
 /// ファイルまたはディレクトリを表す ViewModel のインターフェース
 /// </summary>
 public interface IFileEntryViewModel {
+    #region Properties
+
     /// <summary>
     /// ファイルまたはディレクトリの名称を取得する
     /// </summary>
@@ -28,7 +30,12 @@ public interface IFileEntryViewModel {
     /// <summary>
     /// このViewModelが表すエントリのモデルを取得する。
     /// </summary>
-    Entry Model { get; }
+    FileEntry Model { get; }
+
+    /// <summary>
+    /// エントリーの変更種別を取得する。
+    /// </summary>
+    FileChangeType? ChangeType { get; }
 
     /// <summary>
     /// チェック状態を取得または設定する
@@ -36,14 +43,14 @@ public interface IFileEntryViewModel {
     CheckState CheckState { get; set; }
 
     /// <summary>
-    /// 展開状態かどうかを取得または設定する
+    /// チェックボックス選択されているかどうかを取得または設定する
     /// </summary>
-    bool IsExpanded { get; set; }
+    bool IsSelected { get; set; }
 
     /// <summary>
-    /// 子エントリの読み込みが完了しているかどうかを取得または設定する
+    /// 現在の展開状態を取得または設定する
     /// </summary>
-    bool IsChildrenLoaded { get; set; }
+    bool IsExpanded { get; set; }
 
     /// <summary>
     /// 子エントリのコレクションを取得する
@@ -51,19 +58,32 @@ public interface IFileEntryViewModel {
     ObservableCollection<IFileEntryViewModel?> Children { get; }
 
     /// <summary>
-    /// 子エントリを読み込む
+    /// 親ノード（CheckStateの伝播用）
     /// </summary>
-    /// <remarks>
-    /// ディレクトリの場合のみ子エントリを読み込む。既に読み込まれている場合は処理しない。
-    /// </remarks>
-    /// <exception cref="System.Exception">
-    /// 子エントリの取得中にエラーが発生した場合にスローされる可能性がある
-    /// </exception>
-    void LoadChildren();
+    IFileEntryViewModel? Parent { get; set; }
+
+    #endregion
+
+    #region Methods
 
     /// <summary>
-    /// 選択状態の子要素の <see cref="Entry"/> を再帰的に取得する。
+    /// <see cref="IsSelected"/>の状態を再帰的に設定する
     /// </summary>
-    /// <returns>選択状態の <see cref="Entry"/> の一覧</returns>
-    List<Entry> GetCheckedModelRecursice();
+    /// <param name="value">状態</param>
+    void SetSelectRecursive( bool value );
+
+    /// <summary>
+    /// 選択状態の子要素の <see cref="FileEntry"/> を再帰的に取得する。
+    /// </summary>
+    /// <param name="fileOnly">true のときファイルだけを対象に取る</param>
+    /// <returns>選択状態の <see cref="FileEntry"/> のコレクション</returns>
+
+    List<FileEntry> GetCheckedModelRecursice( bool fileOnly = false );
+
+    /// <summary>
+    /// 子要素の状態を確認して自身と親のCheckStateを更新する
+    /// </summary>
+    void UpdateCheckStateFromChildren();
+
+    #endregion
 }

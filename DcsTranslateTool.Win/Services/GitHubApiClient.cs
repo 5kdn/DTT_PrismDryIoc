@@ -19,7 +19,7 @@ namespace DcsTranslateTool.Win.Services;
 /// </remarks>
 public class GitHubApiClient( DecryptService decryptService ) : IGitHubApiClient {
     /// <inheritdoc/>
-    public async Task<IEnumerable<Entry>> GetRepositoryEntriesAsync( string branch = "master" ) {
+    public async Task<IEnumerable<FileEntry>> GetFileEntriesAsync( string branch = "master" ) {
         Debug.WriteLine( "GitHubApiClient.GetRepositoryEntriesAsync called" );
         try {
             IGitHubClient client = await InstallationClientGenerator();
@@ -27,7 +27,7 @@ public class GitHubApiClient( DecryptService decryptService ) : IGitHubApiClient
             var gitRef = await client.Git.Reference.Get(TargetRepository.Owner, TargetRepository.Repo, $"heads/{branch}");
             var tree = await client.Git.Tree.GetRecursive(TargetRepository.Owner, TargetRepository.Repo, gitRef.Object.Sha);
             if(tree is null) return [];
-            return tree.Tree.Select( item => TreeItemToEntryConverter.Convert( item ) );
+            return tree.Tree.Select( item => TreeItemToFileEntryConverter.Convert( item ) );
         }
         catch(ApiException ex) {
             Debug.WriteLine( $"GitHub API の呼び出しに失敗しました1: {ex.Message}" );
