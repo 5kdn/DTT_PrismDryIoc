@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 using DcsTranslateTool.Core.Contracts.Services;
+using DcsTranslateTool.Core.Enums;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
@@ -26,10 +29,22 @@ public class DownloadViewModel(
     IRepositoryService repositoryService,
     IFileService fileService
     ) : BindableBase, INavigationAware {
+
+    Filters = [
+        new FilterOptionViewModel("全て", null),
+        new FilterOptionViewModel("DL済", FileChangeType.Unchanged),
+        new FilterOptionViewModel("未DL", FileChangeType.Deleted),
+        new FilterOptionViewModel("追加", FileChangeType.Added),
+        new FilterOptionViewModel("変更/更新", FileChangeType.Modified),
+    ];
+    foreach(var f in Filters) f.CheckedChanged += OnFilterChanged;
+    Filters[0].IsChecked = true;
+
     #region Fields
 
     private ObservableCollection<DownloadTabItemViewModel> _tabs = [];
     private int _selectedTabIndex;
+    private bool _isUpdatingFilters;
 
     private DelegateCommand? _openSettingsCommand;
     private DelegateCommand? _fetchCommand;
@@ -57,6 +72,11 @@ public class DownloadViewModel(
         get => _tabs;
         set => SetProperty( ref _tabs, value );
     }
+
+    /// <summary>
+    /// フィルタ項目を取得する。
+    /// </summary>
+    public ObservableCollection<FilterOptionViewModel> Filters { get; }
 
     #endregion
 
@@ -144,9 +164,10 @@ public class DownloadViewModel(
             RepoEntryViewModel? target = tabType
                 .GetRepoDirRoot()
                 .Aggregate<string, RepoEntryViewModel?>(rootVm, (node, part) =>
-                    node?.Children.FirstOrDefault(c=>c.Name == part));
-            if(target != null) Tabs.FindFirst( t => t.TabType == tabType ).Root = target;
+                    node?.Children.FirstOrDefault( c => c.Name == part ) );
+            if( target != null ) Tabs.FindFirst( t => t.TabType == tabType ).UpdateRoot( target );
         } );
+        ApplyFilters();
     }
 
     /// <summary>
@@ -179,6 +200,42 @@ public class DownloadViewModel(
 
     private void OnOpenDirectory() {
         // TODO: TranslateFileDirを開く処理を実装
+    }
+
+    /// <summary>
+    /// フィルタ変更時に呼び出される。
+    /// </summary>
+    /// <param name="changed">変更されたフィルタ</param>
+    private void OnFilterChanged( FilterOptionViewModel changed ) {
+        if( _isUpdatingFilters ) return;
+        _isUpdatingFilters = true;
+
+        if( changed.ChangeType is null && changed.IsChecked ) {
+            foreach( var f in Filters.Where( f => f.ChangeType is not null ) ) f.IsChecked = false;
+        } else if( changed.ChangeType is not null && changed.IsChecked ) {
+            var all = Filters.First( f => f.ChangeType is null );
+            all.IsChecked = false;
+        }
+
+        if( Filters.All( f => !f.IsChecked ) ) {
+            Filters.First( f => f.ChangeType is null ).IsChecked = true;
+        }
+
+        _isUpdatingFilters = false;
+        ApplyFilters();
+    }
+
+    /// <summary>
+    /// フィルタを各タブに適用する。
+    /// </summary>
+    private void ApplyFilters() {
+        List<FileChangeType> active = Filters
+            .Where( f => f.ChangeType is not null && f.IsChecked )
+            .Select( f => f.ChangeType!.Value )
+            .ToList();
+        foreach( var tab in Tabs ) {
+            tab.ApplyFilter( active );
+        }
     }
 
     /// <summary>

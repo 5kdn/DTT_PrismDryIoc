@@ -1,8 +1,14 @@
 ﻿using System.Collections.ObjectModel;
 
+using DcsTranslateTool.Core.Enums;
 using DcsTranslateTool.Core.Models;
 
 namespace DcsTranslateTool.Win.ViewModels;
+
+/// <summary>
+/// リポジトリのエントリを表す ViewModel である。
+/// </summary>
+/// <param name="model">元となるモデル</param>
 public class RepoEntryViewModel(
     Entry model
     ) : BindableBase {
@@ -24,6 +30,11 @@ public class RepoEntryViewModel(
     /// リポジトリルートからのパスを取得する
     /// </summary>
     public string Path => this.Model.Path;
+
+    /// <summary>
+    /// ファイルの変更種別を取得する。
+    /// </summary>
+    public FileChangeType ChangeType => this.Model.ChangeType;
 
     /// <summary>
     /// ディレクトリかどうかを判定する
