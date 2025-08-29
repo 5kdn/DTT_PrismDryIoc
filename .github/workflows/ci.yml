@@ -106,7 +106,7 @@ jobs:
 
       - name: Restore (${{ matrix.rid }})
         shell: pwsh
-        run: dotnet restore --locked-mode
+        run: dotnet restore -r ${{ matrix.rid }} --locked-mode
 
       - name: Build (${{ matrix.rid }})
         shell: pwsh
@@ -116,7 +116,6 @@ jobs:
           -r ${{ matrix.rid }}
           --no-restore
           --nologo
-          --self-contained
 
       - name: Unit Tests
         shell: pwsh
