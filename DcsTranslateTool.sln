@@ -7,9 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcsTranslateTool.Win", "Dcs
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcsTranslateTool.Core", "DcsTranslateTool.Core\DcsTranslateTool.Core.csproj", "{426AD5D1-BEA6-4A8F-A7F2-8F3145C2CE84}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcsTranslateTool.Win.Tests", "DcsTranslateTool.Win.Tests\DcsTranslateTool.Win.Tests.csproj", "{59D2CC4B-8E32-1C6A-64E5-C544D335F157}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcsTranslateTool.Core.Tests", "DcsTranslateTool.Core.Tests\DcsTranslateTool.Core.Tests.csproj", "{40D94029-BDA4-66E1-83DB-DD029D3FF7B7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcsTranslateTool.Tests", "DcsTranslateTool.Tests\DcsTranslateTool.Tests.csproj", "{59D2CC4B-8E32-1C6A-64E5-C544D335F157}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildTasks", "BuildTasks\BuildTasks.csproj", "{141FB307-0B4F-84A2-81F9-E9820C547A30}"
 EndProject
@@ -31,14 +29,7 @@ Global
 		{59D2CC4B-8E32-1C6A-64E5-C544D335F157}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59D2CC4B-8E32-1C6A-64E5-C544D335F157}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59D2CC4B-8E32-1C6A-64E5-C544D335F157}.Release|Any CPU.Build.0 = Release|Any CPU
-		{40D94029-BDA4-66E1-83DB-DD029D3FF7B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{40D94029-BDA4-66E1-83DB-DD029D3FF7B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{40D94029-BDA4-66E1-83DB-DD029D3FF7B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{40D94029-BDA4-66E1-83DB-DD029D3FF7B7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{141FB307-0B4F-84A2-81F9-E9820C547A30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{141FB307-0B4F-84A2-81F9-E9820C547A30}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{141FB307-0B4F-84A2-81F9-E9820C547A30}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{141FB307-0B4F-84A2-81F9-E9820C547A30}.Release|Any CPU.Build.0 = Release|Any CPU
+
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
