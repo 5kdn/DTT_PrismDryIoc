@@ -70,9 +70,6 @@ jobs:
     strategy:
       matrix:
         dotnet-version: ["8.0.x"]
-        test-project:
-          - "DcsTranslateTool.Core.Tests/DcsTranslateTool.Core.Tests.csproj"
-          - "DcsTranslateTool.Win.Tests/DcsTranslateTool.Win.Tests.csproj"
     steps:
       - uses: actions/checkout@v5
 
@@ -109,17 +106,18 @@ jobs:
       - name: Build
         shell: pwsh
         run: >
-          dotnet build ${{ matrix.test-project }}
+          dotnet build
           -c Release
           --no-restore
           --nologo
         env:
           GH_APP_PRIVATE_KEY: "dummy"
+          Algo: "dummy"
 
       - name: Unit Tests
         shell: pwsh
         run: >
-          dotnet test ${{ matrix.test-project }}
+          dotnet test
           -c Release
           --no-build
           --no-restore
