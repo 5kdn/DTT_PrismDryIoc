@@ -113,6 +113,7 @@ jobs:
           -c Release
           --no-restore
           --nologo
+          /p:SkipGhAppKeyCheck=true
 
       - name: Unit Tests
         shell: pwsh
