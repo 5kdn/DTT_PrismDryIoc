@@ -117,7 +117,7 @@ jobs:
       - name: Unit Tests
         shell: pwsh
         run: >
-          dotnet test
+          dotnet test ${{ matrix.test-project }}
           -c Release
           --no-build
           --no-restore
