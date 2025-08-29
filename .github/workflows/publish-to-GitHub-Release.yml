@@ -103,6 +103,9 @@ jobs:
           -p:DebugType=none
           -p:DebugSymbols=false
           --no-restore
+        env:
+          Algo: ${{ vars.Algo }}
+          GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
 
       - name: Archive artifacts
         shell: pwsh
