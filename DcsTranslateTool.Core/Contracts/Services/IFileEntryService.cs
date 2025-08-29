@@ -11,4 +11,11 @@ public interface IFileEntryService {
     /// <param name="entry">取得したい親ディレクトリ</param>
     /// <returns>子要素の<see cref="Entry"/>配列を含むResult、失敗時はエラー情報を返す</returns>
     Result<IEnumerable<Entry>> GetChildren( Entry entry );
+
+    /// <summary>
+    /// ディレクトリの子要素を再帰的に取得する。
+    /// </summary>
+    /// <param name="root">対象のパス</param>
+    /// <returns>子要素のフラットなコレクションを含むResult、失敗時はエラー情報を返す</returns>
+    Result<IEnumerable<Entry>> GetChildrenRecursive( string root );
 }

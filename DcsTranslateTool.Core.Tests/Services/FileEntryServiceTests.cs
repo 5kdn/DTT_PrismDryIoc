@@ -85,4 +85,39 @@ public class FileEntryServiceTests : IDisposable {
     }
 
     #endregion
+
+    #region GetChildrenRecursive
+
+    [Fact]
+    public void ディレクトリにネストされたファイルがある状態でGetChildrenRecursiveを実行したとき全ての子要素が返る() {
+        // Arrange
+        var subDir = Path.Join( _tempDir, "sub" );
+        Directory.CreateDirectory( subDir );
+        var nested = Path.Join( subDir, "nested.txt" );
+        File.WriteAllText( nested, "test" );
+        var sut = new FileEntryService( _tempDir );
+
+        // Act
+        var result = sut.GetChildrenRecursive( _tempDir );
+
+        // Assert
+        Assert.True( result.IsSuccess );
+        Assert.Single( result.Value );
+        Assert.Contains( result.Value, e => e.Path == "sub/nested.txt" );
+    }
+
+    [Fact]
+    public void 存在しないディレクトリパスでGetChildrenRecursiveを実行したとき失敗する() {
+        // Arrange
+        var notExist = Path.Join( _tempDir, "none" );
+        var sut = new FileEntryService( _tempDir );
+
+        // Act
+        var result = sut.GetChildrenRecursive( notExist );
+
+        // Assert
+        Assert.True( result.IsFailed );
+    }
+
+    #endregion
 }

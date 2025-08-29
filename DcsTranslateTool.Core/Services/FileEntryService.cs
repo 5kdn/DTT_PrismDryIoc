@@ -43,4 +43,24 @@ public class FileEntryService( string rootPath ) : IFileEntryService {
             return Result.Fail( ex.Message );
         }
     }
+
+    /// <inheritdoc />
+    public Result<IEnumerable<Entry>> GetChildrenRecursive( string root ) {
+        try {
+            List<Entry> result = [];
+
+            return Result.Ok(
+                Directory.GetFiles( root, "*", SearchOption.AllDirectories ).ToList().Select( file => {
+                    string name = Path.GetFileName( file );
+                    bool isDir = Directory.Exists( file );
+                    string path = Path.GetRelativePath( root, file ).Replace("\\", "/");
+                    string? sha1 = GitBlobSha1Helper.Calculate( file );
+                    return new Entry( name, path, isDir, sha1 );
+                } )
+            );
+        }
+        catch {
+            return Result.Fail( "再帰的な子要素の取得に失敗しました" );
+        }
+    }
 }
