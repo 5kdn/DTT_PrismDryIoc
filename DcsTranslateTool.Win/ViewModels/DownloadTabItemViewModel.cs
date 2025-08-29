@@ -2,6 +2,7 @@ using DcsTranslateTool.Core.Enums;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.Extensions;
+using Prism.Mvvm;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
@@ -10,7 +11,7 @@ namespace DcsTranslateTool.Win.ViewModels;
 /// </summary>
 /// <param name="tabType">タブ種別</param>
 /// <param name="rootEntry">ルートエントリ</param>
-public class DownloadTabItemViewModel( RootTabType tabType, FileEntryViewModel rootEntry ) : BindableBase {
+public class DownloadTabItemViewModel( RootTabType tabType, EntryViewModel rootEntry ) : BindableBase {
     /// <summary>
     /// タブの種別を取得する。
     /// </summary>
@@ -21,12 +22,12 @@ public class DownloadTabItemViewModel( RootTabType tabType, FileEntryViewModel r
     /// </summary>
     public string Title { get; } = tabType.GetTabTitle();
 
-    private FileEntryViewModel _root = rootEntry;
+    private EntryViewModel _root = rootEntry;
 
     /// <summary>
     /// 表示用ルートを取得または設定する。
     /// </summary>
-    public FileEntryViewModel Root {
+    public EntryViewModel Root {
         get => _root;
         set => SetProperty( ref _root, value );
     }
@@ -34,13 +35,13 @@ public class DownloadTabItemViewModel( RootTabType tabType, FileEntryViewModel r
     /// <summary>
     /// 元のルートを取得する。
     /// </summary>
-    public FileEntryViewModel OriginalRoot { get; private set; } = rootEntry;
+    public EntryViewModel OriginalRoot { get; private set; } = rootEntry;
 
     /// <summary>
     /// ルート情報を更新する。
     /// </summary>
     /// <param name="root">新しいルート</param>
-    public void UpdateRoot( FileEntryViewModel root ) {
+    public void UpdateRoot( EntryViewModel root ) {
         OriginalRoot = root;
         Root = root;
     }
@@ -54,12 +55,12 @@ public class DownloadTabItemViewModel( RootTabType tabType, FileEntryViewModel r
             Root = OriginalRoot;
             return;
         }
-        Root = FilterRecursive( OriginalRoot, types ) ?? new FileEntryViewModel( new Entry( "", "", true ) );
+        Root = FilterRecursive( OriginalRoot, types ) ?? new EntryViewModel( new Entry( "", "", true ) );
     }
 
-    private static FileEntryViewModel? FilterRecursive( FileEntryViewModel source, IEnumerable<FileChangeType> types ) {
+    private static EntryViewModel? FilterRecursive( EntryViewModel source, IEnumerable<FileChangeType> types ) {
         var matchedChildren = source.Children
-            .OfType<FileEntryViewModel>()
+            .OfType<EntryViewModel>()
             .Select( child => FilterRecursive( child, types ) )
             .Where( child => child is not null )
             .ToList();
@@ -67,7 +68,7 @@ public class DownloadTabItemViewModel( RootTabType tabType, FileEntryViewModel r
         bool includeSelf = types.Contains( source.ChangeType );
         if(!includeSelf && matchedChildren.Count == 0) return null;
 
-        var clone = new FileEntryViewModel( source.Model ) { IsChildrenLoaded = true };
+        var clone = new EntryViewModel( source.Model ) { IsChildrenLoaded = true };
         foreach(var child in matchedChildren) {
             if(child is not null) clone.Children.Add( child );
         }

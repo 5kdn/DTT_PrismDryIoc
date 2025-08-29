@@ -6,24 +6,25 @@ using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 using DcsTranslateTool.Win.Enums;
+using DcsTranslateTool.Win.ViewModels;
 
 using DryIoc;
 
 namespace DcsTranslateTool.Win.ViewModels.Factories;
 
 /// <summary>
-/// <see cref="FileEntryViewModel"/> を生成するファクトリーである。
+/// <see cref="EntryViewModel"/> を生成するファクトリーである。
 /// </summary>
 /// <param name="resolver">依存解決コンテナ</param>
-public class FileEntryViewModelFactory( IResolverContext resolver ) : IFileEntryViewModelFactory {
+public class EntryViewModelFactory( IResolverContext resolver ) : IEntryViewModelFactory {
     /// <inheritdoc />
-    public FileEntryViewModel Create(
+    public EntryViewModel Create(
         Entry model,
-        FileEntryViewModel? parent = null,
+        EntryViewModel? parent = null,
         CheckState checkState = CheckState.Unchecked
     ) {
         var service = resolver.Resolve<IFileEntryService>();
-        return new FileEntryViewModel( this, service, model )
+        return new EntryViewModel( this, service, model )
         {
             Parent = parent,
             CheckState = checkState
@@ -31,10 +32,10 @@ public class FileEntryViewModelFactory( IResolverContext resolver ) : IFileEntry
     }
 
     /// <inheritdoc />
-    public FileEntryViewModel Create(
+    public EntryViewModel Create(
         string absolutePath,
         bool isDirectory,
-        FileEntryViewModel? parent = null,
+        EntryViewModel? parent = null,
         CheckState checkState = CheckState.Unchecked
     ) {
         var appSettings = resolver.Resolve<IAppSettingsService>();

@@ -7,12 +7,13 @@ using DcsTranslateTool.Win.Contracts.ViewModels;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.Extensions;
+using Prism.Mvvm;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
 /// <inheritdoc/>
-public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
-    private readonly IFileEntryViewModelFactory? _factory;
+public class EntryViewModel : BindableBase, IEntryViewModel {
+    private readonly IEntryViewModelFactory? _factory;
     private readonly IFileEntryService? _fileEntryService;
     private CheckState checkState;
     private bool isExpanded;
@@ -83,15 +84,15 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     }
 
     /// <inheritdoc/>
-    public ObservableCollection<IFileEntryViewModel?> Children { get; } = [];
+    public ObservableCollection<IEntryViewModel?> Children { get; } = [];
 
     /// <summary>
     /// 親ノード（CheckStateの伝播用）
     /// </summary>
-    public FileEntryViewModel? Parent { get; set; }
+    public EntryViewModel? Parent { get; set; }
 
-    public FileEntryViewModel(
-        IFileEntryViewModelFactory factory,
+    public EntryViewModel(
+        IEntryViewModelFactory factory,
         IFileEntryService fileEntryService,
         Entry model ) {
         _factory = factory;
@@ -104,7 +105,7 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     /// リポジトリエントリなど子要素が既に構築済みのときに使用するコンストラクタである。
     /// </summary>
     /// <param name="model">元となるモデル</param>
-    public FileEntryViewModel( Entry model ) {
+    public EntryViewModel( Entry model ) {
         this.Model = model;
         childrenLoaded = true;
     }
@@ -133,9 +134,6 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     /// </summary>
     private void UpdateCheckStateFromChildren() {
         if(!IsDirectory || Children.Count == 0) return;
-
-        var allChecked = Children.All(c => c?.CheckState == CheckState.Checked);
-        var allUnchecked = Children.All(c => c?.CheckState == CheckState.Unchecked);
 
         var newState = Children.All(c => c?.CheckState == CheckState.Checked) ? CheckState.Checked :
             Children.All(c => c?.CheckState == CheckState.Unchecked) ? CheckState.Unchecked :

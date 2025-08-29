@@ -13,6 +13,9 @@ using Xunit;
 
 namespace DcsTranslateTool.Win.Tests.ViewModels;
 
+/// <summary>
+/// <see cref="UploadViewModel"/> のテストである。
+/// </summary>
 public class UploadViewModelTests {
     private readonly Container _container;
 
@@ -24,10 +27,13 @@ public class UploadViewModelTests {
         _container.Register<IFileService, FileService>( Reuse.Transient );
         // ViewModels
         _container.Register<UploadViewModel>( Reuse.Singleton );
-        _container.Register<IFileEntryViewModelFactory, FileEntryViewModelFactory>( Reuse.Singleton );
+        _container.Register<IEntryViewModelFactory, EntryViewModelFactory>( Reuse.Singleton );
     }
 
     [Fact( DisplayName = "UploadViewModelが正常に生成できる" )]
+    /// <summary>
+    /// UploadViewModelが正常に生成できる。
+    /// </summary>
     public void TestUploadViewModelCreation() {
         // Arrange & Act
         var vm = _container.Resolve<UploadViewModel>();

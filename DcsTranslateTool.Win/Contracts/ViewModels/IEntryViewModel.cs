@@ -7,9 +7,9 @@ using DcsTranslateTool.Win.Enums;
 namespace DcsTranslateTool.Win.Contracts.ViewModels;
 
 /// <summary>
-/// ファイルまたはディレクトリを表す ViewModel のインターフェース
+/// ファイルまたはディレクトリを表す ViewModel のインターフェースである。
 /// </summary>
-public interface IFileEntryViewModel {
+public interface IEntryViewModel {
     /// <summary>
     /// ファイルまたはディレクトリの名称を取得する
     /// </summary>
@@ -48,7 +48,7 @@ public interface IFileEntryViewModel {
     /// <summary>
     /// 子エントリのコレクションを取得する
     /// </summary>
-    ObservableCollection<IFileEntryViewModel?> Children { get; }
+    ObservableCollection<IEntryViewModel?> Children { get; }
 
     /// <summary>
     /// 子エントリを読み込む

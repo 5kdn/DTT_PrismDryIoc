@@ -9,13 +9,17 @@ using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
 using DcsTranslateTool.Win.Enums;
 using DcsTranslateTool.Win.Extensions;
 
+using Prism.Commands;
+using Prism.Mvvm;
+using Prism.Regions;
+
 namespace DcsTranslateTool.Win.ViewModels;
 
 public class UploadViewModel(
     IAppSettingsService appSettingsService,
     IRegionManager regionManager,
     IDialogService dialogService,
-    IFileEntryViewModelFactory fileEntryViewModelFactory
+    IEntryViewModelFactory entryViewModelFactory
     ) : BindableBase, INavigationAware {
     #region Fields
 
@@ -113,7 +117,7 @@ public class UploadViewModel(
     /// </summary>
     /// <param name="parameter">展開対象のノード</param>
     private void OnLoadLocalTree( object? parameter ) {
-        if(parameter is not FileEntryViewModel node) return;
+        if(parameter is not EntryViewModel node) return;
 
         if(node.IsChildrenLoaded) return;
         node.LoadChildren();
@@ -154,13 +158,13 @@ public class UploadViewModel(
     private void RefleshTabs() {
         Debug.WriteLine( "UploadViewModel.RefleshTabs called" );
         var tabs = Enum.GetValues<RootTabType>().Select(tabType =>{
-            var fileEntryVM = fileEntryViewModelFactory.Create(
+            var fileEntryVM = entryViewModelFactory.Create(
                 Path.Join([appSettingsService.TranslateFileDir, ..tabType.GetRepoDirRoot()]),
                 true,
                 null,
                 CheckState.Checked);
             fileEntryVM.LoadChildren();
-            SubscribeSelectionChanged( fileEntryVM as IFileEntryViewModel );
+            SubscribeSelectionChanged( fileEntryVM as IEntryViewModel );
             return new UploadTabItemViewModel(tabType, fileEntryVM);
         });
         Tabs.Clear();
@@ -180,8 +184,8 @@ public class UploadViewModel(
     /// ファイルエントリの選択状態変更イベントを購読する
     /// </summary>
     /// <param name="node">対象のノード</param>
-    private void SubscribeSelectionChanged( IFileEntryViewModel node ) {
-        if(node is FileEntryViewModel concrete) {
+    private void SubscribeSelectionChanged( IEntryViewModel node ) {
+        if(node is EntryViewModel concrete) {
             concrete.CheckStateChanged += OnFileEntrySelectedChanged;
         }
         foreach(var child in node.Children) {

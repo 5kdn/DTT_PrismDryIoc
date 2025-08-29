@@ -20,7 +20,7 @@ public class DownloadTabItemViewModelTests {
     [Trait( "Category", "WindowsOnly" )]
     public void ApplyFilterはフィルタなしのとき元のルートが設定される() {
         // Arrange
-        var root = new FileEntryViewModel(new Entry("root", "", true));
+        var root = new EntryViewModel(new Entry("root", "", true));
         var vm = new DownloadTabItemViewModel(RootTabType.Aircraft, root);
 
         // Act
@@ -37,9 +37,9 @@ public class DownloadTabItemViewModelTests {
     [Trait( "Category", "WindowsOnly" )]
     public void ApplyFilterはFileChangeTypeを指定したとき該当するエントリのみ残る() {
         // Arrange
-        var root = new FileEntryViewModel(new Entry("root", "", true));
-        var modified = new FileEntryViewModel(new Entry("mod.txt", "mod.txt", false, "a", "b"));
-        var deleted = new FileEntryViewModel(new Entry("del.txt", "del.txt", false, null, "a"));
+        var root = new EntryViewModel(new Entry("root", "", true));
+        var modified = new EntryViewModel(new Entry("mod.txt", "mod.txt", false, "a", "b"));
+        var deleted = new EntryViewModel(new Entry("del.txt", "del.txt", false, null, "a"));
         root.Children.Add( modified );
         root.Children.Add( deleted );
         var vm = new DownloadTabItemViewModel(RootTabType.Aircraft, root);

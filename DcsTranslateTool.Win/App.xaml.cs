@@ -74,7 +74,7 @@ public partial class App : PrismApplication {
         containerRegistry.Register<IAppSettingsService, AppSettingsService>();
 
         // ViewModel Factories
-        containerRegistry.Register<IFileEntryViewModelFactory, FileEntryViewModelFactory>();
+        containerRegistry.Register<IEntryViewModelFactory, EntryViewModelFactory>();
 
         // Views
         containerRegistry.RegisterForNavigation<MainPage, MainViewModel>( PageKeys.Main );
