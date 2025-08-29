@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 
 using DcsTranslateTool.Core.Contracts.Services;
+using DcsTranslateTool.Core.Enums;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Contracts.ViewModels;
 using DcsTranslateTool.Win.Contracts.ViewModels.Factories;
@@ -11,8 +12,8 @@ namespace DcsTranslateTool.Win.ViewModels;
 
 /// <inheritdoc/>
 public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
-    private readonly IFileEntryViewModelFactory _factory;
-    private readonly IFileEntryService _fileEntryService;
+    private readonly IFileEntryViewModelFactory? _factory;
+    private readonly IFileEntryService? _fileEntryService;
     private CheckState checkState;
     private bool isExpanded;
     private bool childrenLoaded;
@@ -33,6 +34,11 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
 
     /// <inheritdoc/>
     public Entry Model { get; }
+
+    /// <summary>
+    /// ファイルの変更種別を取得する。
+    /// </summary>
+    public FileChangeType ChangeType => this.Model.ChangeType;
 
     /// <inheritdoc/>
     public CheckState CheckState {
@@ -87,12 +93,21 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
         if(model.IsDirectory) Children.Add( null );     // Placeholder for lazy loading
     }
 
+    /// <summary>
+    /// リポジトリエントリなど子要素が既に構築済みのときに使用するコンストラクタである。
+    /// </summary>
+    /// <param name="model">元となるモデル</param>
+    public FileEntryViewModel( Entry model ) {
+        this.Model = model;
+        childrenLoaded = true;
+    }
+
     /// <inheritdoc/>
     public void LoadChildren() {
         if(!this.Model.IsDirectory || childrenLoaded) return;
         childrenLoaded = true;
-        var result = _fileEntryService.GetChildren( this.Model );
-        if(!result.IsSuccess) {
+        var result = _fileEntryService?.GetChildren( this.Model );
+        if(result is null || !result.IsSuccess) {
             // TODO: エラーハンドリング
             return;
         }

@@ -155,15 +155,15 @@ public class DownloadViewModel(
             return;
         }
         IEnumerable<Entry> entries = result.Value;
-        RepoEntryViewModel rootVm = new( new Entry( "", "", true ) );
-        foreach(var entry in entries) AddRepoEntryToRepoEntryViewModel( rootVm, entry );
+        FileEntryViewModel rootVm = new( new Entry( "", "", true ) );
+        foreach(var entry in entries) AddEntryToFileEntryViewModel( rootVm, entry );
 
         ResetTabs();
         Enum.GetValues<RootTabType>().ForEach( tabType => {
-            RepoEntryViewModel? target = tabType
+            FileEntryViewModel? target = tabType
                 .GetRepoDirRoot()
-                .Aggregate<string, RepoEntryViewModel?>(rootVm, (node, part) =>
-                    node?.Children.FirstOrDefault( c => c.Name == part ) );
+                .Aggregate<string, FileEntryViewModel?>(rootVm, (node, part) =>
+                    node?.Children.OfType<FileEntryViewModel>().FirstOrDefault( c => c.Name == part ) );
             if(target != null) Tabs.FindFirst( t => t.TabType == tabType ).UpdateRoot( target );
         } );
         ApplyFilters();
@@ -240,35 +240,37 @@ public class DownloadViewModel(
     /// Tabsを初期化
     /// </summary>
     private void ResetTabs() {
-        Tabs = [..Enum.GetValues<RootTabType>().Select(tabType=>
-            new DownloadTabItemViewModel(tabType, new RepoEntryViewModel(new Entry("", "", true) ))
+        Tabs = [..Enum.GetValues<RootTabType>().Select(tabType =>
+            new DownloadTabItemViewModel(tabType, new FileEntryViewModel(new Entry("", "", true) ))
         )];
     }
 
     /// <summary>
-    /// <see cref="Entry"/>を<see cref="RepoEntryViewModel"/>に変換し、ツリー構造に追加する。
+    /// <see cref="Entry"/> を <see cref="FileEntryViewModel"/> に変換し、ツリー構造に追加する。
     /// </summary>
     /// <param name="root">ルートViewModel</param>
     /// <param name="entry">追加するエントリー</param>
-    private static void AddRepoEntryToRepoEntryViewModel( RepoEntryViewModel root, Entry entry ) {
+    private static void AddEntryToFileEntryViewModel( FileEntryViewModel root, Entry entry ) {
         string[] parts = entry.Path.Split( "/", StringSplitOptions.RemoveEmptyEntries );
         if(parts.IsNullOrEmpty()) return;
-        RepoEntryViewModel current = root;
+        FileEntryViewModel current = root;
         string absolutePath = "";
         // ディレクトリが確定している場所までディレクトリを作成していく
         foreach(string part in parts[..^1]) {
             absolutePath += absolutePath.Length == 0 ? part : "/" + part;
-            var next = current.Children.FirstOrDefault(c => c.Name == part && c.IsDirectory);
+            var next = current.Children
+                .OfType<FileEntryViewModel>()
+                .FirstOrDefault(c => c.Name == part && c.IsDirectory);
             if(next is null) {
-                next = new RepoEntryViewModel( new Entry( part, absolutePath, true ) );
+                next = new FileEntryViewModel( new Entry( part, absolutePath, true ) );
                 current.Children.Add( next );
             }
             current = next;
         }
 
         var last = parts[^1];
-        if(!current.Children.Any( c => c.Name == last )) {
-            current.Children.Add( new RepoEntryViewModel( new Entry( last, entry.Path, entry.IsDirectory, null, entry.RepoSha ) ) );
+        if(!current.Children.OfType<FileEntryViewModel>().Any( c => c.Name == last )) {
+            current.Children.Add( new FileEntryViewModel( new Entry( last, entry.Path, entry.IsDirectory, null, entry.RepoSha ) ) );
         }
     }
     #endregion

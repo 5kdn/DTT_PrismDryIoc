@@ -10,7 +10,7 @@ namespace DcsTranslateTool.Win.ViewModels;
 /// </summary>
 /// <param name="tabType">タブ種別</param>
 /// <param name="rootEntry">ルートエントリ</param>
-public class DownloadTabItemViewModel( RootTabType tabType, RepoEntryViewModel rootEntry ) : BindableBase {
+public class DownloadTabItemViewModel( RootTabType tabType, FileEntryViewModel rootEntry ) : BindableBase {
     /// <summary>
     /// タブの種別を取得する。
     /// </summary>
@@ -21,12 +21,12 @@ public class DownloadTabItemViewModel( RootTabType tabType, RepoEntryViewModel r
     /// </summary>
     public string Title { get; } = tabType.GetTabTitle();
 
-    private RepoEntryViewModel _root = rootEntry;
+    private FileEntryViewModel _root = rootEntry;
 
     /// <summary>
     /// 表示用ルートを取得または設定する。
     /// </summary>
-    public RepoEntryViewModel Root {
+    public FileEntryViewModel Root {
         get => _root;
         set => SetProperty( ref _root, value );
     }
@@ -34,13 +34,13 @@ public class DownloadTabItemViewModel( RootTabType tabType, RepoEntryViewModel r
     /// <summary>
     /// 元のルートを取得する。
     /// </summary>
-    public RepoEntryViewModel OriginalRoot { get; private set; } = rootEntry;
+    public FileEntryViewModel OriginalRoot { get; private set; } = rootEntry;
 
     /// <summary>
     /// ルート情報を更新する。
     /// </summary>
     /// <param name="root">新しいルート</param>
-    public void UpdateRoot( RepoEntryViewModel root ) {
+    public void UpdateRoot( FileEntryViewModel root ) {
         OriginalRoot = root;
         Root = root;
     }
@@ -54,11 +54,12 @@ public class DownloadTabItemViewModel( RootTabType tabType, RepoEntryViewModel r
             Root = OriginalRoot;
             return;
         }
-        Root = FilterRecursive( OriginalRoot, types ) ?? new RepoEntryViewModel( new Entry( "", "", true ) );
+        Root = FilterRecursive( OriginalRoot, types ) ?? new FileEntryViewModel( new Entry( "", "", true ) );
     }
 
-    private static RepoEntryViewModel? FilterRecursive( RepoEntryViewModel source, IEnumerable<FileChangeType> types ) {
+    private static FileEntryViewModel? FilterRecursive( FileEntryViewModel source, IEnumerable<FileChangeType> types ) {
         var matchedChildren = source.Children
+            .OfType<FileEntryViewModel>()
             .Select( child => FilterRecursive( child, types ) )
             .Where( child => child is not null )
             .ToList();
@@ -66,7 +67,7 @@ public class DownloadTabItemViewModel( RootTabType tabType, RepoEntryViewModel r
         bool includeSelf = types.Contains( source.ChangeType );
         if(!includeSelf && matchedChildren.Count == 0) return null;
 
-        var clone = new RepoEntryViewModel( source.Model );
+        var clone = new FileEntryViewModel( source.Model ) { IsChildrenLoaded = true };
         foreach(var child in matchedChildren) {
             if(child is not null) clone.Children.Add( child );
         }
@@ -77,7 +78,8 @@ public class DownloadTabItemViewModel( RootTabType tabType, RepoEntryViewModel r
     /// チェック状態を再帰的に設定するメソッド
     /// </summary>
     /// <param name="value">設定するチェック状態</param>
-    public void SetCheckRecursive( bool value ) => Root.SetSelectRecursive( value );
+    public void SetCheckRecursive( bool value ) =>
+        Root.CheckState = value ? CheckState.Checked : CheckState.Unchecked;
 
     /// <summary>
     /// チェック状態のエントリを取得するメソッド。

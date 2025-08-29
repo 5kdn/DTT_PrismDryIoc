@@ -20,7 +20,7 @@ public class DownloadTabItemViewModelTests {
     [Trait( "Category", "WindowsOnly" )]
     public void ApplyFilterはフィルタなしのとき元のルートが設定される() {
         // Arrange
-        var root = new RepoEntryViewModel(new Entry("root", "", true));
+        var root = new FileEntryViewModel(new Entry("root", "", true));
         var vm = new DownloadTabItemViewModel(RootTabType.Aircraft, root);
 
         // Act
@@ -37,9 +37,9 @@ public class DownloadTabItemViewModelTests {
     [Trait( "Category", "WindowsOnly" )]
     public void ApplyFilterはFileChangeTypeを指定したとき該当するエントリのみ残る() {
         // Arrange
-        var root = new RepoEntryViewModel(new Entry("root", "", true));
-        var modified = new RepoEntryViewModel(new Entry("mod.txt", "mod.txt", false, "a", "b"));
-        var deleted = new RepoEntryViewModel(new Entry("del.txt", "del.txt", false, null, "a"));
+        var root = new FileEntryViewModel(new Entry("root", "", true));
+        var modified = new FileEntryViewModel(new Entry("mod.txt", "mod.txt", false, "a", "b"));
+        var deleted = new FileEntryViewModel(new Entry("del.txt", "del.txt", false, null, "a"));
         root.Children.Add( modified );
         root.Children.Add( deleted );
         var vm = new DownloadTabItemViewModel(RootTabType.Aircraft, root);
@@ -49,7 +49,7 @@ public class DownloadTabItemViewModelTests {
 
         // Assert
         Assert.Single( vm.Root.Children );
-        Assert.Equal( "mod.txt", vm.Root.Children[0].Name );
+        Assert.Equal( "mod.txt", vm.Root.Children[0]!.Name );
     }
 
     #endregion
