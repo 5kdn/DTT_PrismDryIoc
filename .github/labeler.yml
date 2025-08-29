@@ -11,68 +11,81 @@
 
 
 "WPF / XAML":
-  - "**/*.xaml"
-  - "**/*.xaml.cs"
-  - "**/App.xaml"
-  - "**/App.xaml.cs"
-  - "**/*Window.xaml"
-  - "**/*Page.xaml"
-  - "**/*UserControl.xaml"
+  - changed-files:
+    - any-glob-to-any-file: "**/*.xaml"
+    - any-glob-to-any-file: "**/*.xaml.cs"
+    - any-glob-to-any-file: "**/App.xaml"
+    - any-glob-to-any-file: "**/App.xaml.cs"
+    - any-glob-to-any-file: "**/*Window.xaml"
+    - any-glob-to-any-file: "**/*Page.xaml"
+    - any-glob-to-any-file: "**/*UserControl.xaml"
 
 "View / UI":
-  - "**/Views/**/*.xaml"
-  - "**/Views/**/*.xaml.cs"
+  - changed-files:
+    - any-glob-to-any-file: "**/Views/**/*.xaml"
+    - any-glob-to-any-file: "**/Views/**/*.xaml.cs"
 
 "ViewModel":
-  - "**/ViewModels/**/*.cs"
-  - "**/*ViewModel.cs"
+  - changed-files:
+    - any-glob-to-any-file: "**/ViewModels/**/*.cs"
+    - any-glob-to-any-file: "**/*ViewModel.cs"
 
 "Model / Business Logic":
-  - "**/Models/**/*.cs"
-  - "**/*Service.cs"
-  - "**/*Repository.cs"
+  - changed-files:
+    - any-glob-to-any-file: "**/Models/**/*.cs"
+    - any-glob-to-any-file: "**/*Service.cs"
+    - any-glob-to-any-file: "**/*Repository.cs"
 
 "Build / MSBuild":
-  - "**/*.csproj"
-  - "**/*.props"
-  - "**/*.targets"
-  - "Directory.Build.*"
+  - changed-files:
+    - any-glob-to-any-file: "**/*.csproj"
+    - any-glob-to-any-file: "**/*.props"
+    - any-glob-to-any-file: "**/*.targets"
+    - any-glob-to-any-file: "Directory.Build.*"
 
 "Dependencies / NuGet":
-  - "**/Directory.Packages.props"
-  - "**/packages.lock.json"
-  - "nuget.config"
+  - changed-files:
+    - any-glob-to-any-file: "**/Directory.Packages.props"
+    - any-glob-to-any-file: "**/packages.lock.json"
+    - any-glob-to-any-file: "nuget.config"
 
 "Tests":
-  - "*Tests/**"
+  - changed-files:
+    - any-glob-to-any-file: "*Tests/**"
 
 "CI / GitHub Actions":
-  - ".github/workflows/**"
+  - changed-files:
+    - any-glob-to-any-file: ".github/workflows/**"
 
 "Docs":
-  - "README.md"
-  - "docs/**"
-  - "**/*.md"
+  - changed-files:
+    - any-glob-to-any-file: "README.md"
+    - any-glob-to-any-file: "docs/**"
+    - any-glob-to-any-file: "**/*.md"
 
 "Localization":
-  - "**/*.resx"
+  - changed-files:
+    - any-glob-to-any-file: "**/*.resx"
 
 "Assets / Images":
-  - "**/*.png"
-  - "**/*.jpg"
-  - "**/*.jpeg"
-  - "**/*.ico"
-  - "**/*.svg"
+  - changed-files:
+    - any-glob-to-any-file: "**/*.png"
+    - any-glob-to-any-file: "**/*.jpg"
+    - any-glob-to-any-file: "**/*.jpeg"
+    - any-glob-to-any-file: "**/*.ico"
+    - any-glob-to-any-file: "**/*.svg"
 
 "Packaging / Installer":
-  - "**/*.msix*"
-  - "**/*.appinstaller"
-  - "**/*.wxs"
-  - "**/*.wixproj"
-  - "installer/**"
+  - changed-files:
+    - any-glob-to-any-file: "**/*.msix*"
+    - any-glob-to-any-file: "**/*.appinstaller"
+    - any-glob-to-any-file: "**/*.wxs"
+    - any-glob-to-any-file: "**/*.wixproj"
+    - any-glob-to-any-file: "installer/**"
 
 "Code Style / Analyzer":
-  - ".editorconfig"
-  - ".globalconfig"
-  - "stylecop.json"
-  - "**/*.ruleset"
+  - changed-files:
+    - any-glob-to-any-file: ".editorconfig"
+    - any-glob-to-any-file: ".globalconfig"
+    - any-glob-to-any-file: "stylecop.json"
+    - any-glob-to-any-file: "**/*.ruleset"
