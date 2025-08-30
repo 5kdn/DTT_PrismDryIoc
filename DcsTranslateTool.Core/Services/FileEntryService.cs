@@ -19,7 +19,7 @@ public class FileEntryService() : IFileEntryService {
             foreach(var file in Directory.GetFiles( path, "*", SearchOption.AllDirectories )) {
                 result.Add( new LocalFileEntry(
                     Path.GetFileName( file ),
-                    Path.GetRelativePath( path, file ),
+                    Path.GetRelativePath( path, file ).Replace( "\\", "/" ),
                     Directory.Exists( file ),
                     GitBlobSha1Helper.Calculate( file )
                 ) );

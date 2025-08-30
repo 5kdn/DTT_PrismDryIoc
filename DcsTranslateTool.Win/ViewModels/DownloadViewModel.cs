@@ -162,12 +162,10 @@ public class DownloadViewModel(
         }
 
         // リポジトリとローカルの FileEntry をマージする
-        IEnumerable<FileEntry> repoEntries = repoResult.Value;
-        IEnumerable<FileEntry> localEntries = localResult.Value;
-        var newEntries = FileEntryComparisonHelper.Merge(localEntries, repoEntries);
+        var entries = FileEntryComparisonHelper.Merge(localResult.Value, repoResult.Value);
 
         IFileEntryViewModel rootVm = new FileEntryViewModel( new FileEntry( "", "", true ) );
-        foreach(var entry in newEntries) AddFileEntryToFileEntryViewModel( rootVm, entry );
+        foreach(var entry in entries) AddFileEntryToFileEntryViewModel( rootVm, entry );
 
         var tabs = Enum.GetValues<RootTabType>().Select(tabType => {
             IFileEntryViewModel? target = rootVm;
