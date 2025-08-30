@@ -114,28 +114,45 @@ Windows専用のコードが有る対象に対するテストコードには `[T
 メッセージは変更した理由や目的を記述すること。
 
 ## ブランチ構成
+
+ブランチ戦略は GitHub Flow の戦略とする
+
 - master
   - ブランチ名は `master`
   - 直接コミット禁止。
-  - develop, hotfixes branchからのPull Requestのみを受け付ける。
+  - Pull Requestを通した Squash merge のみを受け付ける。
+  - 常にデプロイ可能な状態を保つ
   - プロダクトとしてリリースするためのブランチ。リリースしたらタグ付けする。
-
-- release branches
-  - ブランチ名は `release`
-  - プロダクトリリースの準備。 機能の追加やマイナーなバグフィックスとは独立させることで、 リリース時に含めるコードを綺麗な状態に保つ（機能追加中で未使用のコードなどを含まないようにする）ことができる。
-  - develop ブランチにリリース予定の機能やバグフィックスがほぼ反映した状態で develop から分岐する。
-  - リリース準備が整ったら, master にマージし、タグをつける。次に develop にマージする。
-
-- develop
-  - ブランチ名は `develop`
-  - 開発ブランチ。
-  - コードが安定し、リリース準備ができたら `release` へマージする。
-  - feature ブランチからのPull Requestを受け付ける。
-  - hotfixes, releaseブランチからのマージを受け付ける
-- feature branches
-  - ブランチ名は `feature/` から始まる。
-  - 機能の追加。 `develop` から分岐し、 `develop` にマージする。
-- hotfixes
-  - ブランチ名は `hotfixes/` から始まる。
-  - master branchから分岐し、masterとdevelop branchにマージする。
-  - リリース後のクリティカルなバグフィックスなど、 現在のプロダクトのバージョンに対する変更用。
+- feat branches
+  - ブランチ名は `feat/` から始まる。
+  - 新機能を開発するブランチ。
+- fix branches
+  - ブランチ名は `fix/` から始まる。
+  - リリース後のバグフィックスなど、 現在のプロダクトのバージョンに対する変更用。
+- docs branches
+  - ブランチ名は `docs/` から始まる。
+  - ドキュメントのみの変更。
+- style branches
+  - ブランチ名は `style/` から始まる。
+  - コードの意味に影響しない変更 (空白・フォーマット・セミコロン等)。
+- refactor branches
+  - ブランチ名は `refactor/` から始まる。
+  - リファクタリング (機能追加やバグ修正を含まない)。
+- perf branches
+  - ブランチ名は `pref/` から始まる。
+  - パフォーマンス改善。
+- test branches
+  - ブランチ名は `test/` から始まる。
+  - テスト追加・修正。
+- build branches
+  - ブランチ名は `build/` から始まる。
+  - ビルドシステムや依存関係の変更。
+- ci branches
+  - ブランチ名は `ci/` から始まる。
+  - CI 設定やスクリプトの変更。
+- chore branches
+  - ブランチ名は `chore/` から始まる。
+  - その他の変更 (src や test 以外の修正)。
+- revert branches
+  - ブランチ名は `revert/` から始まる。
+  - コミット取り消し
