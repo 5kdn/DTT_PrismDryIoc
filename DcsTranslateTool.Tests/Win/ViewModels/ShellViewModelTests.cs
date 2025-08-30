@@ -2,7 +2,7 @@
 
 using Xunit;
 
-namespace DcsTranslateTool.Win.Tests.ViewModels;
+namespace DcsTranslateTool.Tests.Win.ViewModels;
 
 public class ShellViewModelTests {
     private readonly Container _container;

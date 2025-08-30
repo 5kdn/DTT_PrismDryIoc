@@ -4,7 +4,7 @@ using DcsTranslateTool.Win.ViewModels;
 
 using Xunit;
 
-namespace DcsTranslateTool.Win.Tests.ViewModels;
+namespace DcsTranslateTool.Tests.Win.ViewModels;
 public class FileEntryViewModelTests {
     [Fact]
     public void コンストラクタでモデルが設定される() {

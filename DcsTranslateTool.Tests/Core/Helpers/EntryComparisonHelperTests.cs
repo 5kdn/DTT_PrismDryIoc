@@ -3,7 +3,7 @@ using DcsTranslateTool.Core.Models;
 
 using Xunit;
 
-namespace DcsTranslateTool.Core.Tests.Helpers;
+namespace DcsTranslateTool.Tests.Core.Helpers;
 
 public class FileEntryComparisonHelperTests {
     #region Merge
@@ -40,10 +40,10 @@ public class FileEntryComparisonHelperTests {
         Assert.Equal( "local-hash", actualLocalEntry.First().LocalSha );
         Assert.Null( actualLocalEntry.First().RepoSha );
 
-        var actualRepoEntry = result.Where(e=>e.Path=="repo_only.txt");
-        Assert.Single( actualRepoEntry );
-        Assert.Equal( "repo-hash", actualRepoEntry.First().RepoSha );
-        Assert.Null( actualRepoEntry.First().LocalSha );
+        var actualFileEntry = result.Where(e=>e.Path=="repo_only.txt");
+        Assert.Single( actualFileEntry );
+        Assert.Equal( "repo-hash", actualFileEntry.First().RepoSha );
+        Assert.Null( actualFileEntry.First().LocalSha );
     }
 
     #endregion

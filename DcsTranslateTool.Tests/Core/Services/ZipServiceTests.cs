@@ -4,7 +4,7 @@ using DcsTranslateTool.Core.Services;
 
 using Xunit;
 
-namespace DcsTranslateTool.Core.Tests.Services;
+namespace DcsTranslateTool.Tests.Core.Services;
 
 public class ZipServiceTests : IDisposable {
     private readonly string _tempDir;

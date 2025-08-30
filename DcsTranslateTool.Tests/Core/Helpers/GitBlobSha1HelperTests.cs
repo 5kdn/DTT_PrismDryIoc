@@ -2,7 +2,7 @@ using DcsTranslateTool.Core.Helpers;
 
 using Xunit;
 
-namespace DcsTranslateTool.Core.Tests.Helpers;
+namespace DcsTranslateTool.Tests.Core.Helpers;
 
 public class GitBlobSha1HelperTests : IDisposable {
     private readonly string _tempDir;
