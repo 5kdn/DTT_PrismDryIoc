@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Contracts.ViewModels;
@@ -8,7 +10,7 @@ using DcsTranslateTool.Win.Extensions;
 namespace DcsTranslateTool.Win.ViewModels;
 
 /// <inheritdoc/>
-public class FileEntryViewModel( FileEntry model ) : BindableBase, IFileEntryViewModel {
+public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
 
     #region Fields
 
@@ -16,13 +18,15 @@ public class FileEntryViewModel( FileEntry model ) : BindableBase, IFileEntryVie
     private bool isSelected;
     private bool isExpanded;
 
+    private ObservableCollection<IFileEntryViewModel> children = [];
+    private bool _suppressCheckPropagation = false;
+    private bool _suppressSelectPropagation = false;
+
     #endregion
 
     #region Properties
 
-    /// <summary>
-    /// 選択状態が変更されたときに通知するイベント
-    /// </summary>
+    /// <inheritdoc/>
     public event EventHandler<CheckState>? CheckStateChanged;
 
     /// <inheritdoc/>
@@ -35,13 +39,40 @@ public class FileEntryViewModel( FileEntry model ) : BindableBase, IFileEntryVie
     public bool IsDirectory => this.Model.IsDirectory;
 
     /// <inheritdoc/>
-    public FileEntry Model { get; } = model;
+    public FileEntry Model { get; }
 
     /// <inheritdoc/>
-    public FileChangeType? ChangeType {
+    public FileChangeType ChangeType {
         get {
-            // TODO: 実装
-            return null;
+            if(IsDirectory) {
+                var count = Children.Count;
+
+                // 子要素が0個
+                if(count == 0) return FileChangeType.Unchanged;
+                if(count == 1) return Children.First().ChangeType;
+
+                // 直下の子ノードの ChangeType を集約
+                var set = new HashSet<FileChangeType>(Children.Select(c => c.ChangeType));
+                // 全て同一ならその値
+                if(set.Count == 1) return set.Single();
+
+                // 子要素にModified が含まれる
+                if(set.Contains( FileChangeType.Modified )) return FileChangeType.Modified;
+                // 子要素にAdded, Deletedが両方含まれる
+                if(set.Contains( FileChangeType.Added ) && set.Contains( FileChangeType.Deleted )) return FileChangeType.Modified;
+                // それ以外（例: Added + Unchanged などの複数種）は Modified とみなす
+                return FileChangeType.Modified;
+            }
+            else {
+                return (Model.LocalSha, Model.RepoSha) switch
+                {
+                    (string l, string r ) when l == r => FileChangeType.Unchanged,
+                    (string l, string r ) when l != r => FileChangeType.Modified,
+                    (string _, null ) => FileChangeType.Added,
+                    (null, string _ ) => FileChangeType.Deleted,
+                    _ => FileChangeType.Unchanged
+                };
+            }
         }
     }
 
@@ -52,15 +83,17 @@ public class FileEntryViewModel( FileEntry model ) : BindableBase, IFileEntryVie
             if(!SetProperty( ref checkState, value )) return;
 
             // 親->子への伝播
-            if(IsDirectory && value != CheckState.Indeterminate) {
-                foreach(var child in Children) {
-                    if(child is not null && child.CheckState != value) child.CheckState = value;
+            if(!_suppressCheckPropagation && IsDirectory && value != CheckState.Indeterminate) {
+                try {
+                    _suppressCheckPropagation = true;
+                    foreach(var child in Children) {
+                        if(child.CheckState != value) child.CheckState = value;
+                    }
+                }
+                finally {
+                    _suppressCheckPropagation = false;
                 }
             }
-
-
-            // 子->親への伝播
-            Parent?.UpdateCheckStateFromChildren();
 
             CheckStateChanged?.Invoke( this, value );
         }
@@ -70,11 +103,16 @@ public class FileEntryViewModel( FileEntry model ) : BindableBase, IFileEntryVie
     public bool IsSelected {
         get => isSelected;
         set {
-            SetProperty( ref isSelected, value );
-            // TODO: 一部選択状態を追加
-            if(IsDirectory) {
-                foreach(var child in Children) {
-                    if(child is not null) child.IsSelected = value;
+            if(!SetProperty( ref isSelected, value )) return;
+            if(!_suppressSelectPropagation && IsDirectory) {
+                try {
+                    _suppressSelectPropagation = true;
+                    foreach(var child in Children) {
+                        if(child.IsSelected != value) child.IsSelected = value;
+                    }
+                }
+                finally {
+                    _suppressSelectPropagation = false;
                 }
             }
         }
@@ -87,25 +125,44 @@ public class FileEntryViewModel( FileEntry model ) : BindableBase, IFileEntryVie
     }
 
     /// <inheritdoc/>
-    public ObservableCollection<IFileEntryViewModel?> Children { get; } = [];
-
-    /// <inheritdoc/>
-    public IFileEntryViewModel? Parent { get; set; }
-
-    #endregion
-
-    #region Methods
-
-    /// <inheritdoc/>
-    public void SetSelectRecursive( bool value ) {
-        IsSelected = value;
-        foreach(var child in Children) {
-            child?.SetSelectRecursive( value );
+    public ObservableCollection<IFileEntryViewModel> Children {
+        get => children;
+        set {
+            if(ReferenceEquals( children, value )) return;
+            DetachChildrenHandlers( children );
+            if(SetProperty( ref children, value )) {
+                AttachChildrenHandlers( children );
+                // 参照入替に伴い集計系を更新
+                RaisePropertyChanged( nameof( ChangeType ) );
+                RecomputeCheckStateFromChildren();
+            }
         }
     }
 
+    #endregion
+
+
+    public FileEntryViewModel( FileEntry model ) {
+        this.Model = model;
+        // 初期 children にも購読を張る
+        AttachChildrenHandlers( children );
+    }
+
+    public void Dispose() {
+        DetachChildrenHandlers( children );
+        GC.SuppressFinalize( this );
+    }
+
+    #region Methods
     /// <inheritdoc/>
-    public List<FileEntry> GetCheckedModelRecursice( bool fileOnly = false ) {
+    public void SetSelectRecursive( bool value ) {
+        IsSelected = value;
+        foreach(var child in Children)
+            child.SetSelectRecursive( value );
+    }
+
+    /// <inheritdoc/>
+    public List<FileEntry> GetCheckedModelRecursive( bool fileOnly = false ) {
         List<FileEntry> checkedChildrenModels = [];
 
         switch(CheckState.IsSelectedLike(), IsDirectory, fileOnly) {
@@ -115,34 +172,97 @@ public class FileEntryViewModel( FileEntry model ) : BindableBase, IFileEntryVie
                 break;
         }
 
-        foreach(var child in Children) {
-            if(child is not null) checkedChildrenModels.AddRange( child.GetCheckedModelRecursice() );
-        }
+        foreach(var child in Children)
+            checkedChildrenModels.AddRange( child.GetCheckedModelRecursive( fileOnly ) );
 
         return checkedChildrenModels;
     }
 
-    /// <inheritdoc/>
-    public void UpdateCheckStateFromChildren() {
+    #endregion
+
+    #region Private Methods
+
+    /// <summary>
+    /// 子の状態から自分の CheckState を再計算する（親呼び出しは行わない）
+    /// </summary>
+    private void RecomputeCheckStateFromChildren() {
         if(!IsDirectory || Children.Count == 0) return;
 
-        var allChecked = Children.All(c => c?.CheckState == CheckState.Checked);
-        var allUnchecked = Children.All(c => c?.CheckState == CheckState.Unchecked);
+        var allChecked = Children.All( c => c.CheckState == CheckState.Checked );
+        var allUnchecked = Children.All( c => c.CheckState == CheckState.Unchecked );
 
-        // 全ての子がチェックされている場合はChecked
-        // 全ての子がチェックされていない場合はUnchecked
-        // それ以外はIndeterminate
-        var newState = allChecked ? CheckState.Checked :
-            allUnchecked ? CheckState.Unchecked :
-            CheckState.Indeterminate;
+        var newState = allChecked ? CheckState.Checked
+                     : allUnchecked ? CheckState.Unchecked
+                     : CheckState.Indeterminate;
 
         if(checkState == newState) return;
+        // 直接フィールドを書き換え、派生通知を出す（無限ループ抑止のため SetProperty は使わない）
         checkState = newState;
         RaisePropertyChanged( nameof( CheckState ) );
         CheckStateChanged?.Invoke( this, checkState );
+    }
 
-        // 祖先にも伝播
-        Parent?.UpdateCheckStateFromChildren();
+    /// <summary>既存コレクションから購読を全解除</summary>
+    private void DetachChildrenHandlers( ObservableCollection<IFileEntryViewModel> collection ) {
+        if(collection == null) return;
+        collection.CollectionChanged -= OnChildrenCollectionChanged;
+        foreach(var ch in collection) {
+            if(ch is INotifyPropertyChanged inpc) inpc.PropertyChanged -= OnChildPropertyChanged;
+            ch.CheckStateChanged -= OnChildCheckStateChanged;
+        }
+    }
+
+    /// <summary>コレクションへ購読を付与</summary>
+    private void AttachChildrenHandlers( ObservableCollection<IFileEntryViewModel> collection ) {
+        if(collection == null) return;
+        collection.CollectionChanged -= OnChildrenCollectionChanged; // 二重防止
+        collection.CollectionChanged += OnChildrenCollectionChanged;
+        foreach(var ch in collection) {
+            if(ch is INotifyPropertyChanged inpc) inpc.PropertyChanged += OnChildPropertyChanged;
+            ch.CheckStateChanged += OnChildCheckStateChanged;
+        }
+    }
+
+    #endregion
+
+    #region Events
+
+    private void OnChildrenCollectionChanged( object? sender, NotifyCollectionChangedEventArgs e ) {
+        // Reset は付け直しが安全
+        if(e.Action == NotifyCollectionChangedAction.Reset) {
+            DetachChildrenHandlers( children );
+            AttachChildrenHandlers( children );
+            RaisePropertyChanged( nameof( ChangeType ) );
+            RecomputeCheckStateFromChildren();
+            return;
+        }
+        if(e.OldItems is not null) {
+            foreach(var obj in e.OldItems) {
+                if(obj is INotifyPropertyChanged inpc) inpc.PropertyChanged -= OnChildPropertyChanged;
+                if(obj is IFileEntryViewModel vm) vm.CheckStateChanged -= OnChildCheckStateChanged;
+            }
+        }
+        if(e.NewItems is not null) {
+            foreach(var obj in e.NewItems) {
+                if(obj is INotifyPropertyChanged inpc) inpc.PropertyChanged += OnChildPropertyChanged;
+                if(obj is IFileEntryViewModel vm) vm.CheckStateChanged += OnChildCheckStateChanged;
+            }
+        }
+        // 追加/削除/Reset などで ChangeType が変わり得る
+        RaisePropertyChanged( nameof( ChangeType ) );
+        // チェック状態の整合も再計算
+        RecomputeCheckStateFromChildren();
+    }
+
+    private void OnChildPropertyChanged( object? sender, PropertyChangedEventArgs e ) {
+        // 子の ChangeType が変わったら自分の ChangeType も再評価を通知
+        if(e.PropertyName == nameof( ChangeType )) RaisePropertyChanged( nameof( ChangeType ) );
+    }
+
+    /// <summary>子のチェック状態が変わった時に自分の状態を再計算（イベントベースでバブルアップ）</summary>
+    private void OnChildCheckStateChanged( object? sender, CheckState e ) {
+        if(_suppressCheckPropagation) return;
+        RecomputeCheckStateFromChildren();
     }
 
     #endregion
