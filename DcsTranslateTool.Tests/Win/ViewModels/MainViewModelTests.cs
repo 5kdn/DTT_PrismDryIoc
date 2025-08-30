@@ -8,7 +8,7 @@ using Moq;
 
 using Xunit;
 
-namespace DcsTranslateTool.Win.Tests.ViewModels;
+namespace DcsTranslateTool.Tests.Win.ViewModels;
 
 public class MainViewModelTests {
     private readonly Container _container;
@@ -18,7 +18,7 @@ public class MainViewModelTests {
         _container.Register<IRegionManager, RegionManager>( Reuse.Singleton );
         _container.Register<IAppSettingsService, AppSettingsService>( Reuse.Singleton );
         _container.Register<IFileService, FileService>( Reuse.Transient );
-        _container.RegisterDelegate<IRepositoryService>( () => Mock.Of<IRepositoryService>() );
+        _container.RegisterDelegate( () => Mock.Of<IRepositoryService>() );
         // ViewModels
         _container.Register<MainViewModel>( Reuse.Singleton );
     }

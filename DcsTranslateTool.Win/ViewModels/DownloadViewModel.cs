@@ -227,7 +227,7 @@ public class DownloadViewModel(
     }
 
     /// <summary>
-    /// <see cref="FileEntry"/>を<see cref="RepoEntryViewModel"/>に変換し、ツリー構造に追加する。
+    /// <see cref="FileEntry"/>を<see cref="FileEntryViewModel"/>に変換し、ツリー構造に追加する。
     /// </summary>
     /// <param name="root">ルートViewModel</param>
     /// <param name="entry">追加するエントリー</param>

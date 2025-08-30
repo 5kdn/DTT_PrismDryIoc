@@ -7,7 +7,7 @@ using Moq;
 
 using Xunit;
 
-namespace DcsTranslateTool.Core.Tests.Services;
+namespace DcsTranslateTool.Tests.Core.Services;
 
 public class RepositoryServiceTests {
     #region GetFileEntryAsync

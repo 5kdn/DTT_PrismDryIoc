@@ -2,7 +2,7 @@ using DcsTranslateTool.Win.Providers;
 
 using Xunit;
 
-namespace DcsTranslateTool.Win.Tests.Providers;
+namespace DcsTranslateTool.Tests.Win.Providers;
 
 public class EnvironmentProviderTests {
     [Fact( DisplayName = "環境変数の取得ができる" )]

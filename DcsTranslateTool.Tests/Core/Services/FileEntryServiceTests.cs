@@ -1,4 +1,4 @@
-﻿namespace DcsTranslateTool.Core.Tests.Services;
+﻿namespace DcsTranslateTool.Tests.Core.Services;
 public class FileEntryServiceTests : IDisposable {
     private readonly string _tempDir;
 

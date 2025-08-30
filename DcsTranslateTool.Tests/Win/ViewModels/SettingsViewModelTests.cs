@@ -9,7 +9,7 @@ using Moq;
 
 using Xunit;
 
-namespace DcsTranslateTool.Win.Tests.ViewModels;
+namespace DcsTranslateTool.Tests.Win.ViewModels;
 
 public class SettingsViewModelTests {
     [Fact]

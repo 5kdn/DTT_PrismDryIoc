@@ -2,7 +2,7 @@
 
 using Xunit;
 
-namespace DcsTranslateTool.Win.Tests.Services;
+namespace DcsTranslateTool.Tests.Win.Services;
 public class ApplicationInfoServiceTests {
     #region GetVersion
 
