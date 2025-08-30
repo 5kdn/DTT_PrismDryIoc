@@ -13,7 +13,7 @@
 
 ## ✅ 確認事項
 
-- [ ] ブランチ名が規約に準拠している（`feature/*`, `bugfix/*`, `hotfix/*`, `release/*`, `docs/*`, `chore/*`）
+- [ ] ブランチ名が規約に準拠している（`feat/*`, `fix/*`, `docs/*`, `style/*`, `refactor/*`, `pref/*`, `test/*`, `build/*`, `ci/*`, `chore/*`, `revert/*`）
 - [ ] PRタイトルが **Conventional Commits 準拠** である（例: `feat(parser): support xyz`）
 - [ ] ビルドが成功する
 - [ ] テストがすべて通る
