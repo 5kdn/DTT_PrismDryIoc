@@ -118,7 +118,7 @@ public class UploadViewModel(
 
         var checkedEntries = Tabs[SelectedTabIndex]
             .Root
-            .GetCheckedModelRecursice();
+            .GetCheckedModelRecursive();
 
         var parameters = new DialogParameters {
             { "files", checkedEntries }
