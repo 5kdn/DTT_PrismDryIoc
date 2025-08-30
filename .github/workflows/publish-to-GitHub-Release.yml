@@ -39,7 +39,7 @@ jobs:
           echo "version=$version" >> $GITHUB_OUTPUT
 
   Release:
-    name: Release(${{ matrix.rid }})
+    name: Release
     runs-on: windows-latest
     needs: prep
     permissions:
@@ -48,8 +48,6 @@ jobs:
     strategy:
       matrix:
         dotnet-version: ["8.0.x"]
-        rid: ["win-x64", "win-x86"]
-        release-target: ["DcsTranslateTool.Win/DcsTranslateTool.Win.csproj"]
     env:
       VERSION: ${{needs.prep.outputs.version}}
     steps:
@@ -72,8 +70,7 @@ jobs:
             $LOCALAPPDATA\NuGet\v3-cache
           key: nugethttp-${{ runner.os }}-dotnet-${{ matrix.dotnet-version }}-${{ hashFiles('**/packages.lock.json', '**/Directory.Packages.props', 'global.json', 'NuGet.config') }}
           restore-keys: |
-            nugethttp-${{ runner.os }}-${{ matrix.rid }}-dotnet-${{ matrix.dotnet-version }}-
-            nugethttp-${{ runner.os }}-${{ matrix.rid }}-
+            nugethttp-${{ runner.os }}-dotnet-${{ matrix.dotnet-version }}-
             nugethttp-${{ runner.os }}-
 
       - name: Setup .NET ${{ matrix.dotnet-version }}
@@ -81,17 +78,16 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
 
-      - name: Restore (${{ matrix.rid }})
+      - name: Restore
         shell: pwsh
         run:  dotnet restore --locked-mode
 
       - name: Publish
         shell: pwsh
         run: >
-          dotnet publish ${{ matrix.release-target }}
+          dotnet publish
           -c Release
-          -r ${{ matrix.rid }}
-          -o publish/${{ matrix.rid }}
+          -o publish
           --self-contained true
           -p:PublishSingleFile=true
           -p:PublishTrimmed=false
@@ -110,9 +106,9 @@ jobs:
       - name: Archive artifacts
         shell: pwsh
         run: |
-          $dest = "${{ env.APP_NAME }}-${{ env.VERSION }}-${{ matrix.rid }}.zip"
+          $dest = "${{ env.APP_NAME }}-${{ env.VERSION }}.zip"
           if (Test-Path $dest) { Remove-Item $dest -Force }
-          Compress-Archive -Path "publish/${{ matrix.rid }}/*" -DestinationPath $dest -CompressionLevel Optimal
+          Compress-Archive -Path "publish/*" -DestinationPath $dest -CompressionLevel Optimal
           # generate SHA256 checksum
           $hash = Get-FileHash -Path $dest -Algorithm SHA256
           $shaFile = "$dest.sha256"
@@ -121,10 +117,10 @@ jobs:
       - name: Upload artifact (zip + sha256)
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.APP_NAME }}-${{ matrix.rid }}
+          name: ${{ env.APP_NAME }}
           path: |
-            ${{ env.APP_NAME }}-${{env.VERSION}}-${{ matrix.rid }}.zip
-            ${{ env.APP_NAME }}-${{env.VERSION}}-${{ matrix.rid }}.zip.sha256
+            ${{ env.APP_NAME }}-${{env.VERSION}}.zip
+            ${{ env.APP_NAME }}-${{env.VERSION}}.zip.sha256
           if-no-files-found: error
 
   Publish-to-GitHub-Release:
