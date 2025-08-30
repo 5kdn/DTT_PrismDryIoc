@@ -7,17 +7,21 @@
     xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:vm="clr-namespace:DcsTranslateTool.Win.ViewModels"
-    xmlns:views="clr-namespace:DcsTranslateTool.Win.Views"
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:conv="clr-namespace:DcsTranslateTool.Win.Converters"
     Style="{StaticResource BaseUserControlStyle}"
     mc:Ignorable="d">
+    <UserControl.Resources>
+        <conv:CheckStateToNullableBoolConverter x:Key="CheckStateConverter" />
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="48" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+        <!-- The Mahapps Metro title bar -->
         <Grid Margin="{StaticResource MediumLeftRightMargin}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -26,6 +30,7 @@
             </Grid.ColumnDefinitions>
             <TextBlock
                 Style="{StaticResource PageTitleStyle}"
+                Margin="{StaticResource MediumLeftMargin}"
                 Text="{x:Static properties:Resources.DownloadPageTitle}" />
             <Button
                 Grid.Column="1"
@@ -45,7 +50,6 @@
             Margin="{StaticResource MediumLeftRightMargin}"
             SelectedIndex="{Binding SelectedTabIndex}"
             ItemsSource="{Binding Tabs}">
-
             <mah:MetroTabControl.ItemTemplate>
                 <DataTemplate DataType="{x:Type vm:DownloadTabItemViewModel}">
                     <TextBlock Text="{Binding Title}"/>
@@ -62,7 +66,8 @@
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                 <StackPanel Orientation="Horizontal">
-                                    <CheckBox IsChecked="{Binding IsSelected}" />
+                                    <CheckBox IsThreeState="True"
+                                              IsChecked="{Binding CheckState, Converter={StaticResource CheckStateConverter}, Mode=TwoWay}"/>
                                     <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
                                     <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
                                 </StackPanel>
@@ -76,6 +81,13 @@
                                 </HierarchicalDataTemplate.Triggers>
                             </HierarchicalDataTemplate>
                         </TreeView.ItemTemplate>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectedItemChanged">
+                                <i:InvokeCommandAction
+                                    Command="{Binding DataContext.LoadLocalTreeCommand, RelativeSource={RelativeSource  AncestorType=UserControl}}"
+                                    CommandParameter="{Binding SelectedItem, ElementName=TreeViewControl}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                     </TreeView>
                 </DataTemplate>
             </mah:MetroTabControl.ContentTemplate>

@@ -6,7 +6,6 @@ using DcsTranslateTool.Win.Extensions;
 namespace DcsTranslateTool.Win.ViewModels;
 public class DownloadTabItemViewModel( RootTabType tabType, IFileEntryViewModel rootEntry ) : BindableBase {
     public RootTabType TabType { get; } = tabType;
-
     public string Title { get; } = tabType.GetTabTitle();
 
     public IFileEntryViewModel Root {

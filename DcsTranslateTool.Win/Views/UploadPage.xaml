@@ -1,14 +1,15 @@
-﻿<UserControl x:Class="DcsTranslateTool.Win.Views.UploadPage"
+﻿<UserControl
+    x:Class="DcsTranslateTool.Win.Views.UploadPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:vm="clr-namespace:DcsTranslateTool.Win.ViewModels"
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:conv="clr-namespace:DcsTranslateTool.Win.Converters"
-    xmlns:vm="clr-namespace:DcsTranslateTool.Win.ViewModels"
     Style="{StaticResource BaseUserControlStyle}"
     mc:Ignorable="d">
     <UserControl.Resources>
@@ -18,87 +19,84 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="48" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <!-- The Mahapps Metro title bar -->
         <Grid Margin="{StaticResource MediumLeftRightMargin}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <TextBlock
                 Style="{StaticResource PageTitleStyle}"
                 Margin="{StaticResource MediumLeftMargin}"
                 Text="{x:Static properties:Resources.UploadPageTitle}" />
+            <!--<Button
+                Grid.Column="1"
+                Margin="{StaticResource SmallLeftMargin}"
+                Content="Fetch"
+                Command="{Binding FetchCommand}" />-->
             <Button
-              Grid.Column="1" Width="64"
-              Margin="{StaticResource SmallLeftMargin}"
-              Command="{Binding OpenSettingsCommand}">
+                Grid.Column="2" Width="64"
+                Margin="{StaticResource SmallLeftMargin}"
+                Command="{Binding OpenSettingsCommand}">
                 <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
             </Button>
         </Grid>
-        <!-- The content area where the main content will be placed -->
-        <Grid
-            Grid.Row="1"
-             Margin="{StaticResource MediumLeftTopRightBottomMargin}">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <mah:MetroTabControl
-                    Margin="{StaticResource MediumLeftRightMargin}"
-                    SelectedIndex="{Binding SelectedTabIndex}"
-                    ItemsSource="{Binding Tabs}">
-                    <mah:MetroTabControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type vm:UploadTabItemViewModel}">
-                            <TextBlock Text="{Binding Title}"/>
-                        </DataTemplate>
-                    </mah:MetroTabControl.ItemTemplate>
-                    <mah:MetroTabControl.ContentTemplate>
-                        <DataTemplate DataType="{x:Type vm:UploadTabItemViewModel}">
-                            <TreeView x:Name="TreeViewControl" ItemsSource="{Binding Root.Children}">
-                                <TreeView.ItemContainerStyle>
-                                    <Style TargetType="TreeViewItem">
-                                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
-                                    </Style>
-                                </TreeView.ItemContainerStyle>
-                                <TreeView.ItemTemplate>
-                                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <CheckBox IsThreeState="True"
-                                                      IsChecked="{Binding CheckState, Converter={StaticResource CheckStateConverter}, Mode=TwoWay}"/>
-                                            <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
-                                            <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
-                                        </StackPanel>
-                                        <HierarchicalDataTemplate.Triggers>
-                                            <DataTrigger Binding="{Binding IsDirectory}" Value="True">
-                                                <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;" />
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsDirectory}" Value="False">
-                                                <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;" />
-                                            </DataTrigger>
-                                        </HierarchicalDataTemplate.Triggers>
-                                    </HierarchicalDataTemplate>
-                                </TreeView.ItemTemplate>
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="SelectedItemChanged">
-                                        <i:InvokeCommandAction
-                                            Command="{Binding DataContext.LoadLocalTreeCommand, RelativeSource={RelativeSource  AncestorType=UserControl}}"
-                                            CommandParameter="{Binding SelectedItem, ElementName=TreeViewControl}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </TreeView>
-                        </DataTemplate>
-                    </mah:MetroTabControl.ContentTemplate>
-                </mah:MetroTabControl>
 
-                <Button Grid.Row="2"
-                        Height="32"
-                        Content="Create PR"
-                        IsEnabled="{Binding IsCreatePullRequestDialogButtonEnabled}"
-                        Command="{Binding OpenCreatePullRequestDialogCommand}"/>
+        <mah:MetroTabControl
+            Grid.Row="1"
+            Margin="{StaticResource MediumLeftRightMargin}"
+            SelectedIndex="{Binding SelectedTabIndex}"
+            ItemsSource="{Binding Tabs}">
+            <mah:MetroTabControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type vm:UploadTabItemViewModel}">
+                    <TextBlock Text="{Binding Title}"/>
+                </DataTemplate>
+            </mah:MetroTabControl.ItemTemplate>
+            <mah:MetroTabControl.ContentTemplate>
+                <DataTemplate DataType="{x:Type vm:UploadTabItemViewModel}">
+                    <TreeView x:Name="TreeViewControl" ItemsSource="{Binding Root.Children}">
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="TreeViewItem">
+                                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox IsThreeState="True"
+                                              IsChecked="{Binding CheckState, Converter={StaticResource CheckStateConverter}, Mode=TwoWay}"/>
+                                    <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
+                                    <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
+                                </StackPanel>
+                                <HierarchicalDataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsDirectory}" Value="False">
+                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;"/>
+                                    </DataTrigger>
+                                </HierarchicalDataTemplate.Triggers>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectedItemChanged">
+                                <i:InvokeCommandAction
+                                    Command="{Binding DataContext.LoadLocalTreeCommand, RelativeSource={RelativeSource  AncestorType=UserControl}}"
+                                    CommandParameter="{Binding SelectedItem, ElementName=TreeViewControl}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </TreeView>
+                </DataTemplate>
+            </mah:MetroTabControl.ContentTemplate>
+        </mah:MetroTabControl>
+
+        <Button Grid.Row="2"
+                Height="32"
+                Content="Create PR"
+                IsEnabled="{Binding IsCreatePullRequestDialogButtonEnabled}"
+                Command="{Binding OpenCreatePullRequestDialogCommand}"/>
             </Grid>
-        </Grid>
-    </Grid>
 </UserControl>
