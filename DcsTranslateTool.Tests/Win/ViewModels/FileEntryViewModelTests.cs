@@ -12,8 +12,8 @@ public class FileEntryViewModelTests {
     [Theory]
     [InlineData( "a.txt", "root/a.txt", false, "abc", "abc", FileChangeType.Unchanged )]
     [InlineData( "a.txt", "root/a.txt", false, "abc", "def", FileChangeType.Modified )]
-    [InlineData( "a.txt", "root/a.txt", false, "abc", null, FileChangeType.Added )]
-    [InlineData( "a.txt", "root/a.txt", false, null, "def", FileChangeType.Deleted )]
+    [InlineData( "a.txt", "root/a.txt", false, "abc", null, FileChangeType.LocalOnly )]
+    [InlineData( "a.txt", "root/a.txt", false, null, "def", FileChangeType.RepoOnly )]
     [InlineData( "a.txt", "root/a.txt", false, null, null, FileChangeType.Unchanged )]
     public void ChangeTypeはファイルのときShaによってFileChangeTypeが決定する
         ( string name, string path, bool isDir, string? localSha, string? repoSha, FileChangeType expected ) {
@@ -50,8 +50,8 @@ public class FileEntryViewModelTests {
     //// 全て同じ
     [InlineData( "x", "x", "y", "y", FileChangeType.Unchanged )]
     [InlineData( "x", "a", "y", "b", FileChangeType.Modified )]
-    [InlineData( "x", null, "y", null, FileChangeType.Added )]
-    [InlineData( null, "x", null, "y", FileChangeType.Deleted )]
+    [InlineData( "x", null, "y", null, FileChangeType.LocalOnly )]
+    [InlineData( null, "x", null, "y", FileChangeType.RepoOnly )]
     //// Modified が混ざっていれば Modified が優先される
     [InlineData( "x", "a", "y", "y", FileChangeType.Modified )]
     [InlineData( "x", "a", "y", null, FileChangeType.Modified )]

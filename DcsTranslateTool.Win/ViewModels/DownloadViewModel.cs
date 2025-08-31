@@ -258,7 +258,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// <param name="node">対象のノード</param>
     /// <param name="types">有効な変更種別のセット</param>
     /// <returns>ノードを表示するべきとき true</returns>
-    private static bool ApplyFilterRecursive( IFileEntryViewModel node, HashSet<FileChangeType> types ) {
+    private static bool ApplyFilterRecursive( IFileEntryViewModel node, HashSet<FileChangeType?> types ) {
         bool visible = types.Contains( node.ChangeType );
         if(node.IsDirectory) {
             bool childVisible = false;

@@ -5,22 +5,22 @@ namespace DcsTranslateTool.Win.Enums;
 /// </summary>
 public enum FileChangeType {
     /// <summary>
-    /// 変更がない状態である。
+    /// ローカル・リポジトリ両方に存在し、変更がない状態である。
     /// </summary>
     Unchanged,
 
     /// <summary>
-    /// 削除された状態である。
+    /// リポジトリにのみ存在する状態である。
     /// </summary>
-    Deleted,
+    RepoOnly,
 
     /// <summary>
-    /// 新規に追加された状態である。
+    /// ローカルにのみ存在する状態である。
     /// </summary>
-    Added,
+    LocalOnly,
 
     /// <summary>
-    /// 内容が変更された状態である。
+    /// ローカル・リポジトリ両方に存在し、内容に差分が有る状態である。
     /// </summary>
     Modified,
 }

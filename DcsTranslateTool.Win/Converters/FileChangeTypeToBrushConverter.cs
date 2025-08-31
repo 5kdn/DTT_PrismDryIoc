@@ -22,14 +22,19 @@ public class FileChangeTypeToBrushConverter : IValueConverter {
         if(value is FileChangeType changeType) {
             return changeType switch
             {
-                FileChangeType.Unchanged => Brushes.Silver,
-                FileChangeType.Deleted => Brushes.Black,
-                FileChangeType.Added => Brushes.Tomato,
-                FileChangeType.Modified => Brushes.LimeGreen,
-                _ => Brushes.Black,
+                // DL済みで変更なし
+                FileChangeType.Unchanged => Brushes.DimGray,
+                // 未DL
+                FileChangeType.RepoOnly => Brushes.MediumSeaGreen,
+                // リポジトリに存在せず、ローカルに有る
+                FileChangeType.LocalOnly => Brushes.Silver,
+                // 変更差分有り
+                FileChangeType.Modified => Brushes.Tomato,
+                // デフォルト・読み込み失敗
+                _ => Brushes.DimGray,
             };
         }
-        return Brushes.Black;
+        return Brushes.DimGray;
     }
 
     /// <summary>
