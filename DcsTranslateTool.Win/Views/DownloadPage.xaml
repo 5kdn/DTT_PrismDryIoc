@@ -66,8 +66,7 @@
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                 <StackPanel Orientation="Horizontal">
-                                    <CheckBox IsThreeState="True"
-                                              IsChecked="{Binding CheckState, Converter={StaticResource CheckStateConverter}, Mode=TwoWay}"/>
+                                    <CheckBox IsChecked="{Binding CheckState, Converter={StaticResource CheckStateConverter}, Mode=TwoWay}"/>
                                     <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
                                     <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
                                 </StackPanel>
