@@ -16,6 +16,7 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     private bool? checkState = false;
     private bool isSelected;
     private bool isExpanded;
+    private bool isVisible = true;
 
     private ObservableCollection<IFileEntryViewModel> children = [];
     private bool _suppressCheckPropagation = false;
@@ -121,6 +122,12 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     public bool IsExpanded {
         get => isExpanded;
         set => SetProperty( ref isExpanded, value );
+    }
+
+    /// <inheritdoc/>
+    public bool IsVisible {
+        get => isVisible;
+        set => SetProperty( ref isVisible, value );
     }
 
     /// <inheritdoc/>

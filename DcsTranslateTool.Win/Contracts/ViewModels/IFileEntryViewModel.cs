@@ -53,6 +53,11 @@ public interface IFileEntryViewModel : IDisposable {
     bool IsExpanded { get; set; }
 
     /// <summary>
+    /// フィルタ適用時に表示するかどうかを取得または設定するプロパティである。
+    /// </summary>
+    bool IsVisible { get; set; }
+
+    /// <summary>
     /// 子ノードのコレクションを取得または設定する
     /// </summary>
     ObservableCollection<IFileEntryViewModel> Children { get; set; }

@@ -14,14 +14,14 @@ using DryIoc.ImTools;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
-public class UploadViewModel(
-    IAppSettingsService appSettingsService,
-    IRegionManager regionManager,
-    IDialogService dialogService,
-    IRepositoryService repositoryService,
-    IFileEntryService fileEntryService
-    ) : BindableBase, INavigationAware {
+public class UploadViewModel : BindableBase, INavigationAware {
     #region Fields
+
+    private readonly IAppSettingsService _appSettingsService;
+    private readonly IRegionManager _regionManager;
+    private readonly IDialogService _dialogService;
+    private readonly IRepositoryService _repositoryService;
+    private readonly IFileEntryService _fileEntryService;
 
     private ObservableCollection<UploadTabItemViewModel> _tabs = [];
     private int _selectedTabIndex = 0;
@@ -31,6 +31,22 @@ public class UploadViewModel(
     private DelegateCommand? _openCreatePullRequestDialogCommand;
 
     #endregion
+
+    public UploadViewModel(
+        IAppSettingsService appSettingsService,
+        IRegionManager regionManager,
+        IDialogService dialogService,
+        IRepositoryService repositoryService,
+        IFileEntryService fileEntryService
+    ) {
+        _appSettingsService = appSettingsService;
+        _regionManager = regionManager;
+        _dialogService = dialogService;
+        _repositoryService = repositoryService;
+        _fileEntryService = fileEntryService;
+
+        Filter.FiltersChanged += ( _, _ ) => ApplyFilter();
+    }
 
     #region Properties
 
@@ -51,6 +67,11 @@ public class UploadViewModel(
         get => _tabs;
         set => SetProperty( ref _tabs, value );
     }
+
+    /// <summary>
+    /// ファイルのフィルタ状態を取得するプロパティである。
+    /// </summary>
+    public FilterViewModel Filter { get; } = new();
 
     /// <summary>
     /// Pull Request 作成ダイアログを開くボタンが有効かどうかを示す
@@ -108,7 +129,7 @@ public class UploadViewModel(
     /// <summary>
     /// 設定ページに遷移する
     /// </summary>
-    private void OnOpenSettings() => regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
+    private void OnOpenSettings() => _regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
 
     /// <summary>
     /// Pull Request作成ダイアログを開く
@@ -124,7 +145,7 @@ public class UploadViewModel(
             { "files", checkedEntries }
         };
 
-        dialogService.ShowDialog( PageKeys.CreatePullRequestDialog, parameters, r => {
+        _dialogService.ShowDialog( PageKeys.CreatePullRequestDialog, parameters, r => {
             // ダイアログの処理
             if(r.Result == ButtonResult.OK) {
                 // OKボタンが押された場合の処理
@@ -145,12 +166,12 @@ public class UploadViewModel(
         var tabIndex = SelectedTabIndex;
 
         // リポジトリとローカルの FileEntry を取得する
-        var repoResult = await repositoryService.GetFileEntriesAsync();
+        var repoResult = await _repositoryService.GetFileEntriesAsync();
         if(repoResult.IsFailed) {
             foreach(var error in repoResult.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {error.Message}" );
             return;
         }
-        var localResult = fileEntryService.GetChildrenRecursive(appSettingsService.TranslateFileDir);
+        var localResult = _fileEntryService.GetChildrenRecursive(_appSettingsService.TranslateFileDir);
         if(localResult.IsFailed) {
             foreach(var error in localResult.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {error.Message}" );
             return;
@@ -175,6 +196,7 @@ public class UploadViewModel(
         Tabs.Clear();
         Tabs = [.. tabs];
         SelectedTabIndex = tabIndex;
+        ApplyFilter();
         UpdateCreatePullRequestDialogButton();
         Debug.WriteLine( $"UploadViewModel.RefleshTabs: {Tabs.Count} tabs loaded." );
     }
@@ -190,6 +212,36 @@ public class UploadViewModel(
 
         IsCreatePullRequestDialogButtonEnabled = Tabs[SelectedTabIndex].Root.CheckState != false;
     }
+
+    /// <summary>
+    /// 現在のフィルタ条件を適用するメソッドである。
+    /// </summary>
+    private void ApplyFilter() {
+        var types = this.Filter.GetActiveTypes().ToHashSet();
+        foreach(var tab in _tabs) {
+            ApplyFilterRecursive( tab.Root, types );
+        }
+    }
+
+    /// <summary>
+    /// 指定したノードへフィルタを再帰的に適用するメソッドである。
+    /// </summary>
+    /// <param name="node">対象のノード</param>
+    /// <param name="types">有効な変更種別のセット</param>
+    /// <returns>ノードを表示するべきとき true</returns>
+    private static bool ApplyFilterRecursive( IFileEntryViewModel node, HashSet<FileChangeType> types ) {
+        bool visible = types.Contains( node.ChangeType );
+        if(node.IsDirectory) {
+            bool childVisible = false;
+            foreach(var child in node.Children) {
+                if(ApplyFilterRecursive( child, types )) childVisible = true;
+            }
+            visible |= childVisible;
+        }
+        node.IsVisible = visible;
+        return visible;
+    }
+
 
     /// <summary>
     /// <see cref="FileEntry"/>を<see cref="FileEntryViewModel"/>に変換し、ツリー構造に追加する。

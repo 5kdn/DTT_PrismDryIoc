@@ -18,18 +18,14 @@ namespace DcsTranslateTool.Win.ViewModels;
 /// <summary>
 /// DownloadPageの表示ロジックを保持する ViewModel
 /// </summary>
-/// <param name="appSettingsService">アプリ設定サービス</param>
-/// <param name="regionManager">ナビゲーション管理用の IRegionManager</param>
-/// <param name="repositoryService">リポジトリサービス</param>
-/// <param name="fileService">ファイルサービス</param>
-public class DownloadViewModel(
-    IAppSettingsService appSettingsService,
-    IRegionManager regionManager,
-    IRepositoryService repositoryService,
-    IFileService fileService,
-    IFileEntryService fileEntryService
-    ) : BindableBase, INavigationAware {
+public class DownloadViewModel : BindableBase, INavigationAware {
     #region Fields
+
+    private readonly IAppSettingsService _appSettingsService;
+    private readonly IRegionManager _regionManager;
+    private readonly IRepositoryService _repositoryService;
+    private readonly IFileService _fileService;
+    private readonly IFileEntryService _fileEntryService;
 
     private ObservableCollection<DownloadTabItemViewModel> _tabs = [];
     private int _selectedTabIndex = 0;
@@ -42,6 +38,22 @@ public class DownloadViewModel(
     private DelegateCommand? _openDirectoryCommand;
 
     #endregion
+
+    public DownloadViewModel(
+        IAppSettingsService appSettingsService,
+        IRegionManager regionManager,
+        IRepositoryService repositoryService,
+        IFileService fileService,
+        IFileEntryService fileEntryService
+    ) {
+        _appSettingsService = appSettingsService;
+        _regionManager = regionManager;
+        _repositoryService = repositoryService;
+        _fileService = fileService;
+        _fileEntryService = fileEntryService;
+
+        Filter.FiltersChanged += ( _, _ ) => ApplyFilter();
+    }
 
     #region Properties
 
@@ -60,6 +72,11 @@ public class DownloadViewModel(
         get => _tabs;
         set => SetProperty( ref _tabs, value );
     }
+
+    /// <summary>
+    /// ファイルのフィルタ状態を取得するプロパティである。
+    /// </summary>
+    public FilterViewModel Filter { get; } = new();
 
     #endregion
 
@@ -128,7 +145,7 @@ public class DownloadViewModel(
     /// <summary>
     /// 設定ページに遷移する
     /// </summary>
-    private void OnOpenSettings() => regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
+    private void OnOpenSettings() => _regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
 
     /// <summary>
     /// リポジトリとローカルストレージのファイルエントリを同期し、
@@ -150,12 +167,12 @@ public class DownloadViewModel(
         var tabIndex = SelectedTabIndex;
 
         // リポジトリとローカルの FileEntry を取得する
-        var repoResult = await repositoryService.GetFileEntriesAsync();
+        var repoResult = await _repositoryService.GetFileEntriesAsync();
         if(repoResult.IsFailed) {
             foreach(var error in repoResult.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {error.Message}" );
             return;
         }
-        var localResult = fileEntryService.GetChildrenRecursive(appSettingsService.TranslateFileDir);
+        var localResult = _fileEntryService.GetChildrenRecursive(_appSettingsService.TranslateFileDir);
         if(localResult.IsFailed) {
             foreach(var error in localResult.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {error.Message}" );
             return;
@@ -179,6 +196,7 @@ public class DownloadViewModel(
         Tabs.Clear();
         Tabs = [.. tabs];
         SelectedTabIndex = tabIndex;
+        ApplyFilter();
         Debug.WriteLine( "DownloadViewModel.OnRefleshTabs finished" );
     }
 
@@ -198,14 +216,14 @@ public class DownloadViewModel(
         var targetEntries = _tabs[SelectedTabIndex].GetCheckedEntries();
         foreach(var entry in targetEntries) {
             if(entry.IsDirectory) continue;
-            var result = await repositoryService.GetFileAsync( entry.Path );
+            var result = await _repositoryService.GetFileAsync( entry.Path );
             if(result.IsFailed) {
                 // TODO: エラーハンドリング
                 return;
             }
             byte[] data = result.Value;
-            var savePath = Path.Join( appSettingsService.TranslateFileDir, entry.Path );
-            await fileService.SaveAsync( savePath, data );
+            var savePath = Path.Join( _appSettingsService.TranslateFileDir, entry.Path );
+            await _fileService.SaveAsync( savePath, data );
         }
     }
 
@@ -222,6 +240,35 @@ public class DownloadViewModel(
 
     private void OnOpenDirectory() {
         // TODO: TranslateFileDirを開く処理を実装
+    }
+
+    /// <summary>
+    /// 現在のフィルタ条件を適用するメソッドである。
+    /// </summary>
+    private void ApplyFilter() {
+        var types = this.Filter.GetActiveTypes().ToHashSet();
+        foreach(var tab in _tabs) {
+            ApplyFilterRecursive( tab.Root, types );
+        }
+    }
+
+    /// <summary>
+    /// 指定したノードへフィルタを再帰的に適用するメソッドである。
+    /// </summary>
+    /// <param name="node">対象のノード</param>
+    /// <param name="types">有効な変更種別のセット</param>
+    /// <returns>ノードを表示するべきとき true</returns>
+    private static bool ApplyFilterRecursive( IFileEntryViewModel node, HashSet<FileChangeType> types ) {
+        bool visible = types.Contains( node.ChangeType );
+        if(node.IsDirectory) {
+            bool childVisible = false;
+            foreach(var child in node.Children) {
+                if(ApplyFilterRecursive( child, types )) childVisible = true;
+            }
+            visible |= childVisible;
+        }
+        node.IsVisible = visible;
+        return visible;
     }
 
     /// <summary>

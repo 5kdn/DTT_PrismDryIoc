@@ -1,4 +1,4 @@
-<UserControl
+﻿<UserControl
     x:Class="DcsTranslateTool.Win.Views.DownloadPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -9,9 +9,14 @@
     xmlns:vm="clr-namespace:DcsTranslateTool.Win.ViewModels"
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    d:DataContext="{d:DesignInstance Type=vm:DownloadViewModel}"
     Style="{StaticResource BaseUserControlStyle}"
     mc:Ignorable="d">
 
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="48" />
@@ -42,46 +47,59 @@
             </Button>
         </Grid>
 
-        <mah:MetroTabControl
+        <Grid Grid.Row="1" Margin="{StaticResource MediumLeftRightMargin}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal">
+                <CheckBox Content="All"  Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.All, Mode=TwoWay}"/>
+                <CheckBox Content="DL済" Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Unchanged, Mode=TwoWay}"/>
+                <CheckBox Content="未DL" Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Deleted, Mode=TwoWay}"/>
+                <CheckBox Content="追加" Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Added, Mode=TwoWay}"/>
+                <CheckBox Content="変更/更新" Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Modified, Mode=TwoWay}"/>
+            </StackPanel>
+            <mah:MetroTabControl
             Grid.Row="1"
             Margin="{StaticResource MediumLeftRightMargin}"
             SelectedIndex="{Binding SelectedTabIndex}"
             ItemsSource="{Binding Tabs}">
-            <mah:MetroTabControl.ItemTemplate>
-                <DataTemplate DataType="{x:Type vm:DownloadTabItemViewModel}">
-                    <TextBlock Text="{Binding Title}"/>
-                </DataTemplate>
-            </mah:MetroTabControl.ItemTemplate>
-            <mah:MetroTabControl.ContentTemplate>
-                <DataTemplate DataType="{x:Type vm:DownloadTabItemViewModel}">
-                    <TreeView x:Name="TreeViewControl" ItemsSource="{Binding Root.Children}">
-                        <TreeView.ItemContainerStyle>
-                            <Style TargetType="TreeViewItem">
-                                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
-                            </Style>
-                        </TreeView.ItemContainerStyle>
-                        <TreeView.ItemTemplate>
-                            <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                <StackPanel Orientation="Horizontal">
-                                    <CheckBox IsChecked="{Binding CheckState, Mode=TwoWay}"/>
-                                    <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
-                                    <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
-                                </StackPanel>
-                                <HierarchicalDataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding IsDirectory}" Value="True">
-                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsDirectory}" Value="False">
-                                        <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;"/>
-                                    </DataTrigger>
-                                </HierarchicalDataTemplate.Triggers>
-                            </HierarchicalDataTemplate>
-                        </TreeView.ItemTemplate>
-                    </TreeView>
-                </DataTemplate>
-            </mah:MetroTabControl.ContentTemplate>
-        </mah:MetroTabControl>
-
+                <mah:MetroTabControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:DownloadTabItemViewModel}">
+                        <TextBlock Text="{Binding Title}"/>
+                    </DataTemplate>
+                </mah:MetroTabControl.ItemTemplate>
+                <mah:MetroTabControl.ContentTemplate>
+                    <DataTemplate DataType="{x:Type vm:DownloadTabItemViewModel}">
+                        <TreeView x:Name="TreeViewControl" ItemsSource="{Binding Root.Children}">
+                            <TreeView.ItemContainerStyle>
+                                <Style TargetType="TreeViewItem">
+                                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                                    <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                </Style>
+                            </TreeView.ItemContainerStyle>
+                            <TreeView.ItemTemplate>
+                                <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <CheckBox IsChecked="{Binding CheckState, Mode=TwoWay}"/>
+                                        <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
+                                        <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
+                                    </StackPanel>
+                                    <HierarchicalDataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                                            <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsDirectory}" Value="False">
+                                            <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;"/>
+                                        </DataTrigger>
+                                    </HierarchicalDataTemplate.Triggers>
+                                </HierarchicalDataTemplate>
+                            </TreeView.ItemTemplate>
+                        </TreeView>
+                    </DataTemplate>
+                </mah:MetroTabControl.ContentTemplate>
+            </mah:MetroTabControl>
+        </Grid>
         <StackPanel Grid.Row="2" Orientation="Horizontal">
             <Button Width="96" Content="Download" Command="{Binding DownloadCommand}"/>
             <Button Width="96" Margin="{StaticResource SmallLeftMargin}" Content="Apply" Command="{Binding ApplyCommand}"/>
