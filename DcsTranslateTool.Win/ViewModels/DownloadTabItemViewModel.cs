@@ -6,7 +6,6 @@ using DcsTranslateTool.Win.Extensions;
 namespace DcsTranslateTool.Win.ViewModels;
 public class DownloadTabItemViewModel( RootTabType tabType, IFileEntryViewModel rootEntry ) : BindableBase {
     public RootTabType TabType { get; } = tabType;
-
     public string Title { get; } = tabType.GetTabTitle();
 
     public IFileEntryViewModel Root {
@@ -24,5 +23,5 @@ public class DownloadTabItemViewModel( RootTabType tabType, IFileEntryViewModel 
     /// チェック状態のエントリを取得するメソッド。
     /// </summary>
     /// <returns><see cref="FileEntry"/>のリスト</returns>
-    public List<FileEntry> GetCheckedEntries() => Root.GetCheckedModelRecursice();
+    public List<FileEntry> GetCheckedEntries() => Root.GetCheckedModelRecursive();
 }
