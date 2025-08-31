@@ -80,13 +80,6 @@
                                 </HierarchicalDataTemplate.Triggers>
                             </HierarchicalDataTemplate>
                         </TreeView.ItemTemplate>
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="SelectedItemChanged">
-                                <i:InvokeCommandAction
-                                    Command="{Binding DataContext.LoadLocalTreeCommand, RelativeSource={RelativeSource  AncestorType=UserControl}}"
-                                    CommandParameter="{Binding SelectedItem, ElementName=TreeViewControl}"/>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
                     </TreeView>
                 </DataTemplate>
             </mah:MetroTabControl.ContentTemplate>
