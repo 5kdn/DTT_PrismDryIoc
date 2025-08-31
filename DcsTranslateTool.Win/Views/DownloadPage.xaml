@@ -9,12 +9,9 @@
     xmlns:vm="clr-namespace:DcsTranslateTool.Win.ViewModels"
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-    xmlns:conv="clr-namespace:DcsTranslateTool.Win.Converters"
     Style="{StaticResource BaseUserControlStyle}"
     mc:Ignorable="d">
-    <UserControl.Resources>
-        <conv:CheckStateToNullableBoolConverter x:Key="CheckStateConverter" />
-    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="48" />
@@ -66,7 +63,7 @@
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                 <StackPanel Orientation="Horizontal">
-                                    <CheckBox IsChecked="{Binding CheckState, Converter={StaticResource CheckStateConverter}, Mode=TwoWay}"/>
+                                    <CheckBox IsChecked="{Binding CheckState, Mode=TwoWay}"/>
                                     <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
                                     <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
                                 </StackPanel>

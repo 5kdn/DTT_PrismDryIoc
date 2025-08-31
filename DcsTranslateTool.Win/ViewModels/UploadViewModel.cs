@@ -179,26 +179,6 @@ public class UploadViewModel(
         Debug.WriteLine( $"UploadViewModel.RefleshTabs: {Tabs.Count} tabs loaded." );
     }
 
-    ///// <summary>
-    ///// ファイルエントリの選択状態変更時に呼び出される
-    ///// </summary>
-    ///// <param name="sender">イベント送信元</param>
-    ///// <param name="_">未使用</param>
-    //private void OnFileEntrySelectedChanged( object? sender, CheckState _ ) => UpdateCreatePullRequestDialogButton();
-
-    ///// <summary>
-    ///// ファイルエントリの選択状態変更イベントを購読する
-    ///// </summary>
-    ///// <param name="node">対象のノード</param>
-    //private void SubscribeSelectionChanged( IFileEntryViewModel node ) {
-    //    if(node is FileEntryViewModel concrete) {
-    //        concrete.CheckStateChanged += OnFileEntrySelectedChanged;
-    //    }
-    //    foreach(var child in node.Children) {
-    //        if(child is not null) SubscribeSelectionChanged( child );
-    //    }
-    //}
-
     /// <summary>
     /// Pull Request 作成ボタンの有効状態を更新する
     /// </summary>
@@ -208,7 +188,7 @@ public class UploadViewModel(
             return;
         }
 
-        IsCreatePullRequestDialogButtonEnabled = Tabs[SelectedTabIndex].Root.CheckState.IsSelectedLike();
+        IsCreatePullRequestDialogButtonEnabled = Tabs[SelectedTabIndex].Root.CheckState != false;
     }
 
     /// <summary>

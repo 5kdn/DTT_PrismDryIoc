@@ -5,7 +5,6 @@ using System.ComponentModel;
 using DcsTranslateTool.Core.Models;
 using DcsTranslateTool.Win.Contracts.ViewModels;
 using DcsTranslateTool.Win.Enums;
-using DcsTranslateTool.Win.Extensions;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
@@ -14,7 +13,7 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
 
     #region Fields
 
-    private CheckState checkState;
+    private bool? checkState = false;
     private bool isSelected;
     private bool isExpanded;
 
@@ -27,7 +26,7 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     #region Properties
 
     /// <inheritdoc/>
-    public event EventHandler<CheckState>? CheckStateChanged;
+    public event EventHandler<bool?>? CheckStateChanged;
 
     /// <inheritdoc/>
     public string Name => this.Model.Name;
@@ -77,13 +76,13 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     }
 
     /// <inheritdoc/>
-    public CheckState CheckState {
+    public bool? CheckState {
         get => checkState;
         set {
             if(!SetProperty( ref checkState, value )) return;
 
             // 親->子への伝播
-            if(!_suppressCheckPropagation && IsDirectory && value != CheckState.Indeterminate) {
+            if(!_suppressCheckPropagation && IsDirectory && value is not null) {
                 try {
                     _suppressCheckPropagation = true;
                     foreach(var child in Children) {
@@ -165,9 +164,11 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     public List<FileEntry> GetCheckedModelRecursive( bool fileOnly = false ) {
         List<FileEntry> checkedChildrenModels = [];
 
-        switch(CheckState.IsSelectedLike(), IsDirectory, fileOnly) {
+        switch(CheckState, IsDirectory, fileOnly) {
             case (true, false, _ ):
             case (true, true, false ):
+            case (null, false, _ ):
+            case (null, true, false ):
                 checkedChildrenModels.Add( Model );
                 break;
         }
@@ -183,17 +184,20 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     #region Private Methods
 
     /// <summary>
-    /// 子の状態から自分の CheckState を再計算する（親呼び出しは行わない）
+    /// 子ノードの状態から自分のチェック状態を再計算する
     /// </summary>
     private void RecomputeCheckStateFromChildren() {
         if(!IsDirectory || Children.Count == 0) return;
 
-        var allChecked = Children.All( c => c.CheckState == CheckState.Checked );
-        var allUnchecked = Children.All( c => c.CheckState == CheckState.Unchecked );
+        var allChecked = Children.All( c => c.CheckState == true );
+        var allUnchecked = Children.All( c => c.CheckState == false );
 
-        var newState = allChecked ? CheckState.Checked
-                     : allUnchecked ? CheckState.Unchecked
-                     : CheckState.Indeterminate;
+        bool? newState = (allChecked, allUnchecked) switch
+        {
+            (true, _ ) => true,
+            (_, true ) => false,
+            _ => null,
+        };
 
         if(checkState == newState) return;
         // 直接フィールドを書き換え、派生通知を出す（無限ループ抑止のため SetProperty は使わない）
@@ -260,7 +264,7 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     }
 
     /// <summary>子のチェック状態が変わった時に自分の状態を再計算（イベントベースでバブルアップ）</summary>
-    private void OnChildCheckStateChanged( object? sender, CheckState e ) {
+    private void OnChildCheckStateChanged( object? sender, bool? e ) {
         if(_suppressCheckPropagation) return;
         RecomputeCheckStateFromChildren();
     }

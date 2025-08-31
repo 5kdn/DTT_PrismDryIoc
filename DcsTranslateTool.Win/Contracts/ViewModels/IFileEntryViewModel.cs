@@ -40,7 +40,7 @@ public interface IFileEntryViewModel : IDisposable {
     /// <summary>
     /// チェック状態を取得または設定する
     /// </summary>
-    CheckState CheckState { get; set; }
+    bool? CheckState { get; set; }
 
     /// <summary>
     /// UI 上で選択されているかどうか（チェック状態とは別）を取得または設定する
@@ -68,7 +68,7 @@ public interface IFileEntryViewModel : IDisposable {
     void SetSelectRecursive( bool value );
 
     /// <summary>
-    /// 自身および子孫のうち、<see cref="CheckState"/> が選択系の要素の <see cref="FileEntry"/> を再帰的に取得する。
+    /// 自身および子孫ノードのうち、チェック状態が選択系の要素の <see cref="FileEntry"/> を再帰的に取得する。
     /// </summary>
     /// <param name="fileOnly">true のときファイルのみを対象にする。</param>
     /// <returns>チェック状態が選択系の <see cref="FileEntry"/> のコレクション。</returns>
@@ -82,7 +82,7 @@ public interface IFileEntryViewModel : IDisposable {
     /// <summary>
     /// チェック状態が変更されたときに通知されるイベント
     /// </summary>
-    event EventHandler<CheckState>? CheckStateChanged;
+    event EventHandler<bool?>? CheckStateChanged;
 
     #endregion
 

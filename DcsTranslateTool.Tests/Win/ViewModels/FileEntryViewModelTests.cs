@@ -101,7 +101,7 @@ public class FileEntryViewModelTests {
     #region Property: CheckState
     [Fact]
 
-    public void CheckStateは親にCheckedを設定したときに子に伝播する() {
+    public void CheckStateは親にtrueを設定したときに子に伝播する() {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
         using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null));
@@ -109,36 +109,36 @@ public class FileEntryViewModelTests {
         using var parent = new FileEntryViewModel(dir) { Children = [c1, c2] };
 
         // Act
-        parent.CheckState = CheckState.Checked;
+        parent.CheckState = true;
 
         // Assert
-        Assert.Equal( CheckState.Checked, c1.CheckState );
-        Assert.Equal( CheckState.Checked, c2.CheckState );
+        Assert.Equal( true, c1.CheckState );
+        Assert.Equal( true, c2.CheckState );
     }
 
     [Fact]
     public void CheckStateは子が変更されたときに親でCheckStateChangedを発火する() {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
-        using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = CheckState.Unchecked };
+        using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = false };
         using var parent = new FileEntryViewModel(dir) { Children = [c1] };
 
         var raised = false;
         parent.CheckStateChanged += ( _, __ ) => raised = true;
 
         // Act
-        c1.CheckState = CheckState.Checked;
+        c1.CheckState = true;
 
         // Assert
         Assert.True( raised );
-        Assert.Equal( CheckState.Checked, parent.CheckState );
+        Assert.Equal( true, parent.CheckState );
     }
 
     [Theory]
-    [InlineData( CheckState.Checked, CheckState.Checked, CheckState.Checked )]
-    [InlineData( CheckState.Unchecked, CheckState.Unchecked, CheckState.Unchecked )]
-    [InlineData( CheckState.Checked, CheckState.Indeterminate, CheckState.Indeterminate )]
-    public void CheckStateは子のCheckStateが親に伝播する( CheckState c1State, CheckState c2State, CheckState expected ) {
+    [InlineData( true, true, true )]
+    [InlineData( false, false, false )]
+    [InlineData( true, null, null )]
+    public void CheckStateは子のCheckStateが親に伝播する( bool? c1State, bool? c2State, bool? expected ) {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
         using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = c1State };
@@ -150,17 +150,17 @@ public class FileEntryViewModelTests {
     }
 
     [Fact]
-    public void CheckStateは親にIndeterminateを設定したときに子には伝播しない() {
+    public void CheckStateは親にnullを設定したときに子には伝播しない() {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
-        using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = CheckState.Unchecked };
+        using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = false };
         using var parent = new FileEntryViewModel(dir) { Children = [c1] };
 
         // Act
-        parent.CheckState = CheckState.Indeterminate;
+        parent.CheckState = null;
 
         // Assert
-        Assert.Equal( CheckState.Unchecked, c1.CheckState );
+        Assert.Equal( false, c1.CheckState );
     }
 
     #endregion
@@ -213,16 +213,16 @@ public class FileEntryViewModelTests {
         // Arrange
         var root = new FileEntry("root", "root", true, null, null);
         using var file1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null))
-        {CheckState = CheckState.Checked};
+        {CheckState = true};
         using var file2 = new FileEntryViewModel(new FileEntry("b.txt", "root/b.txt", false, null, null))
-        {CheckState = CheckState.Unchecked};
+        {CheckState = false};
         using var subDir = new FileEntryViewModel(new FileEntry("sub", "root/sub", true, null, null))
-        {CheckState = CheckState.Checked};
+        {CheckState = true};
         using var subFile = new FileEntryViewModel(new FileEntry("c.txt", "root/sub/c.txt", false, null, null))
-        { CheckState = CheckState.Checked  };
+        { CheckState = true  };
         subDir.Children = [subFile];
 
-        using var parent = new FileEntryViewModel(root) { CheckState = CheckState.Checked, Children = [file1, file2, subDir] };
+        using var parent = new FileEntryViewModel(root) { CheckState = true, Children = [file1, file2, subDir] };
 
         // Act
         var models = parent.GetCheckedModelRecursive(fileOnly: false);
@@ -239,7 +239,7 @@ public class FileEntryViewModelTests {
     public void GetCheckedModelRecursiveはディレクトリがCheckedかつfileOnlyがfalseのときにディレクトリを含む() {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
-        using var parent = new FileEntryViewModel(dir) { CheckState = CheckState.Checked };
+        using var parent = new FileEntryViewModel(dir) { CheckState = true };
 
         // Act
         var models = parent.GetCheckedModelRecursive(fileOnly: false);
@@ -251,7 +251,7 @@ public class FileEntryViewModelTests {
     [Fact]
     public void GetCheckedModelRecursiveはファイルがCheckedのときに自身を返す() {
         // Arrange
-        using var file = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = CheckState.Checked };
+        using var file = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = true };
 
         // Act
         var models = file.GetCheckedModelRecursive();
@@ -264,8 +264,8 @@ public class FileEntryViewModelTests {
     public void GetCheckedModelRecursiveはディレクトリがCheckedかつfileOnlyがtrueのときにディレクトリを含まない() {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
-        using var child = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = CheckState.Checked };
-        using var parent = new FileEntryViewModel(dir) { CheckState = CheckState.Checked, Children = [child] };
+        using var child = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = true };
+        using var parent = new FileEntryViewModel(dir) { CheckState = true, Children = [child] };
 
         // Act
         var models = parent.GetCheckedModelRecursive(fileOnly: true);
@@ -286,9 +286,9 @@ public class FileEntryViewModelTests {
         using var parent = new FileEntryViewModel(dir);
 
         using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null))
-        {CheckState = CheckState.Unchecked};
+        {CheckState = false};
         using var c2 = new FileEntryViewModel(new FileEntry("b.txt", "root/b.txt", false, "x", "y"))
-        {CheckState = CheckState.Checked};
+        {CheckState = true};
 
         var changeTypeChangedCount = 0;
         ((INotifyPropertyChanged)parent).PropertyChanged += ( _, e ) => {
@@ -298,11 +298,11 @@ public class FileEntryViewModelTests {
         var checkStateChangedCount = 0;
         parent.CheckStateChanged += ( _, __ ) => checkStateChangedCount++;
 
-        // Act 1: 子1を追加（ChangeType 再評価発火。CheckState は既定=Uncheckedなら非発火の可能性）
+        // Act 1: 子1を追加（ChangeType 再評価発火。CheckState は既定=falseなら非発火の可能性）
         parent.Children.Add( c1 );
-        // Act 2: 子2を追加（ChangeType 発火）。子が混在 → 親は Indeterminate へ（CheckStateChanged 発火）
+        // Act 2: 子2を追加（ChangeType 発火）。子が混在 → 親は null へ（CheckStateChanged 発火）
         parent.Children.Add( c2 );
-        // Act 3: 子1を削除（ChangeType 発火）。親は Checked へ（CheckStateChanged 発火）
+        // Act 3: 子1を削除（ChangeType 発火）。親は true へ（CheckStateChanged 発火）
         parent.Children.Remove( c1 );
 
         // Assert
@@ -318,12 +318,12 @@ public class FileEntryViewModelTests {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
         var parent = new FileEntryViewModel(dir);
-        var child = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = CheckState.Unchecked };
+        var child = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = false };
         parent.Children.Add( child );
 
         // Act
         parent.Dispose();
-        child.CheckState = CheckState.Checked;
+        child.CheckState = true;
 
         // Assert
         Assert.NotEqual( child.CheckState, parent.CheckState );
