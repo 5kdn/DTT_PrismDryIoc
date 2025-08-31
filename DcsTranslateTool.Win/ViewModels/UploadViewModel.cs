@@ -180,7 +180,7 @@ public class UploadViewModel : BindableBase, INavigationAware {
         // リポジトリとローカルの FileEntry をマージする
         var entries = FileEntryComparisonHelper.Merge(localResult.Value, repoResult.Value);
 
-        IFileEntryViewModel rootVm = new FileEntryViewModel( new FileEntry( "", "", true ) );
+        IFileEntryViewModel rootVm = new FileEntryViewModel( new FileEntry( "", "", true ), ChangeTypeMode.Upload );
         foreach(var entry in entries) AddFileEntryToFileEntryViewModel( rootVm, entry );
 
         var tabs = Enum.GetValues<RootTabType>().Select(tabType => {
@@ -190,7 +190,7 @@ public class UploadViewModel : BindableBase, INavigationAware {
                 if(target is null) break;
             }
 
-            return new UploadTabItemViewModel(tabType, target ?? new FileEntryViewModel(new FileEntry("null","",false)));
+            return new UploadTabItemViewModel(tabType, target ?? new FileEntryViewModel(new FileEntry("null","",false), ChangeTypeMode.Upload));
         });
 
         Tabs.Clear();
@@ -258,7 +258,7 @@ public class UploadViewModel : BindableBase, INavigationAware {
             absolutePath += absolutePath.Length == 0 ? part : "/" + part;
             var next = current.Children.FirstOrDefault(c => c?.Name == part && c.IsDirectory);
             if(next is null) {
-                next = new FileEntryViewModel( new FileEntry( part, absolutePath, true ) );
+                next = new FileEntryViewModel( new FileEntry( part, absolutePath, true ), ChangeTypeMode.Upload );
                 current.Children.Add( next );
             }
             current = next;
@@ -266,7 +266,7 @@ public class UploadViewModel : BindableBase, INavigationAware {
 
         var last = parts[^1];
         if(!current.Children.Any( c => c?.Name == last )) {
-            current.Children.Add( new FileEntryViewModel( new FileEntry( last, entry.Path, entry.IsDirectory, entry.LocalSha, entry.RepoSha ) ) );
+            current.Children.Add( new FileEntryViewModel( new FileEntry( last, entry.Path, entry.IsDirectory, entry.LocalSha, entry.RepoSha ), ChangeTypeMode.Upload ) );
         }
     }
 

@@ -14,12 +14,12 @@ public class FileEntryViewModelTests {
     [InlineData( "a.txt", "root/a.txt", false, "abc", "def", FileChangeType.Modified )]
     [InlineData( "a.txt", "root/a.txt", false, "abc", null, FileChangeType.LocalOnly )]
     [InlineData( "a.txt", "root/a.txt", false, null, "def", FileChangeType.RepoOnly )]
-    [InlineData( "a.txt", "root/a.txt", false, null, null, FileChangeType.Unchanged )]
+    [InlineData( "a.txt", "root/a.txt", false, null, null, null )]
     public void ChangeTypeはファイルのときShaによってFileChangeTypeが決定する
-        ( string name, string path, bool isDir, string? localSha, string? repoSha, FileChangeType expected ) {
+        ( string name, string path, bool isDir, string? localSha, string? repoSha, FileChangeType? expected ) {
         // Arrange & Act
         var model = new FileEntry(name, path, isDir, localSha, repoSha);
-        using var vm = new FileEntryViewModel(model);
+        using var vm = new FileEntryViewModel(model, ChangeTypeMode.Download);
 
         // Assert
         Assert.Equal( expected, vm.ChangeType );
@@ -29,8 +29,8 @@ public class FileEntryViewModelTests {
     public void ChangeTypeはディレクトリかつ子ノードが一つのときに子のChangeTypeを反映する() {
         // Arrange & Act
         var parent = new FileEntry("root", "root", true, null, null);
-        using var child = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, "x", "y"));
-        using var vm = new FileEntryViewModel(parent){Children = [child]};
+        using var child = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, "x", "y"), ChangeTypeMode.Download);
+        using var vm = new FileEntryViewModel(parent, ChangeTypeMode.Download){Children = [child]};
 
         // Assert
         Assert.Equal( FileChangeType.Modified, vm.ChangeType );
@@ -40,36 +40,43 @@ public class FileEntryViewModelTests {
     public void ChangeTypeはディレクトリかつ子ノードが存在しないときにUnchangedになる() {
         // Arrange & Act
         var parent = new FileEntry("root", "root", true, null, null);
-        using var vm = new FileEntryViewModel(parent);
+        using var vm = new FileEntryViewModel(parent, ChangeTypeMode.Download);
 
         // Assert
         Assert.Equal( FileChangeType.Unchanged, vm.ChangeType );
     }
 
     [Theory]
-    //// 全て同じ
-    [InlineData( "x", "x", "y", "y", FileChangeType.Unchanged )]
-    [InlineData( "x", "a", "y", "b", FileChangeType.Modified )]
-    [InlineData( "x", null, "y", null, FileChangeType.LocalOnly )]
-    [InlineData( null, "x", null, "y", FileChangeType.RepoOnly )]
-    //// Modified が混ざっていれば Modified が優先される
-    [InlineData( "x", "a", "y", "y", FileChangeType.Modified )]
-    [InlineData( "x", "a", "y", null, FileChangeType.Modified )]
-    [InlineData( "x", "a", null, "y", FileChangeType.Modified )]
-
-    //// Added となにかが混ざっていれば Modified になる
-    [InlineData( "x", null, "y", "y", FileChangeType.Modified )]
-    [InlineData( "x", null, null, "y", FileChangeType.Modified )]
-
-    //// Deleted と何かが混ざっていれば Modified になる
-    [InlineData( null, "x", "y", "y", FileChangeType.Modified )]
-    public void ChangeTypeはディレクトリのとき子ノードによって決定する( string? l1, string? r1, string? l2, string? r2, FileChangeType expected ) {
+    // Download
+    [InlineData( "a", "b", "x", "y", ChangeTypeMode.Download, FileChangeType.Modified )]
+    [InlineData( "a", "b", "x", "x", ChangeTypeMode.Download, FileChangeType.Modified )]
+    [InlineData( "a", "b", "x", null, ChangeTypeMode.Download, FileChangeType.Modified )]
+    [InlineData( "a", "b", null, "x", ChangeTypeMode.Download, FileChangeType.Modified )]
+    [InlineData( "a", null, null, "x", ChangeTypeMode.Download, FileChangeType.RepoOnly )]
+    [InlineData( null, "a", "x", "x", ChangeTypeMode.Download, FileChangeType.RepoOnly )]
+    [InlineData( null, "a", null, "x", ChangeTypeMode.Download, FileChangeType.RepoOnly )]
+    [InlineData( "a", "a", "x", "x", ChangeTypeMode.Download, FileChangeType.Unchanged )]
+    [InlineData( "a", null, "x", "x", ChangeTypeMode.Download, FileChangeType.Unchanged )]
+    [InlineData( "a", null, "x", null, ChangeTypeMode.Download, FileChangeType.LocalOnly )]
+    // Upload
+    [InlineData( "a", "b", "x", "y", ChangeTypeMode.Upload, FileChangeType.Modified )]
+    [InlineData( "a", "b", "x", "x", ChangeTypeMode.Upload, FileChangeType.Modified )]
+    [InlineData( "a", "b", "x", null, ChangeTypeMode.Upload, FileChangeType.Modified )]
+    [InlineData( "a", "b", null, "x", ChangeTypeMode.Upload, FileChangeType.Modified )]
+    [InlineData( "a", null, "x", "x", ChangeTypeMode.Upload, FileChangeType.LocalOnly )]
+    [InlineData( "a", null, "x", null, ChangeTypeMode.Upload, FileChangeType.LocalOnly )]
+    [InlineData( "a", null, null, "x", ChangeTypeMode.Upload, FileChangeType.LocalOnly )]
+    [InlineData( "a", "a", "x", "x", ChangeTypeMode.Upload, FileChangeType.Unchanged )]
+    [InlineData( "a", "a", null, "x", ChangeTypeMode.Upload, FileChangeType.Unchanged )]
+    [InlineData( null, "a", null, "x", ChangeTypeMode.Upload, FileChangeType.RepoOnly )]
+    public void ChangeTypeはディレクトリのとき子ノードによって決定する
+        ( string? l1, string? r1, string? l2, string? r2, ChangeTypeMode mode, FileChangeType expected ) {
         // Arrange & Act
         var parent = new FileEntry("root", "root", true, null, null);
-        var ch1 = new FileEntryViewModel(new("child1.txt", "root/child1.txt", false, l1, r1));
-        var ch2 = new FileEntryViewModel(new("child2.txt", "root/child2.txt", false, l2, r2));
+        var ch1 = new FileEntryViewModel(new("child1.txt", "root/child1.txt", false, l1, r1), mode);
+        var ch2 = new FileEntryViewModel(new("child2.txt", "root/child2.txt", false, l2, r2), mode);
 
-        using var vm = new FileEntryViewModel(parent);
+        using var vm = new FileEntryViewModel(parent, mode);
         vm.Children = [ch1, ch2];
 
         // Assert
@@ -80,8 +87,8 @@ public class FileEntryViewModelTests {
     public void ChangeTypeは子のChangeTypeが変わったときにPropertyChangedを発火する() {
         // Arrange
         var parent = new FileEntry("root", "root", true, null, null);
-        using var child = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, "x", "x")); // Unchanged
-        using var vm = new FileEntryViewModel(parent) { Children = [child] };
+        using var child = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, "x", "x"), ChangeTypeMode.Download); // Unchanged
+        using var vm = new FileEntryViewModel(parent, ChangeTypeMode.Download) { Children = [child] };
 
         var notified = false;
         ((INotifyPropertyChanged)vm).PropertyChanged += ( _, e ) => {
@@ -89,7 +96,7 @@ public class FileEntryViewModelTests {
         };
 
         // Act
-        using var changedChild = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, "x", "y")); // Modified
+        using var changedChild = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, "x", "y"), ChangeTypeMode.Download); // Modified
         vm.Children[0] = changedChild;
 
         // Assert
@@ -104,9 +111,9 @@ public class FileEntryViewModelTests {
     public void CheckStateは親にtrueを設定したときに子に伝播する() {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
-        using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null));
-        using var c2 = new FileEntryViewModel(new FileEntry("b.txt", "root/b.txt", false, null, null));
-        using var parent = new FileEntryViewModel(dir) { Children = [c1, c2] };
+        using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null), ChangeTypeMode.Download);
+        using var c2 = new FileEntryViewModel(new FileEntry("b.txt", "root/b.txt", false, null, null), ChangeTypeMode.Download);
+        using var parent = new FileEntryViewModel(dir, ChangeTypeMode.Download) { Children = [c1, c2] };
 
         // Act
         parent.CheckState = true;
@@ -120,8 +127,8 @@ public class FileEntryViewModelTests {
     public void CheckStateは子が変更されたときに親でCheckStateChangedを発火する() {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
-        using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = false };
-        using var parent = new FileEntryViewModel(dir) { Children = [c1] };
+        using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null), ChangeTypeMode.Download) { CheckState = false };
+        using var parent = new FileEntryViewModel(dir, ChangeTypeMode.Download) { Children = [c1] };
 
         var raised = false;
         parent.CheckStateChanged += ( _, __ ) => raised = true;
@@ -141,9 +148,9 @@ public class FileEntryViewModelTests {
     public void CheckStateは子のCheckStateが親に伝播する( bool? c1State, bool? c2State, bool? expected ) {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
-        using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = c1State };
-        using var c2 = new FileEntryViewModel(new FileEntry("b.txt", "root/b.txt", false, null, null)) { CheckState = c2State };
-        using var parent = new FileEntryViewModel(dir) { Children = [c1, c2] };
+        using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null), ChangeTypeMode.Download) { CheckState = c1State };
+        using var c2 = new FileEntryViewModel(new FileEntry("b.txt", "root/b.txt", false, null, null), ChangeTypeMode.Download) { CheckState = c2State };
+        using var parent = new FileEntryViewModel(dir, ChangeTypeMode.Download) { Children = [c1, c2] };
 
         // Assert
         Assert.Equal( expected, parent.CheckState );
@@ -153,8 +160,8 @@ public class FileEntryViewModelTests {
     public void CheckStateは親にnullを設定したときに子には伝播しない() {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
-        using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = false };
-        using var parent = new FileEntryViewModel(dir) { Children = [c1] };
+        using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null), ChangeTypeMode.Download) { CheckState = false };
+        using var parent = new FileEntryViewModel(dir, ChangeTypeMode.Download) { Children = [c1] };
 
         // Act
         parent.CheckState = null;
@@ -172,9 +179,9 @@ public class FileEntryViewModelTests {
     public void IsSelectedは親にtrueを設定したときに子に伝播する() {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
-        using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null));
-        using var c2 = new FileEntryViewModel(new FileEntry("b.txt", "root/b.txt", false, null, null));
-        using var parent = new FileEntryViewModel(dir) { Children = [c1, c2] };
+        using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null), ChangeTypeMode.Download);
+        using var c2 = new FileEntryViewModel(new FileEntry("b.txt", "root/b.txt", false, null, null), ChangeTypeMode.Download);
+        using var parent = new FileEntryViewModel(dir, ChangeTypeMode.Download) { Children = [c1, c2] };
 
         // Act
         parent.IsSelected = true;
@@ -189,11 +196,11 @@ public class FileEntryViewModelTests {
     public void SetSelectRecursiveは呼び出したときに全ての子孫を選択状態にする() {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
-        using var file = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null));
-        using var subDir = new FileEntryViewModel(new FileEntry("sub", "root/sub", true, null, null));
-        using var subFile = new FileEntryViewModel(new FileEntry("b.txt", "root/sub/b.txt", false, null, null));
+        using var file = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null), ChangeTypeMode.Download);
+        using var subDir = new FileEntryViewModel(new FileEntry("sub", "root/sub", true, null, null), ChangeTypeMode.Download);
+        using var subFile = new FileEntryViewModel(new FileEntry("b.txt", "root/sub/b.txt", false, null, null), ChangeTypeMode.Download);
         subDir.Children = [subFile];
-        using var parent = new FileEntryViewModel(dir) { Children = [file, subDir] };
+        using var parent = new FileEntryViewModel(dir, ChangeTypeMode.Download) { Children = [file, subDir] };
 
         // Act
         parent.SetSelectRecursive( true );
@@ -212,17 +219,17 @@ public class FileEntryViewModelTests {
     public void GetCheckedModelRecursiveはチェックの付いた自身と子ノードを返す() {
         // Arrange
         var root = new FileEntry("root", "root", true, null, null);
-        using var file1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null))
+        using var file1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null), ChangeTypeMode.Download)
         {CheckState = true};
-        using var file2 = new FileEntryViewModel(new FileEntry("b.txt", "root/b.txt", false, null, null))
+        using var file2 = new FileEntryViewModel(new FileEntry("b.txt", "root/b.txt", false, null, null), ChangeTypeMode.Download)
         {CheckState = false};
-        using var subDir = new FileEntryViewModel(new FileEntry("sub", "root/sub", true, null, null))
+        using var subDir = new FileEntryViewModel(new FileEntry("sub", "root/sub", true, null, null), ChangeTypeMode.Download)
         {CheckState = true};
-        using var subFile = new FileEntryViewModel(new FileEntry("c.txt", "root/sub/c.txt", false, null, null))
+        using var subFile = new FileEntryViewModel(new FileEntry("c.txt", "root/sub/c.txt", false, null, null), ChangeTypeMode.Download)
         { CheckState = true  };
         subDir.Children = [subFile];
 
-        using var parent = new FileEntryViewModel(root) { CheckState = true, Children = [file1, file2, subDir] };
+        using var parent = new FileEntryViewModel(root, ChangeTypeMode.Download) { CheckState = true, Children = [file1, file2, subDir] };
 
         // Act
         var models = parent.GetCheckedModelRecursive(fileOnly: false);
@@ -239,7 +246,7 @@ public class FileEntryViewModelTests {
     public void GetCheckedModelRecursiveはディレクトリがCheckedかつfileOnlyがfalseのときにディレクトリを含む() {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
-        using var parent = new FileEntryViewModel(dir) { CheckState = true };
+        using var parent = new FileEntryViewModel(dir, ChangeTypeMode.Download) { CheckState = true };
 
         // Act
         var models = parent.GetCheckedModelRecursive(fileOnly: false);
@@ -251,7 +258,7 @@ public class FileEntryViewModelTests {
     [Fact]
     public void GetCheckedModelRecursiveはファイルがCheckedのときに自身を返す() {
         // Arrange
-        using var file = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = true };
+        using var file = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null), ChangeTypeMode.Download) { CheckState = true };
 
         // Act
         var models = file.GetCheckedModelRecursive();
@@ -264,8 +271,8 @@ public class FileEntryViewModelTests {
     public void GetCheckedModelRecursiveはディレクトリがCheckedかつfileOnlyがtrueのときにディレクトリを含まない() {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
-        using var child = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = true };
-        using var parent = new FileEntryViewModel(dir) { CheckState = true, Children = [child] };
+        using var child = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null), ChangeTypeMode.Download) { CheckState = true };
+        using var parent = new FileEntryViewModel(dir, ChangeTypeMode.Download) { CheckState = true, Children = [child] };
 
         // Act
         var models = parent.GetCheckedModelRecursive(fileOnly: true);
@@ -283,11 +290,11 @@ public class FileEntryViewModelTests {
     public void Childrenは追加や削除をしたときにChangeTypeとCheckStateをイベント発火で再計算する() {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
-        using var parent = new FileEntryViewModel(dir);
+        using var parent = new FileEntryViewModel(dir, ChangeTypeMode.Download);
 
-        using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null))
+        using var c1 = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null), ChangeTypeMode.Download)
         {CheckState = false};
-        using var c2 = new FileEntryViewModel(new FileEntry("b.txt", "root/b.txt", false, "x", "y"))
+        using var c2 = new FileEntryViewModel(new FileEntry("b.txt", "root/b.txt", false, "x", "y"), ChangeTypeMode.Download)
         {CheckState = true};
 
         var changeTypeChangedCount = 0;
@@ -317,8 +324,8 @@ public class FileEntryViewModelTests {
     public void Disposeは呼び出した後に子イベントが親へ伝播しない() {
         // Arrange
         var dir = new FileEntry("root", "root", true, null, null);
-        var parent = new FileEntryViewModel(dir);
-        var child = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null)) { CheckState = false };
+        var parent = new FileEntryViewModel(dir, ChangeTypeMode.Download);
+        var child = new FileEntryViewModel(new FileEntry("a.txt", "root/a.txt", false, null, null), ChangeTypeMode.Download) { CheckState = false };
         parent.Children.Add( child );
 
         // Act

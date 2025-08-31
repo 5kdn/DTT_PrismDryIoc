@@ -21,6 +21,7 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     private ObservableCollection<IFileEntryViewModel> children = [];
     private bool _suppressCheckPropagation = false;
     private bool _suppressSelectPropagation = false;
+    private readonly ChangeTypeMode _mode;
 
     #endregion
 
@@ -44,26 +45,52 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     /// <inheritdoc/>
     public FileChangeType? ChangeType {
         get {
-            if(IsDirectory) {
-                if(Children.Count == 0) return FileChangeType.Unchanged;
-                // 直下の子ノードの ChangeType を集約
-                var set = new HashSet<FileChangeType?>(Children.Select(c => c.ChangeType));
-                if(set.Contains( FileChangeType.Modified )) return FileChangeType.Modified;
-                if(set.Contains( FileChangeType.RepoOnly )) return FileChangeType.RepoOnly;
-                if(set.Contains( FileChangeType.LocalOnly )) return FileChangeType.LocalOnly;
-                if(set.Contains( FileChangeType.Unchanged )) return FileChangeType.Unchanged;
-                return null;
-            }
-            else {
-                return (Model.LocalSha, Model.RepoSha) switch
-                {
-                    (string l, string r ) when l == r => FileChangeType.Unchanged,
-                    (string l, string r ) when l != r => FileChangeType.Modified,
-                    (string _, null ) => FileChangeType.LocalOnly,
-                    (null, string _ ) => FileChangeType.RepoOnly,
-                    (null, null ) => null,
-                    _ => throw new NotImplementedException()
-                };
+            switch(_mode) {
+                case ChangeTypeMode.Download:
+                    if(IsDirectory) {
+                        if(Children.Count == 0) return FileChangeType.Unchanged;
+                        // 直下の子ノードの ChangeType を集約
+                        var set = new HashSet<FileChangeType?>(Children.Select(c => c.ChangeType));
+                        if(set.Contains( FileChangeType.Modified )) return FileChangeType.Modified;
+                        if(set.Contains( FileChangeType.RepoOnly )) return FileChangeType.RepoOnly;
+                        if(set.Contains( FileChangeType.Unchanged )) return FileChangeType.Unchanged;
+                        if(set.Contains( FileChangeType.LocalOnly )) return FileChangeType.LocalOnly;
+                        return null;
+                    }
+                    else {
+                        return (Model.LocalSha, Model.RepoSha) switch
+                        {
+                            (string l, string r ) when l == r => FileChangeType.Unchanged,
+                            (string l, string r ) when l != r => FileChangeType.Modified,
+                            (string _, null ) => FileChangeType.LocalOnly,
+                            (null, string _ ) => FileChangeType.RepoOnly,
+                            (null, null ) => null,
+                            _ => throw new NotImplementedException()
+                        };
+                    }
+                case ChangeTypeMode.Upload:
+                    if(IsDirectory) {
+                        if(Children.Count == 0) return FileChangeType.Unchanged;
+                        // 直下の子ノードの ChangeType を集約
+                        var set = new HashSet<FileChangeType?>(Children.Select(c => c.ChangeType));
+                        if(set.Contains( FileChangeType.Modified )) return FileChangeType.Modified;
+                        if(set.Contains( FileChangeType.LocalOnly )) return FileChangeType.LocalOnly;
+                        if(set.Contains( FileChangeType.Unchanged )) return FileChangeType.Unchanged;
+                        if(set.Contains( FileChangeType.RepoOnly )) return FileChangeType.RepoOnly;
+                        return null;
+                    }
+                    else {
+                        return (Model.LocalSha, Model.RepoSha) switch
+                        {
+                            (string l, string r ) when l == r => FileChangeType.Unchanged,
+                            (string l, string r ) when l != r => FileChangeType.Modified,
+                            (string _, null ) => FileChangeType.LocalOnly,
+                            (null, string _ ) => FileChangeType.RepoOnly,
+                            (null, null ) => null,
+                            _ => throw new NotImplementedException()
+                        };
+                    }
+                default: throw new InvalidEnumArgumentException();
             }
         }
     }
@@ -140,8 +167,9 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     #endregion
 
 
-    public FileEntryViewModel( FileEntry model ) {
-        this.Model = model;
+    public FileEntryViewModel( FileEntry model, ChangeTypeMode mode ) {
+        Model = model;
+        _mode = mode;
         // 初期 children にも購読を張る
         AttachChildrenHandlers( children );
     }

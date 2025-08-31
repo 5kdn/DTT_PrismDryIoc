@@ -181,7 +181,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         // リポジトリとローカルの FileEntry をマージする
         var entries = FileEntryComparisonHelper.Merge(localResult.Value, repoResult.Value);
 
-        IFileEntryViewModel rootVm = new FileEntryViewModel( new FileEntry( "", "", true ) );
+        IFileEntryViewModel rootVm = new FileEntryViewModel( new FileEntry( "", "", true ), ChangeTypeMode.Download );
         foreach(var entry in entries) AddFileEntryToFileEntryViewModel( rootVm, entry );
 
         var tabs = Enum.GetValues<RootTabType>().Select(tabType => {
@@ -191,7 +191,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
                 if(target is null) break;
             }
 
-            return new DownloadTabItemViewModel(tabType, target ?? new FileEntryViewModel(new FileEntry("null","",false)));
+            return new DownloadTabItemViewModel(tabType, target ?? new FileEntryViewModel(new FileEntry("null","",false), ChangeTypeMode.Download));
         });
         Tabs.Clear();
         Tabs = [.. tabs];
@@ -286,7 +286,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
             absolutePath += absolutePath.Length == 0 ? part : "/" + part;
             var next = current.Children.FirstOrDefault(c => c?.Name == part && c.IsDirectory);
             if(next is null) {
-                next = new FileEntryViewModel( new FileEntry( part, absolutePath, true ) );
+                next = new FileEntryViewModel( new FileEntry( part, absolutePath, true ), ChangeTypeMode.Download );
                 current.Children.Add( next );
             }
             current = next;
@@ -294,7 +294,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
 
         var last = parts[^1];
         if(!current.Children.Any( c => c?.Name == last )) {
-            current.Children.Add( new FileEntryViewModel( new FileEntry( last, entry.Path, entry.IsDirectory, entry.LocalSha, entry.RepoSha ) ) );
+            current.Children.Add( new FileEntryViewModel( new FileEntry( last, entry.Path, entry.IsDirectory, entry.LocalSha, entry.RepoSha ), ChangeTypeMode.Download ) );
         }
     }
 
