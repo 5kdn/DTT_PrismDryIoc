@@ -8,6 +8,7 @@
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:vm="clr-namespace:DcsTranslateTool.Win.ViewModels"
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:conv="clr-namespace:DcsTranslateTool.Win.Converters"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     d:DataContext="{d:DesignInstance Type=vm:UploadViewModel}"
     Style="{StaticResource BaseUserControlStyle}"
@@ -15,6 +16,8 @@
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <conv:FileEntryToIconKindConverter x:Key="FileEntryToIconKindConverter"/>
+        <conv:FileChangeTypeToBrushConverter x:Key="FileChangeTypeToBrushConverter"/>
     </UserControl.Resources>
 
     <Grid>
@@ -82,17 +85,18 @@
                                 <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                     <StackPanel Orientation="Horizontal">
                                         <CheckBox IsChecked="{Binding CheckState, Mode=TwoWay}"/>
-                                        <TextBlock x:Name="Icon" Style="{StaticResource SmallIconStyle}" Margin="{StaticResource XSmallLeftMargin}"/>
-                                        <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"/>
+                                        <iconPacks:PackIconMaterial Margin="{StaticResource XSmallLeftMargin}" Width="16" Height="16"
+                                                               Foreground="{Binding ChangeType, Converter={StaticResource FileChangeTypeToBrushConverter}}">
+                                            <iconPacks:PackIconMaterial.Kind>
+                                                <MultiBinding Converter="{StaticResource FileEntryToIconKindConverter}">
+                                                    <Binding Path="IsDirectory"/>
+                                                    <Binding Path="ChangeType"/>
+                                                </MultiBinding>
+                                            </iconPacks:PackIconMaterial.Kind>
+                                        </iconPacks:PackIconMaterial>
+                                        <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"
+                                               Foreground="{Binding ChangeType, Converter={StaticResource FileChangeTypeToBrushConverter}}"/>
                                     </StackPanel>
-                                    <HierarchicalDataTemplate.Triggers>
-                                        <DataTrigger Binding="{Binding IsDirectory}" Value="True">
-                                            <Setter TargetName="Icon" Property="Text" Value="&#xE8B7;"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsDirectory}" Value="False">
-                                            <Setter TargetName="Icon" Property="Text" Value="&#xE8A5;"/>
-                                        </DataTrigger>
-                                    </HierarchicalDataTemplate.Triggers>
                                 </HierarchicalDataTemplate>
                             </TreeView.ItemTemplate>
                         </TreeView>

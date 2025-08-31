@@ -35,7 +35,7 @@ public interface IFileEntryViewModel : IDisposable {
     /// <summary>
     /// エントリーの変更種別を取得する。
     /// </summary>
-    FileChangeType ChangeType { get; }
+    FileChangeType? ChangeType { get; }
 
     /// <summary>
     /// チェック状態を取得または設定する

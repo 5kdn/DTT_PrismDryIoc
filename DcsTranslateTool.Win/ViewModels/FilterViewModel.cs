@@ -86,10 +86,10 @@ public class FilterViewModel() : BindableBase {
     /// 有効なフィルタを列挙するメソッドである。
     /// </summary>
     /// <returns>選択されている<see cref="FileChangeType"/>の列挙。</returns>
-    public IEnumerable<FileChangeType> GetActiveTypes() {
+    public IEnumerable<FileChangeType?> GetActiveTypes() {
         if(Unchanged) yield return FileChangeType.Unchanged;
-        if(Deleted) yield return FileChangeType.Deleted;
-        if(Added) yield return FileChangeType.Added;
+        if(Deleted) yield return FileChangeType.RepoOnly;
+        if(Added) yield return FileChangeType.LocalOnly;
         if(Modified) yield return FileChangeType.Modified;
     }
 
