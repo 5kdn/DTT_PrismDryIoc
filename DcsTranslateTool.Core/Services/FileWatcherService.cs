@@ -1,68 +1,70 @@
 ﻿using DcsTranslateTool.Core.Contracts.Services;
+using DcsTranslateTool.Core.Models;
 
 namespace DcsTranslateTool.Core.Services;
 
 /// <summary>
-/// <see cref="FileSystemWatcher"/>を用いてディレクトリの変化を監視するサービスである。
+/// ファイルシステムを監視して変更を通知するサービスである。
 /// </summary>
-public class FileWatcherService : IFileWatcherService {
+public class FileWatcherService( IFileEntryService _fileEntryService ) : IFileWatcherService {
     #region Fields
 
     private FileSystemWatcher? _watcher;
-    private SynchronizationContext? _context;
-    private Func<Task>? _onChanged;
+    private string _path = string.Empty;
 
     #endregion
 
-    /// <summary>
-    /// 監視を停止し、リソースを破棄する。
-    /// </summary>
     public void Dispose() {
-        if(_watcher is null) return;
-
-        _watcher.EnableRaisingEvents = false;
-        _watcher.Dispose();
-        _watcher = null;
+        _watcher?.Dispose();
 
         GC.SuppressFinalize( this );
     }
 
     /// <inheritdoc />
-    public void Watch( string path, Func<Task> onChanged ) {
-        _context = SynchronizationContext.Current;
-        _onChanged = onChanged;
+    public event Func<IReadOnlyList<FileEntry>, Task>? EntriesChanged;
+
+    /// <inheritdoc />
+    public void Watch( string path ) {
+        _path = path;
+        _watcher?.Dispose();
+        if(!Directory.Exists( path )) return;
+
         _watcher = new FileSystemWatcher( path )
         {
             IncludeSubdirectories = true,
             EnableRaisingEvents = true,
         };
-        _watcher.Created += OnChanged;
-        _watcher.Deleted += OnChanged;
-        _watcher.Changed += OnChanged;
-        _watcher.Renamed += OnRenamed;
+        _watcher.Changed += OnFileSystemChanged;
+        _watcher.Created += OnFileSystemChanged;
+        _watcher.Deleted += OnFileSystemChanged;
+        _watcher.Renamed += OnFileSystemChanged;
+
+        _ = NotifyAsync();
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<FileEntry>> GetEntriesAsync() {
+        if(string.IsNullOrEmpty( _path )) return Task.FromResult<IReadOnlyList<FileEntry>>( [] );
+        var result = _fileEntryService.GetChildrenRecursive( _path );
+        if(result.IsFailed) return Task.FromResult<IReadOnlyList<FileEntry>>( [] );
+        return Task.FromResult<IReadOnlyList<FileEntry>>( [.. result.Value] );
     }
 
     /// <summary>
-    /// ファイルシステムに変更があった際に呼び出されるイベントハンドラ。
-    /// <para>
-    /// このメソッドは <see cref="FileSystemWatcher"/> からの変更通知を受け取り、
-    /// 登録済みの非同期コールバックを <see cref="SynchronizationContext"/> にポストする。
-    /// </para>
+    /// ファイルシステムの変更イベントを処理する。
     /// </summary>
-    /// <param name="sender">イベントを発生させたオブジェクト（通常は <see cref="FileSystemWatcher"/>）。</param>
-    /// <param name="e">変更の詳細情報を含む <see cref="FileSystemEventArgs"/>。</param>
-    /// <remarks>
-    /// - <c>_context</c> または <c>_onChanged</c> が <c>null</c> の場合は処理を行わない。  
-    /// - コールバックは非同期で実行され、UI スレッドなど特定の同期コンテキスト上で処理される。  
-    /// </remarks>
-    /// <exception cref="ObjectDisposedException">
-    /// <c>_context</c> が既に破棄されている場合に発生する可能性がある。
-    /// </exception>
-    private void OnChanged( object sender, FileSystemEventArgs e ) {
-        if(_context is null || _onChanged is null) return;
-        _context.Post( async _ => await _onChanged(), null );
+    /// <param name="sender">イベント発生元</param>
+    /// <param name="e">イベント引数</param>
+    private async void OnFileSystemChanged( object sender, FileSystemEventArgs e ) {
+        await NotifyAsync();
     }
 
-    private void OnRenamed( object sender, RenamedEventArgs e ) => OnChanged( sender, e );
-
+    /// <summary>
+    /// 変更通知イベントを発火する。
+    /// </summary>
+    private async Task NotifyAsync() {
+        if(EntriesChanged is null) return;
+        var entries = await GetEntriesAsync();
+        await EntriesChanged.Invoke( entries );
+    }
 }

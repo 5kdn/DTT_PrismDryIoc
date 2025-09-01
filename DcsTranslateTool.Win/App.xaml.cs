@@ -52,7 +52,7 @@ public partial class App : PrismApplication {
     protected override void RegisterTypes( IContainerRegistry containerRegistry ) {
         // Core Services
         containerRegistry.Register<IFileService, FileService>();
-        containerRegistry.Register<IFileWatcherService, FileWatcherService>();
+        containerRegistry.RegisterSingleton<IFileWatcherService, FileWatcherService>();
         containerRegistry.Register<IRepositoryService, RepositoryService>();
 
         // App Services
