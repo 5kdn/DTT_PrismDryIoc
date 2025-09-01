@@ -4,6 +4,7 @@ using System.Diagnostics;
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Helpers;
 using DcsTranslateTool.Core.Models;
+using DcsTranslateTool.Core.Services;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Contracts.ViewModels;
@@ -22,6 +23,7 @@ public class UploadViewModel : BindableBase, INavigationAware {
     private readonly IDialogService _dialogService;
     private readonly IRepositoryService _repositoryService;
     private readonly IFileEntryService _fileEntryService;
+    private readonly IFileWatcherService _fileWatcherService;
 
     private ObservableCollection<UploadTabItemViewModel> _tabs = [];
     private int _selectedTabIndex = 0;
@@ -37,13 +39,15 @@ public class UploadViewModel : BindableBase, INavigationAware {
         IRegionManager regionManager,
         IDialogService dialogService,
         IRepositoryService repositoryService,
-        IFileEntryService fileEntryService
+        IFileEntryService fileEntryService,
+        IFileWatcherService fileWatcherService
     ) {
         _appSettingsService = appSettingsService;
         _regionManager = regionManager;
         _dialogService = dialogService;
         _repositoryService = repositoryService;
         _fileEntryService = fileEntryService;
+        _fileWatcherService = fileWatcherService;
 
         Filter.FiltersChanged += ( _, _ ) => ApplyFilter();
     }
@@ -104,7 +108,9 @@ public class UploadViewModel : BindableBase, INavigationAware {
     /// ナビゲーション前の処理を行う
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
-    public void OnNavigatedFrom( NavigationContext navigationContext ) { }
+    public void OnNavigatedFrom( NavigationContext navigationContext ) {
+        _fileWatcherService.Dispose();
+    }
 
     /// <summary>
     /// ナビゲーション後の処理を行う
@@ -113,6 +119,8 @@ public class UploadViewModel : BindableBase, INavigationAware {
     public void OnNavigatedTo( NavigationContext navigationContext ) {
         Debug.WriteLine( "UploadViewModel.OnNavigatedTo called" );
         _ = RefleshTabs();
+
+        _fileWatcherService.Watch( _appSettingsService.TranslateFileDir, RefleshTabs );
     }
 
     /// <summary>

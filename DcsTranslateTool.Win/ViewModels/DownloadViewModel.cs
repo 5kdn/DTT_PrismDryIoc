@@ -5,6 +5,7 @@ using System.IO;
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Helpers;
 using DcsTranslateTool.Core.Models;
+using DcsTranslateTool.Core.Services;
 using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Contracts.ViewModels;
@@ -26,6 +27,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     private readonly IRepositoryService _repositoryService;
     private readonly IFileService _fileService;
     private readonly IFileEntryService _fileEntryService;
+    private readonly IFileWatcherService _fileWatcherService;
 
     private ObservableCollection<DownloadTabItemViewModel> _tabs = [];
     private int _selectedTabIndex = 0;
@@ -44,13 +46,15 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         IRegionManager regionManager,
         IRepositoryService repositoryService,
         IFileService fileService,
-        IFileEntryService fileEntryService
+        IFileEntryService fileEntryService,
+        IFileWatcherService fileWatcherService
     ) {
         _appSettingsService = appSettingsService;
         _regionManager = regionManager;
         _repositoryService = repositoryService;
         _fileService = fileService;
         _fileEntryService = fileEntryService;
+        _fileWatcherService = fileWatcherService;
 
         Filter.FiltersChanged += ( _, _ ) => ApplyFilter();
     }
@@ -120,7 +124,9 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// ナビゲーション前の処理を行う
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
-    public void OnNavigatedFrom( NavigationContext navigationContext ) { }
+    public void OnNavigatedFrom( NavigationContext navigationContext ) {
+        _fileWatcherService.Dispose();
+    }
 
     /// <summary>
     /// ナビゲーション後の処理を行う
@@ -129,6 +135,8 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     public void OnNavigatedTo( NavigationContext navigationContext ) {
         Debug.WriteLine( "DownloadViewModel.OnNavigatedTo called" );
         _ = OnFetchAsync();
+
+        _fileWatcherService.Watch( _appSettingsService.TranslateFileDir, OnRefleshTabsAsync );
     }
 
     /// <summary>
