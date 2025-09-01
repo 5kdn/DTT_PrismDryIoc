@@ -1,4 +1,5 @@
-﻿using DcsTranslateTool.Core.Services;
+﻿using DcsTranslateTool.Core.Models;
+using DcsTranslateTool.Core.Services;
 
 using Xunit;
 
@@ -16,6 +17,7 @@ public class FileEntryServiceTests : IDisposable {
         GC.SuppressFinalize( this );
     }
 
+    #region GetChildrenRecursive
     [Fact]
     public void GetChildrenRecursiveがファイルを含むディレクトリを指定した場合正しい結果が返る() {
         // Arrange
@@ -75,4 +77,37 @@ public class FileEntryServiceTests : IDisposable {
         Assert.StartsWith( "指定されたパスが存在しません: ", actualMessage );
     }
 
+    #endregion
+
+    #region Watch
+
+    [Fact]
+    public async Task Watchはファイルを追加したときEntriesChangedが発火する() {
+        // Arrange
+        var targetDir = Path.Combine(_tempDir, "WatchDir");
+        Directory.CreateDirectory( targetDir );
+        using var service = new FileEntryService();
+        var tcs = new TaskCompletionSource<IReadOnlyList<FileEntry>>(TaskCreationOptions.RunContinuationsAsynchronously);
+        service.EntriesChanged += entries => {
+            if(entries is { Count: > 0 }) tcs.TrySetResult( entries );
+            return Task.CompletedTask;
+        };
+
+        // Act
+        service.Watch( targetDir );
+        var filePath = Path.Combine(targetDir, "new.txt");
+        await File.WriteAllTextAsync( filePath, "data" );
+        await Task.Delay( 100 );
+
+        // Assert
+        var entries = await tcs.Task;
+        Assert.NotNull( entries );
+        Assert.Single( entries );
+
+        var entry = entries[0];
+        Assert.Equal( "new.txt", entry.Name );
+        Assert.Equal( "6320cd248dd8aeaab759d5871f8781b5c0505172", entry.LocalSha );
+    }
+
+    #endregion
 }

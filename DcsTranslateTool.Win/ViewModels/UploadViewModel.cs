@@ -27,6 +27,9 @@ public class UploadViewModel : BindableBase, INavigationAware {
     private int _selectedTabIndex = 0;
     private bool _isCreatePullRequestDialogButtonEnabled = false;
 
+    private IReadOnlyList<FileEntry> _localEntries = [];
+    private IReadOnlyList<FileEntry> _repoEntries = [];
+
     private DelegateCommand? _openSettingsCommand;
     private DelegateCommand? _openCreatePullRequestDialogCommand;
 
@@ -44,6 +47,11 @@ public class UploadViewModel : BindableBase, INavigationAware {
         _dialogService = dialogService;
         _repositoryService = repositoryService;
         _fileEntryService = fileEntryService;
+
+        _fileEntryService.EntriesChanged += entries => {
+            _localEntries = entries;
+            return RefleshTabs();
+        };
 
         Filter.FiltersChanged += ( _, _ ) => ApplyFilter();
     }
@@ -104,7 +112,9 @@ public class UploadViewModel : BindableBase, INavigationAware {
     /// ナビゲーション前の処理を行う
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
-    public void OnNavigatedFrom( NavigationContext navigationContext ) { }
+    public void OnNavigatedFrom( NavigationContext navigationContext ) {
+        _fileEntryService.Dispose();
+    }
 
     /// <summary>
     /// ナビゲーション後の処理を行う
@@ -112,7 +122,8 @@ public class UploadViewModel : BindableBase, INavigationAware {
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedTo( NavigationContext navigationContext ) {
         Debug.WriteLine( "UploadViewModel.OnNavigatedTo called" );
-        _ = RefleshTabs();
+        _fileEntryService.Watch( _appSettingsService.TranslateFileDir );
+        _ = LoadAsync();
     }
 
     /// <summary>
@@ -159,26 +170,28 @@ public class UploadViewModel : BindableBase, INavigationAware {
     }
 
     /// <summary>
-    /// TabsをTranslateFileDirから初期化
+    /// リポジトリとローカルディレクトリのエントリを取得する。
     /// </summary>
-    private async Task RefleshTabs() {
-        Debug.WriteLine( "UploadViewModel.RefleshTabs called" );
-        var tabIndex = SelectedTabIndex;
-
-        // リポジトリとローカルの FileEntry を取得する
+    private async Task LoadAsync() {
         var repoResult = await _repositoryService.GetFileEntriesAsync();
         if(repoResult.IsFailed) {
             foreach(var error in repoResult.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {error.Message}" );
             return;
         }
-        var localResult = _fileEntryService.GetChildrenRecursive(_appSettingsService.TranslateFileDir);
-        if(localResult.IsFailed) {
-            foreach(var error in localResult.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {error.Message}" );
-            return;
-        }
+        _repoEntries = [.. repoResult.Value];
+        _localEntries = await _fileEntryService.GetEntriesAsync();
+        await RefleshTabs();
+    }
+
+    /// <summary>
+    /// TabsをTranslateFileDirから初期化
+    /// </summary>
+    private Task RefleshTabs() {
+        Debug.WriteLine( "UploadViewModel.RefleshTabs called" );
+        var tabIndex = SelectedTabIndex;
 
         // リポジトリとローカルの FileEntry をマージする
-        var entries = FileEntryComparisonHelper.Merge(localResult.Value, repoResult.Value);
+        var entries = FileEntryComparisonHelper.Merge(_localEntries, _repoEntries);
 
         IFileEntryViewModel rootVm = new FileEntryViewModel( new FileEntry( "", "", true ), ChangeTypeMode.Upload );
         foreach(var entry in entries) AddFileEntryToFileEntryViewModel( rootVm, entry );
@@ -199,6 +212,7 @@ public class UploadViewModel : BindableBase, INavigationAware {
         ApplyFilter();
         UpdateCreatePullRequestDialogButton();
         Debug.WriteLine( $"UploadViewModel.RefleshTabs: {Tabs.Count} tabs loaded." );
+        return Task.CompletedTask;
     }
 
     /// <summary>

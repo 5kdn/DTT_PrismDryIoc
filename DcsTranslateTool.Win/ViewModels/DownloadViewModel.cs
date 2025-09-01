@@ -27,6 +27,9 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     private readonly IFileService _fileService;
     private readonly IFileEntryService _fileEntryService;
 
+    private IReadOnlyList<FileEntry> _localEntries = [];
+    private IReadOnlyList<FileEntry> _repoEntries = [];
+
     private ObservableCollection<DownloadTabItemViewModel> _tabs = [];
     private int _selectedTabIndex = 0;
 
@@ -51,6 +54,11 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         _repositoryService = repositoryService;
         _fileService = fileService;
         _fileEntryService = fileEntryService;
+
+        _fileEntryService.EntriesChanged += entries => {
+            _localEntries = entries;
+            return OnRefleshTabs();
+        };
 
         Filter.FiltersChanged += ( _, _ ) => ApplyFilter();
     }
@@ -120,7 +128,9 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// ナビゲーション前の処理を行う
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
-    public void OnNavigatedFrom( NavigationContext navigationContext ) { }
+    public void OnNavigatedFrom( NavigationContext navigationContext ) {
+        _fileEntryService.Dispose();
+    }
 
     /// <summary>
     /// ナビゲーション後の処理を行う
@@ -128,6 +138,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedTo( NavigationContext navigationContext ) {
         Debug.WriteLine( "DownloadViewModel.OnNavigatedTo called" );
+        _fileEntryService.Watch( _appSettingsService.TranslateFileDir );
         _ = OnFetchAsync();
     }
 
@@ -162,24 +173,12 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// </para>
     /// </remarks>
     /// <returns>A task that represents the asynchronous operation of refreshing the tabs.</returns>
-    private async Task OnRefleshTabsAsync() {
+    private Task OnRefleshTabs() {
         Debug.WriteLine( "DownloadViewModel.OnRefleshTabs called" );
         var tabIndex = SelectedTabIndex;
 
-        // リポジトリとローカルの FileEntry を取得する
-        var repoResult = await _repositoryService.GetFileEntriesAsync();
-        if(repoResult.IsFailed) {
-            foreach(var error in repoResult.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {error.Message}" );
-            return;
-        }
-        var localResult = _fileEntryService.GetChildrenRecursive(_appSettingsService.TranslateFileDir);
-        if(localResult.IsFailed) {
-            foreach(var error in localResult.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {error.Message}" );
-            return;
-        }
-
         // リポジトリとローカルの FileEntry をマージする
-        var entries = FileEntryComparisonHelper.Merge(localResult.Value, repoResult.Value);
+        var entries = FileEntryComparisonHelper.Merge(_localEntries, _repoEntries);
 
         IFileEntryViewModel rootVm = new FileEntryViewModel( new FileEntry( "", "", true ), ChangeTypeMode.Download );
         foreach(var entry in entries) AddFileEntryToFileEntryViewModel( rootVm, entry );
@@ -198,15 +197,23 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         SelectedTabIndex = tabIndex;
         ApplyFilter();
         Debug.WriteLine( "DownloadViewModel.OnRefleshTabs finished" );
+        return Task.CompletedTask;
     }
 
     /// <summary>
     /// リポジトリからツリーを取得する
     /// </summary>
     private async Task OnFetchAsync() {
-        Debug.WriteLine( "DownloadViewModel.OnFetch called" );
-        await OnRefleshTabsAsync();
+        Debug.WriteLine( "DownloadViewModel.OnFetchAsync called" );
+        var repoResult = await _repositoryService.GetFileEntriesAsync();
+        if(repoResult.IsFailed) {
+            foreach(var err in repoResult.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {err.Message}" );
+        }
+        _repoEntries = [.. repoResult.Value];
+        _localEntries = await _fileEntryService.GetEntriesAsync();
+        await OnRefleshTabs();
         Debug.WriteLine( $"DownloadViewModel.RefleshTabs: {Tabs.Count} tabs loaded." );
+        Debug.WriteLine( "DownloadViewModel.OnFetchAsync finished" );
     }
 
     /// <summary>
