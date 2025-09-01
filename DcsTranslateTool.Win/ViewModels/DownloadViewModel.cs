@@ -25,7 +25,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     private readonly IRegionManager _regionManager;
     private readonly IRepositoryService _repositoryService;
     private readonly IFileService _fileService;
-    private readonly IFileWatcherService _fileWatcherService;
+    private readonly IFileEntryService _fileEntryService;
 
     private IReadOnlyList<FileEntry> _localEntries = [];
     private IReadOnlyList<FileEntry> _repoEntries = [];
@@ -47,15 +47,15 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         IRegionManager regionManager,
         IRepositoryService repositoryService,
         IFileService fileService,
-        IFileWatcherService fileWatcherService
+        IFileEntryService fileEntryService
     ) {
         _appSettingsService = appSettingsService;
         _regionManager = regionManager;
         _repositoryService = repositoryService;
         _fileService = fileService;
-        _fileWatcherService = fileWatcherService;
+        _fileEntryService = fileEntryService;
 
-        _fileWatcherService.EntriesChanged += entries => {
+        _fileEntryService.EntriesChanged += entries => {
             _localEntries = entries;
             return OnRefleshTabs();
         };
@@ -129,7 +129,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedFrom( NavigationContext navigationContext ) {
-        _fileWatcherService.Dispose();
+        _fileEntryService.Dispose();
     }
 
     /// <summary>
@@ -138,7 +138,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedTo( NavigationContext navigationContext ) {
         Debug.WriteLine( "DownloadViewModel.OnNavigatedTo called" );
-        _fileWatcherService.Watch( _appSettingsService.TranslateFileDir );
+        _fileEntryService.Watch( _appSettingsService.TranslateFileDir );
         _ = OnFetchAsync();
     }
 
@@ -210,7 +210,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
             foreach(var err in repoResult.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {err.Message}" );
         }
         _repoEntries = [.. repoResult.Value];
-        _localEntries = await _fileWatcherService.GetEntriesAsync();
+        _localEntries = await _fileEntryService.GetEntriesAsync();
         await OnRefleshTabs();
         Debug.WriteLine( $"DownloadViewModel.RefleshTabs: {Tabs.Count} tabs loaded." );
         Debug.WriteLine( "DownloadViewModel.OnFetchAsync finished" );

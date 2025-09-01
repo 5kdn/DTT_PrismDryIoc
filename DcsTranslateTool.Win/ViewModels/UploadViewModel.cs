@@ -21,7 +21,7 @@ public class UploadViewModel : BindableBase, INavigationAware {
     private readonly IRegionManager _regionManager;
     private readonly IDialogService _dialogService;
     private readonly IRepositoryService _repositoryService;
-    private readonly IFileWatcherService _fileWatcherService;
+    private readonly IFileEntryService _fileEntryService;
 
     private ObservableCollection<UploadTabItemViewModel> _tabs = [];
     private int _selectedTabIndex = 0;
@@ -40,15 +40,15 @@ public class UploadViewModel : BindableBase, INavigationAware {
         IRegionManager regionManager,
         IDialogService dialogService,
         IRepositoryService repositoryService,
-        IFileWatcherService fileWatcherService
+        IFileEntryService fileEntryService
     ) {
         _appSettingsService = appSettingsService;
         _regionManager = regionManager;
         _dialogService = dialogService;
         _repositoryService = repositoryService;
-        _fileWatcherService = fileWatcherService;
+        _fileEntryService = fileEntryService;
 
-        _fileWatcherService.EntriesChanged += entries => {
+        _fileEntryService.EntriesChanged += entries => {
             _localEntries = entries;
             return RefleshTabs();
         };
@@ -113,7 +113,7 @@ public class UploadViewModel : BindableBase, INavigationAware {
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedFrom( NavigationContext navigationContext ) {
-        _fileWatcherService.Dispose();
+        _fileEntryService.Dispose();
     }
 
     /// <summary>
@@ -122,7 +122,7 @@ public class UploadViewModel : BindableBase, INavigationAware {
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedTo( NavigationContext navigationContext ) {
         Debug.WriteLine( "UploadViewModel.OnNavigatedTo called" );
-        _fileWatcherService.Watch( _appSettingsService.TranslateFileDir );
+        _fileEntryService.Watch( _appSettingsService.TranslateFileDir );
         _ = LoadAsync();
     }
 
@@ -179,7 +179,7 @@ public class UploadViewModel : BindableBase, INavigationAware {
             return;
         }
         _repoEntries = [.. repoResult.Value];
-        _localEntries = await _fileWatcherService.GetEntriesAsync();
+        _localEntries = await _fileEntryService.GetEntriesAsync();
         await RefleshTabs();
     }
 

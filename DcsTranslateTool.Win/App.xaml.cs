@@ -52,7 +52,7 @@ public partial class App : PrismApplication {
     protected override void RegisterTypes( IContainerRegistry containerRegistry ) {
         // Core Services
         containerRegistry.Register<IFileService, FileService>();
-        containerRegistry.RegisterSingleton<IFileWatcherService, FileWatcherService>();
+        containerRegistry.RegisterSingleton<IFileEntryService, FileEntryService>();
         containerRegistry.Register<IRepositoryService, RepositoryService>();
 
         // App Services
@@ -60,7 +60,6 @@ public partial class App : PrismApplication {
         containerRegistry.RegisterSingleton<IDecryptService, DecryptService>();
         containerRegistry.RegisterSingleton<IDecrypter, AesGcmV1Decrypter>();
         containerRegistry.RegisterSingleton<IGitHubApiClient, GitHubApiClient>();
-        containerRegistry.Register<IFileEntryService, FileEntryService>();
         containerRegistry.Register<IApplicationInfoService, ApplicationInfoService>();
         containerRegistry.Register<ISystemService, SystemService>();
         containerRegistry.Register<IPersistAndRestoreService, PersistAndRestoreService>();
