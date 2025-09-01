@@ -97,6 +97,7 @@ public class FileEntryServiceTests : IDisposable {
         service.Watch( targetDir );
         var filePath = Path.Combine(targetDir, "new.txt");
         await File.WriteAllTextAsync( filePath, "data" );
+        await Task.Delay( 100 );
 
         // Assert
         var entries = await tcs.Task;
