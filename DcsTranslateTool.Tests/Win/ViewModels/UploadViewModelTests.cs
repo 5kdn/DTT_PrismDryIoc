@@ -37,9 +37,10 @@ public class UploadViewModelTests {
 #pragma warning disable CS0067
         public event Func<IReadOnlyList<FileEntry>, Task>? EntriesChanged;
 #pragma warning restore CS0067
-        public Task<IReadOnlyList<FileEntry>> GetEntriesAsync() => Task.FromResult<IReadOnlyList<FileEntry>>( [] );
+        public async Task<IReadOnlyList<FileEntry>> GetEntriesAsync() => await Task.FromResult<IReadOnlyList<FileEntry>>( [] );
         public void Watch( string path ) { }
-        public Result<IEnumerable<FileEntry>> GetChildrenRecursive( string path ) => Result.Ok<IEnumerable<FileEntry>>( [] );
+        public async Task<Result<IEnumerable<FileEntry>>> GetChildrenRecursiveAsync( string path ) =>
+            await Task.FromResult( Result.Ok<IEnumerable<FileEntry>>( [] ) );
     }
 
     [Fact( DisplayName = "UploadViewModelが正常に生成できる" )]

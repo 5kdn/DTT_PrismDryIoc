@@ -19,7 +19,7 @@ public class FileEntryServiceTests : IDisposable {
 
     #region GetChildrenRecursive
     [Fact]
-    public void GetChildrenRecursiveがファイルを含むディレクトリを指定した場合正しい結果が返る() {
+    public async Task GetChildrenRecursiveがファイルを含むディレクトリを指定した場合正しい結果が返る() {
         // Arrange
         var targetDir = Path.Combine(_tempDir, "DirWithFile");
         var targetSubdir = Path.Combine(targetDir, "subdir");
@@ -30,7 +30,7 @@ public class FileEntryServiceTests : IDisposable {
         var service = new FileEntryService();
 
         // Act
-        var result = service.GetChildrenRecursive(targetDir);
+        var result = await service.GetChildrenRecursiveAsync(targetDir);
 
         // Assert
         Assert.True( result.IsSuccess );
@@ -47,14 +47,14 @@ public class FileEntryServiceTests : IDisposable {
     }
 
     [Fact]
-    public void GetChildrenRecursiveは空のディレクトリを指定した場合空の結果が返る() {
+    public async Task GetChildrenRecursiveは空のディレクトリを指定した場合空の結果が返る() {
         // Arrange
         var targetDir = Path.Combine(_tempDir, "EmptyDir_" + Guid.NewGuid());
         Directory.CreateDirectory( targetDir );
         var service = new FileEntryService();
 
         // Act
-        var result = service.GetChildrenRecursive(targetDir);
+        var result = await service.GetChildrenRecursiveAsync(targetDir);
 
         // Assert
         Assert.True( result.IsSuccess );
@@ -63,13 +63,13 @@ public class FileEntryServiceTests : IDisposable {
     }
 
     [Fact]
-    public void GetChildrenRecursiveは存在しないパスを指定した場合Failが返る() {
+    public async Task GetChildrenRecursiveは存在しないパスを指定した場合Failが返る() {
         // Arrange
         var invalidPath = Path.Combine(_tempDir, "NotExist_" + Guid.NewGuid());
         var service = new FileEntryService();
 
         // Act
-        var result = service.GetChildrenRecursive(invalidPath);
+        var result = await service.GetChildrenRecursiveAsync(invalidPath);
 
         // Assert
         Assert.True( result.IsFailed );
@@ -97,7 +97,7 @@ public class FileEntryServiceTests : IDisposable {
         service.Watch( targetDir );
         var filePath = Path.Combine(targetDir, "new.txt");
         await File.WriteAllTextAsync( filePath, "data" );
-        await Task.Delay( 1000 );    // GitHub Actionsでの実行結果を安定化させる
+        await Task.Delay( 5000 );    // GitHub Actionsでの実行結果を安定化させる
 
         // Assert
         var entries = await tcs.Task;

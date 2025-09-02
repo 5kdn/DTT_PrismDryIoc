@@ -8,18 +8,27 @@ namespace DcsTranslateTool.Core.Helpers;
 /// </summary>
 public static class GitBlobSha1Helper {
     /// <summary>
-    /// 指定したファイルのBlob-SHA1を計算する。
+    /// 指定したファイルのBlob-SHA1を非同期に計算する。
     /// ファイルがロックされている場合は<see langword="null"/>を返す。
     /// </summary>
     /// <param name="filePath">対象ファイルのパス</param>
     /// <returns>計算されたSHA1。読み取り不可の場合は<see langword="null"/></returns>
-    public static string? Calculate( string filePath ) {
+    /// <exception cref="ArgumentNullException"><paramref name="filePath"/> が <see langword="null"/> または空文字列の場合</exception>
+    public static async Task<string?> CalculateAsync( string filePath, CancellationToken ct = default ) {
         try {
-            using FileStream stream = new( filePath, FileMode.Open, FileAccess.Read, FileShare.Read );
+            await using FileStream stream = new(
+                filePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read,
+                bufferSize: 4096,
+                useAsync: true);
             byte[] content = new byte[stream.Length];
-            stream.ReadExactly( content );
+            await stream.ReadExactlyAsync( content, ct );
+
             var header = $"blob {content.Length}\0";
             byte[] data = [.. Encoding.UTF8.GetBytes( header ), .. content];
+
             byte[] hash = SHA1.HashData( data );
             return Convert.ToHexString( hash ).ToLowerInvariant();
         }

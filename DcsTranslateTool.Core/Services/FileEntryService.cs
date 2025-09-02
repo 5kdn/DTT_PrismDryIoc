@@ -27,7 +27,7 @@ public class FileEntryService() : IFileEntryService {
     public event Func<IReadOnlyList<FileEntry>, Task>? EntriesChanged;
 
     /// <inheritdoc />
-    public Result<IEnumerable<FileEntry>> GetChildrenRecursive( string path ) {
+    public async Task<Result<IEnumerable<FileEntry>>> GetChildrenRecursiveAsync( string path ) {
         if(!Path.Exists( path )) return Result.Fail( $"指定されたパスが存在しません: {path}" );
 
         List<FileEntry> result = [];
@@ -37,7 +37,7 @@ public class FileEntryService() : IFileEntryService {
                     Path.GetFileName( file ),
                     Path.GetRelativePath( path, file ).Replace( "\\", "/" ),
                     Directory.Exists( file ),
-                    GitBlobSha1Helper.Calculate( file )
+                    await GitBlobSha1Helper.CalculateAsync( file )
                 ) );
             }
             return result;
@@ -67,11 +67,11 @@ public class FileEntryService() : IFileEntryService {
     }
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<FileEntry>> GetEntriesAsync() {
-        if(string.IsNullOrEmpty( _path )) return Task.FromResult<IReadOnlyList<FileEntry>>( [] );
-        var result = GetChildrenRecursive( _path );
-        if(result.IsFailed) return Task.FromResult<IReadOnlyList<FileEntry>>( [] );
-        return Task.FromResult<IReadOnlyList<FileEntry>>( [.. result.Value] );
+    public async Task<IReadOnlyList<FileEntry>> GetEntriesAsync() {
+        if(string.IsNullOrEmpty( _path )) return await Task.FromResult<IReadOnlyList<FileEntry>>( [] );
+        var result = await GetChildrenRecursiveAsync( _path );
+        if(result.IsFailed) return await Task.FromResult<IReadOnlyList<FileEntry>>( [] );
+        return await Task.FromResult<IReadOnlyList<FileEntry>>( [.. result.Value] );
     }
 
     /// <summary>
