@@ -9,6 +9,7 @@
     xmlns:vm="clr-namespace:DcsTranslateTool.Win.ViewModels"
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:conv="clr-namespace:DcsTranslateTool.Win.Converters"
+    xmlns:enums="clr-namespace:DcsTranslateTool.Win.Enums"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     d:DataContext="{d:DesignInstance Type=vm:DownloadViewModel}"
     Style="{StaticResource BaseUserControlStyle}"
@@ -57,10 +58,30 @@
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal">
                 <CheckBox Content="All"  Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.All, Mode=TwoWay}"/>
-                <CheckBox Content="DL済" Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Unchanged, Mode=TwoWay}"/>
-                <CheckBox Content="未DL" Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Deleted, Mode=TwoWay}"/>
-                <CheckBox Content="追加" Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Added, Mode=TwoWay}"/>
-                <CheckBox Content="変更/更新" Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Modified, Mode=TwoWay}"/>
+                <CheckBox Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Modified, Mode=TwoWay}">
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial Kind="FileAlertOutline" Foreground="{x:Static Brushes.Tomato}" Width="16" Height="16"/>
+                        <TextBlock Text="変更/更新" Foreground="{x:Static Brushes.Tomato}" />
+                    </StackPanel>
+                </CheckBox>
+                <CheckBox Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Deleted, Mode=TwoWay}">
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial Kind="FileDownloadOutline" Foreground="{x:Static Brushes.MediumSeaGreen}" Width="16" Height="16"/>
+                        <TextBlock Text="未DL" Foreground="{x:Static Brushes.MediumSeaGreen}" />
+                    </StackPanel>
+                </CheckBox>
+                <CheckBox Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Unchanged, Mode=TwoWay}">
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial Kind="FileCheckOutline" Foreground="{x:Static Brushes.DimGray}" Width="16" Height="16"/>
+                        <TextBlock Text="DL済" Foreground="{x:Static Brushes.DimGray}" />
+                    </StackPanel>
+                </CheckBox>
+                <CheckBox Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Added, Mode=TwoWay}">
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial Kind="FileRemoveOutline" Foreground="{x:Static Brushes.Silver}" Width="16" Height="16"/>
+                        <TextBlock Text="追加" Foreground="{x:Static Brushes.Silver}" />
+                    </StackPanel>
+                </CheckBox>
             </StackPanel>
             <mah:MetroTabControl
             Grid.Row="1"
@@ -85,17 +106,29 @@
                                 <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                     <StackPanel Orientation="Horizontal">
                                         <CheckBox IsChecked="{Binding CheckState, Mode=TwoWay}"/>
-                                        <iconPacks:PackIconMaterial Margin="{StaticResource XSmallLeftMargin}" Width="16" Height="16"
-                                                               Foreground="{Binding ChangeType, Converter={StaticResource FileChangeTypeToBrushConverter}}">
+                                        <iconPacks:PackIconMaterial Margin="{StaticResource XSmallLeftMargin}" Width="16" Height="16">
+                                            <iconPacks:PackIconMaterial.Foreground>
+                                                <MultiBinding Converter="{StaticResource FileChangeTypeToBrushConverter}">
+                                                    <Binding Path="ChangeType"/>
+                                                    <Binding Source="{x:Static enums:ChangeTypeMode.Download}"/>
+                                                </MultiBinding>
+                                            </iconPacks:PackIconMaterial.Foreground>
                                             <iconPacks:PackIconMaterial.Kind>
                                                 <MultiBinding Converter="{StaticResource FileEntryToIconKindConverter}">
                                                     <Binding Path="IsDirectory"/>
                                                     <Binding Path="ChangeType"/>
+                                                    <Binding Source="{x:Static enums:ChangeTypeMode.Download}"/>
                                                 </MultiBinding>
                                             </iconPacks:PackIconMaterial.Kind>
                                         </iconPacks:PackIconMaterial>
-                                        <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}"
-                                               Foreground="{Binding ChangeType, Converter={StaticResource FileChangeTypeToBrushConverter}}"/>
+                                        <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}">
+                                            <TextBlock.Foreground>
+                                                <MultiBinding Converter="{StaticResource FileChangeTypeToBrushConverter}">
+                                                    <Binding Path="ChangeType"/>
+                                                    <Binding Source="{x:Static enums:ChangeTypeMode.Download}"/>
+                                                </MultiBinding>
+                                            </TextBlock.Foreground>
+                                        </TextBlock>
                                     </StackPanel>
                                 </HierarchicalDataTemplate>
                             </TreeView.ItemTemplate>
