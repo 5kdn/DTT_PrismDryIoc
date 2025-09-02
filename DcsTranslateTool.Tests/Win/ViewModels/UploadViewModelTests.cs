@@ -27,6 +27,7 @@ public class UploadViewModelTests {
         _container.RegisterInstance<IRepositoryService>( mockedRepositoryService.Object );
         _container.Register<IFileService, FileService>( Reuse.Transient );
         _container.Register<IFileEntryService, DummyFileEntryService>( Reuse.Singleton );
+        _container.Register<IDispatcherService, DispatcherService>( Reuse.Transient );
         // ViewModels
         _container.Register<UploadViewModel>( Reuse.Singleton );
     }

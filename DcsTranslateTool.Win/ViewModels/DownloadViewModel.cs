@@ -26,6 +26,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     private readonly IRepositoryService _repositoryService;
     private readonly IFileService _fileService;
     private readonly IFileEntryService _fileEntryService;
+    private readonly IDispatcherService _dispatcherService;
 
     private IReadOnlyList<FileEntry> _localEntries = [];
     private IReadOnlyList<FileEntry> _repoEntries = [];
@@ -47,18 +48,22 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         IRegionManager regionManager,
         IRepositoryService repositoryService,
         IFileService fileService,
-        IFileEntryService fileEntryService
+        IFileEntryService fileEntryService,
+        IDispatcherService dispatcherService
     ) {
         _appSettingsService = appSettingsService;
         _regionManager = regionManager;
         _repositoryService = repositoryService;
         _fileService = fileService;
         _fileEntryService = fileEntryService;
+        _dispatcherService = dispatcherService;
 
-        _fileEntryService.EntriesChanged += entries => {
-            _localEntries = entries;
-            return OnRefleshTabs();
-        };
+        _fileEntryService.EntriesChanged += entries =>
+            _dispatcherService.InvokeAsync( () => {
+                _localEntries = entries;
+                return OnRefleshTabs();
+            }
+        );
 
         Filter.FiltersChanged += ( _, _ ) => ApplyFilter();
     }
