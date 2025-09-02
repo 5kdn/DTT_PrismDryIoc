@@ -53,15 +53,12 @@ public class FileEntryService() : IFileEntryService {
         _watcher?.Dispose();
         if(!Directory.Exists( path )) return;
 
-        _watcher = new FileSystemWatcher( path )
-        {
-            IncludeSubdirectories = true,
-            EnableRaisingEvents = true,
-        };
+        _watcher = new FileSystemWatcher( path ) { IncludeSubdirectories = true };
         _watcher.Changed += OnFileSystemChanged;
         _watcher.Created += OnFileSystemChanged;
         _watcher.Deleted += OnFileSystemChanged;
         _watcher.Renamed += OnFileSystemChanged;
+        _watcher.EnableRaisingEvents = true;
 
         _ = NotifyAsync();
     }

@@ -94,13 +94,13 @@ public class FileEntryServiceTests : IDisposable {
         };
 
         // Act
-        service.Watch( targetDir );
+        service.Watch( targetDir );     // GitHub Actionsでの実行結果を安定化させる
+        await Task.Delay( 100 );
         var filePath = Path.Combine(targetDir, "new.txt");
         await File.WriteAllTextAsync( filePath, "data" );
-        await Task.Delay( 5000 );    // GitHub Actionsでの実行結果を安定化させる
+        var entries = await tcs.Task.WaitAsync( TimeSpan.FromSeconds( 5 ) );
 
         // Assert
-        var entries = await tcs.Task;
         Assert.NotNull( entries );
         Assert.Single( entries );
 
