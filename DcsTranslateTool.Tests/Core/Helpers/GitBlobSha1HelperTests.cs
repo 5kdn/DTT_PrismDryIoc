@@ -20,27 +20,27 @@ public class GitBlobSha1HelperTests : IDisposable {
     #region Calculate
 
     [Fact]
-    public void Calculateはファイルが読み取り可能なときSHA1を返す() {
+    public async Task Calculateはファイルが読み取り可能なときSHA1を返す() {
         // Arrange
         var temp = Path.Combine( _tempDir, "test.txt" );
         File.WriteAllText( temp, "test" );
 
         // Act
-        var sha = GitBlobSha1Helper.Calculate( temp );
+        var sha = await GitBlobSha1Helper.CalculateAsync( temp );
 
         // Assert
         Assert.Equal( "30d74d258442c7c65512eafab474568dd706c430", sha );
     }
 
     [Fact]
-    public void Calculateはファイルがロックされているときnullを返す() {
+    public async Task Calculateはファイルがロックされているときnullを返す() {
         // Arrange
         var temp = Path.Combine( _tempDir, "test.txt" );
         File.WriteAllText( temp, "test" );
-        using var _ = new FileStream( temp, FileMode.Open, FileAccess.Read, FileShare.None );
+        await using var _ = new FileStream( temp, FileMode.Open, FileAccess.Read, FileShare.None );
 
         // Act
-        var sha = GitBlobSha1Helper.Calculate( temp );
+        var sha = await GitBlobSha1Helper.CalculateAsync( temp );
 
         // Assert
         Assert.Null( sha );

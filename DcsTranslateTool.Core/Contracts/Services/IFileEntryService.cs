@@ -12,7 +12,7 @@ public interface IFileEntryService : IDisposable {
     /// </summary>
     /// <param name="path">探索するルートパス</param>
     /// <returns>フラットな <see cref="FileEntry"/> のコレクション</returns>
-    Result<IEnumerable<FileEntry>> GetChildrenRecursive( string path );
+    Task<Result<IEnumerable<FileEntry>>> GetChildrenRecursiveAsync( string path );
 
     /// <summary>
     /// 指定パスの監視を開始するメソッドである。

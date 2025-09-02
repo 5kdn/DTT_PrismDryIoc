@@ -22,6 +22,7 @@ public class UploadViewModel : BindableBase, INavigationAware {
     private readonly IDialogService _dialogService;
     private readonly IRepositoryService _repositoryService;
     private readonly IFileEntryService _fileEntryService;
+    private readonly IDispatcherService _dispatcherService;
 
     private ObservableCollection<UploadTabItemViewModel> _tabs = [];
     private int _selectedTabIndex = 0;
@@ -40,18 +41,22 @@ public class UploadViewModel : BindableBase, INavigationAware {
         IRegionManager regionManager,
         IDialogService dialogService,
         IRepositoryService repositoryService,
-        IFileEntryService fileEntryService
+        IFileEntryService fileEntryService,
+        IDispatcherService dispatcherService
     ) {
         _appSettingsService = appSettingsService;
         _regionManager = regionManager;
         _dialogService = dialogService;
         _repositoryService = repositoryService;
         _fileEntryService = fileEntryService;
+        _dispatcherService = dispatcherService;
 
-        _fileEntryService.EntriesChanged += entries => {
-            _localEntries = entries;
-            return RefleshTabs();
-        };
+        _fileEntryService.EntriesChanged += entries =>
+            _dispatcherService.InvokeAsync( () => {
+                _localEntries = entries;
+                return OnRefleshTabs();
+            }
+        );
 
         Filter.FiltersChanged += ( _, _ ) => ApplyFilter();
     }
@@ -180,13 +185,13 @@ public class UploadViewModel : BindableBase, INavigationAware {
         }
         _repoEntries = [.. repoResult.Value];
         _localEntries = await _fileEntryService.GetEntriesAsync();
-        await RefleshTabs();
+        await OnRefleshTabs();
     }
 
     /// <summary>
     /// TabsをTranslateFileDirから初期化
     /// </summary>
-    private Task RefleshTabs() {
+    private Task OnRefleshTabs() {
         Debug.WriteLine( "UploadViewModel.RefleshTabs called" );
         var tabIndex = SelectedTabIndex;
 
