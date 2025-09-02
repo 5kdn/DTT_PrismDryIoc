@@ -14,30 +14,39 @@ public class FileEntryToIconKindConverter : IMultiValueConverter {
     /// <summary>
     /// ファイル種別と変更種別からアイコンを返す。
     /// </summary>
-    /// <param name="values">[0] がディレクトリかどうか、[1] が変更種別である。</param>
+    /// <param name="values">[0] がディレクトリかどうか、[1] が変更種別、[2] がページ判定フラグである。</param>
     /// <param name="targetType">変換後の型</param>
     /// <param name="parameter">未使用</param>
     /// <param name="culture">カルチャ</param>
     /// <returns>アイコン種別</returns>
     public object Convert( object[] values, Type targetType, object? parameter, CultureInfo culture ) {
-        if(values.Length == 2 && values[0] is bool isDirectory && values[1] is FileChangeType changeType) {
-            return (isDirectory, changeType) switch
+        if(
+            values.Length == 3 &&
+            values[0] is bool isDirectory &&
+            values[1] is FileChangeType changeType &&
+            values[2] is ChangeTypeMode mode
+            ) {
+            return (isDirectory, changeType, mode) switch
             {
                 // DL済みで変更なし
-                (true, FileChangeType.Unchanged ) => PackIconMaterialKind.FolderCheckOutline,
-                (false, FileChangeType.Unchanged ) => PackIconMaterialKind.FileCheckOutline,
+                (true, FileChangeType.Unchanged, _ ) => PackIconMaterialKind.FolderCheckOutline,
+                (false, FileChangeType.Unchanged, _ ) => PackIconMaterialKind.FileCheckOutline,
                 // 未DL
-                (true, FileChangeType.RepoOnly ) => PackIconMaterialKind.FolderDownloadOutline,
-                (false, FileChangeType.RepoOnly ) => PackIconMaterialKind.FileDownloadOutline,
+                (true, FileChangeType.RepoOnly, ChangeTypeMode.Download ) => PackIconMaterialKind.FolderDownloadOutline,
+                (false, FileChangeType.RepoOnly, ChangeTypeMode.Download ) => PackIconMaterialKind.FileDownloadOutline,
+                (true, FileChangeType.RepoOnly, ChangeTypeMode.Upload ) => PackIconMaterialKind.FolderRemoveOutline,
+                (false, FileChangeType.RepoOnly, ChangeTypeMode.Upload ) => PackIconMaterialKind.FileRemoveOutline,
                 // リポジトリに存在せず、ローカルに有る
-                (true, FileChangeType.LocalOnly ) => PackIconMaterialKind.FolderRemoveOutline,
-                (false, FileChangeType.LocalOnly ) => PackIconMaterialKind.FileRemoveOutline,
+                (true, FileChangeType.LocalOnly, ChangeTypeMode.Download ) => PackIconMaterialKind.FolderRemoveOutline,
+                (false, FileChangeType.LocalOnly, ChangeTypeMode.Download ) => PackIconMaterialKind.FileRemoveOutline,
+                (true, FileChangeType.LocalOnly, ChangeTypeMode.Upload ) => PackIconMaterialKind.FolderUploadOutline,
+                (false, FileChangeType.LocalOnly, ChangeTypeMode.Upload ) => PackIconMaterialKind.FileUploadOutline,
                 // 変更差分有り
-                (true, FileChangeType.Modified ) => PackIconMaterialKind.FolderAlertOutline,
-                (false, FileChangeType.Modified ) => PackIconMaterialKind.FileAlertOutline,
+                (true, FileChangeType.Modified, _ ) => PackIconMaterialKind.FolderAlertOutline,
+                (false, FileChangeType.Modified, _ ) => PackIconMaterialKind.FileAlertOutline,
                 // デフォルト・読み込み失敗
-                (true, _ ) => PackIconMaterialKind.FolderQuestion,
-                (false, _ ) => PackIconMaterialKind.FileQuestion,
+                (true, _, _ ) => PackIconMaterialKind.FolderQuestion,
+                (false, _, _ ) => PackIconMaterialKind.FileQuestion,
             };
         }
         return PackIconMaterialKind.FileQuestion;

@@ -7,31 +7,37 @@ using DcsTranslateTool.Win.Enums;
 namespace DcsTranslateTool.Win.Converters;
 
 /// <summary>
-/// <see cref="FileChangeType"/>から表示色を取得するコンバーターである。
+/// ファイル種別と変更種別から表示色を取得するコンバーターである。
 /// </summary>
-public class FileChangeTypeToBrushConverter : IValueConverter {
+public class FileChangeTypeToBrushConverter : IMultiValueConverter {
     /// <summary>
-    /// <see cref="FileChangeType"/>に応じたブラシを返す。
+    /// ファイル種別と変更種別からブラシを返す。
     /// </summary>
-    /// <param name="value">変換元の値</param>
+    /// <param name="values">[0] が変更種別、[1] がPage判別フラグである。</param>
     /// <param name="targetType">変換後の型</param>
     /// <param name="parameter">未使用</param>
     /// <param name="culture">カルチャ</param>
     /// <returns>変換結果</returns>
-    public object? Convert( object? value, Type targetType, object? parameter, CultureInfo culture ) {
-        if(value is FileChangeType changeType) {
-            return changeType switch
+    public object Convert( object[] values, Type targetType, object? parameter, CultureInfo culture ) {
+        if(
+            values.Length == 2 &&
+            values[0] is FileChangeType changeType &&
+            values[1] is ChangeTypeMode mode
+            ) {
+            return (changeType, mode) switch
             {
                 // DL済みで変更なし
-                FileChangeType.Unchanged => Brushes.DimGray,
-                // 未DL
-                FileChangeType.RepoOnly => Brushes.MediumSeaGreen,
+                (FileChangeType.Unchanged, _ ) => Brushes.DimGray,
+                // リポジトリに存在し、ローカルに無い
+                (FileChangeType.RepoOnly, ChangeTypeMode.Download ) => Brushes.MediumSeaGreen,
+                (FileChangeType.RepoOnly, ChangeTypeMode.Upload ) => Brushes.Silver,
                 // リポジトリに存在せず、ローカルに有る
-                FileChangeType.LocalOnly => Brushes.Silver,
+                (FileChangeType.LocalOnly, ChangeTypeMode.Download ) => Brushes.Silver,
+                (FileChangeType.LocalOnly, ChangeTypeMode.Upload ) => Brushes.MediumSeaGreen,
                 // 変更差分有り
-                FileChangeType.Modified => Brushes.Tomato,
+                (FileChangeType.Modified, _ ) => Brushes.Tomato,
                 // デフォルト・読み込み失敗
-                _ => Brushes.DimGray,
+                (_, _ ) => Brushes.DimGray,
             };
         }
         return Brushes.DimGray;
@@ -41,11 +47,11 @@ public class FileChangeTypeToBrushConverter : IValueConverter {
     /// 変換結果から元の値を取得する。
     /// </summary>
     /// <param name="value">変換後の値</param>
-    /// <param name="targetType">変換前の型</param>
+    /// <param name="targetTypes">変換前の型配列</param>
     /// <param name="parameter">未使用</param>
     /// <param name="culture">カルチャ</param>
     /// <returns>変換結果</returns>
-    public object? ConvertBack( object? value, Type targetType, object? parameter, CultureInfo culture ) {
+    public object[] ConvertBack( object value, Type[] targetTypes, object? parameter, CultureInfo culture ) {
         throw new NotImplementedException();
     }
 }
