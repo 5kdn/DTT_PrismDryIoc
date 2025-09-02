@@ -89,13 +89,14 @@ public class FileEntryServiceTests : IDisposable {
         using var service = new FileEntryService();
         var tcs = new TaskCompletionSource<IReadOnlyList<FileEntry>>(TaskCreationOptions.RunContinuationsAsynchronously);
         service.EntriesChanged += entries => {
-            if(entries is { Count: > 0 }) tcs.TrySetResult( entries );
+            if(entries is { Count: > 0 } && entries.All( e => e.LocalSha is not null ))
+                tcs.TrySetResult( entries );
             return Task.CompletedTask;
         };
 
         // Act
-        service.Watch( targetDir );     // GitHub Actionsでの実行結果を安定化させる
-        await Task.Delay( 100 );
+        service.Watch( targetDir );
+        await Task.Delay( 100 );    // GitHub Actionsでの実行結果を安定化させる
         var filePath = Path.Combine(targetDir, "new.txt");
         await File.WriteAllTextAsync( filePath, "data" );
         var entries = await tcs.Task.WaitAsync( TimeSpan.FromSeconds( 5 ) );
