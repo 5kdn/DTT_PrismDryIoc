@@ -27,6 +27,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     private readonly IFileService _fileService;
     private readonly IFileEntryService _fileEntryService;
     private readonly IDispatcherService _dispatcherService;
+    private readonly ISystemService _systemService;
 
     private IReadOnlyList<FileEntry> _localEntries = [];
     private IReadOnlyList<FileEntry> _repoEntries = [];
@@ -49,7 +50,8 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         IRepositoryService repositoryService,
         IFileService fileService,
         IFileEntryService fileEntryService,
-        IDispatcherService dispatcherService
+        IDispatcherService dispatcherService,
+        ISystemService systemService
     ) {
         _appSettingsService = appSettingsService;
         _regionManager = regionManager;
@@ -57,6 +59,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         _fileService = fileService;
         _fileEntryService = fileEntryService;
         _dispatcherService = dispatcherService;
+        _systemService = systemService;
 
         _fileEntryService.EntriesChanged += entries =>
             _dispatcherService.InvokeAsync( () => {
@@ -250,8 +253,11 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         }
     }
 
+    /// <summary>
+    /// 翻訳ファイルの管理ディレクトリをエクスプローラーで開く
+    /// </summary>
     private void OnOpenDirectory() {
-        // TODO: TranslateFileDirを開く処理を実装
+        _systemService.OpenDirectory( _appSettingsService.TranslateFileDir );
     }
 
     /// <summary>
