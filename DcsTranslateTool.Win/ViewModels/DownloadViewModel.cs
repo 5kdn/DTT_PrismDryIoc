@@ -39,7 +39,6 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     private AsyncDelegateCommand? _fetchCommand;
     private AsyncDelegateCommand? _downloadCommand;
     private AsyncDelegateCommand? _applyCommand;
-    private DelegateCommand? _resetCheckCommand;
     private DelegateCommand? _openDirectoryCommand;
 
     #endregion
@@ -117,11 +116,6 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// リポジトリ上のファイルをmizファイルに適用するコマンド
     /// </summary>
     public AsyncDelegateCommand ApplyCommand => _applyCommand ??= new AsyncDelegateCommand( OnApplyAsync );
-
-    /// <summary>
-    /// チェック状態をリセットするコマンド
-    /// </summary>
-    public DelegateCommand ResetCheckCommand => _resetCheckCommand ??= new DelegateCommand( OnResetCheck );
 
     /// <summary>
     /// 翻訳ファイルを管理するディレクトリを開くコマンド
@@ -245,12 +239,6 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     private async Task OnApplyAsync() {
         // TODO: 選択されたファイルをmizファイルに適用する処理を実装
         await Task.Delay( 100 );
-    }
-
-    private void OnResetCheck() {
-        foreach(var tab in _tabs) {
-            tab.SetCheckRecursive( false );
-        }
     }
 
     /// <summary>
