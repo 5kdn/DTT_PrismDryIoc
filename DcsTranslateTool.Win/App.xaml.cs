@@ -54,6 +54,7 @@ public partial class App : PrismApplication {
         containerRegistry.Register<IFileService, FileService>();
         containerRegistry.RegisterSingleton<IFileEntryService, FileEntryService>();
         containerRegistry.Register<IRepositoryService, RepositoryService>();
+        containerRegistry.Register<IZipService, ZipService>();
 
         // App Services
         containerRegistry.RegisterSingleton<IMetadataProvider, MetadataProvider>();
