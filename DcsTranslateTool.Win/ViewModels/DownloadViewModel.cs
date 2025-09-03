@@ -28,6 +28,8 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     private readonly IFileEntryService _fileEntryService;
     private readonly IDispatcherService _dispatcherService;
     private readonly ISystemService _systemService;
+    private readonly IZipService _zipService;
+
 
     private IReadOnlyList<FileEntry> _localEntries = [];
     private IReadOnlyList<FileEntry> _repoEntries = [];
@@ -50,7 +52,8 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         IFileService fileService,
         IFileEntryService fileEntryService,
         IDispatcherService dispatcherService,
-        ISystemService systemService
+        ISystemService systemService,
+        IZipService zipService
     ) {
         _appSettingsService = appSettingsService;
         _regionManager = regionManager;
@@ -59,6 +62,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         _fileEntryService = fileEntryService;
         _dispatcherService = dispatcherService;
         _systemService = systemService;
+        _zipService = zipService;
 
         _fileEntryService.EntriesChanged += entries =>
             _dispatcherService.InvokeAsync( () => {
@@ -236,9 +240,56 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         }
     }
 
+    /// <summary>
+    /// 選択されたファイルをmizファイルに適用する。
+    /// </summary>
     private async Task OnApplyAsync() {
-        // TODO: 選択されたファイルをmizファイルに適用する処理を実装
-        await Task.Delay( 100 );
+        Debug.WriteLine( "DownloadViewModel.OnApplyAsync called" );
+
+        var tab = _tabs[SelectedTabIndex];
+        Debug.WriteLine( $"selected Tab is {tab}" );
+        var targetEntries = GetTargetFileNodes();
+        string rootPath = tab.TabType switch
+        {
+            RootTabType.Aircraft => _appSettingsService.SourceAircraftDir,
+            RootTabType.DlcCampaigns => _appSettingsService.SourceDlcCampaignDir,
+            _ => throw new InvalidOperationException( $"未対応のタブ種別: {tab.TabType}" ),
+        };
+
+        foreach(var entry in targetEntries) {
+            if(entry.IsDirectory) continue;
+
+            // ローカルにファイルがない場合は先にリポジトリからダウンロードする
+            if(entry.ChangeType == FileChangeType.RepoOnly) {
+                var result = await _repositoryService.GetFileAsync( entry.Path );
+                if(result.IsFailed) continue;
+                var savePath = Path.Join( _appSettingsService.TranslateFileDir, entry.Path );
+                await _fileService.SaveAsync( savePath, result.Value );
+            }
+
+            var parts = entry.Path.Split( '/', StringSplitOptions.RemoveEmptyEntries );
+            int mizIndex = Array.FindIndex( parts, p => p.EndsWith( ".miz", StringComparison.OrdinalIgnoreCase ) );
+            if(mizIndex == -1) continue;
+            var fileNodePath = string.Join( '\\', parts.Take( mizIndex + 1 ).Skip(3) );
+            var entryPath = string.Join( '/', parts.Skip( mizIndex + 1 ) );
+
+            var mizPath = Path.Join( rootPath, fileNodePath );
+            var sourceFilePath = Path.Join( _appSettingsService.TranslateFileDir, entry.Path );
+
+            _zipService.AddEntry( mizPath, entryPath, sourceFilePath );
+        }
+        Debug.WriteLine( "DownloadViewModel.OnApplyAsync finished" );
+    }
+
+    /// <summary>
+    /// 適用対象のファイルノードを取得するメソッドである。
+    /// </summary>
+    /// <returns>対象の <see cref="IFileEntryViewModel"/> の列挙</returns>
+    private IEnumerable<IFileEntryViewModel> GetTargetFileNodes() {
+        var tab = _tabs[SelectedTabIndex];
+        return tab
+            .GetCheckedViewModels()
+            .Where( e => e.ChangeType is FileChangeType.Modified or FileChangeType.LocalOnly or FileChangeType.RepoOnly );
     }
 
     /// <summary>

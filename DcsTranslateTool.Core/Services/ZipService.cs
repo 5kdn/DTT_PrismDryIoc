@@ -43,7 +43,7 @@ public class ZipService : IZipService {
             using FileStream fs = new(zipFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
             using ZipArchive archive = new(fs, ZipArchiveMode.Update);
             archive.GetEntry( entryPath )?.Delete();
-            archive.CreateEntryFromFile( filePath, entryPath, CompressionLevel.NoCompression );
+            archive.CreateEntryFromFile( filePath, entryPath, CompressionLevel.Fastest );
             return Result.Ok();
         }
         catch(InvalidDataException ex) {
@@ -69,7 +69,7 @@ public class ZipService : IZipService {
             using FileStream fs = new(zipFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
             using ZipArchive archive = new(fs, ZipArchiveMode.Update);
             archive.GetEntry( entryPath )?.Delete();
-            ZipArchiveEntry entry = archive.CreateEntry(entryPath, CompressionLevel.NoCompression);
+            ZipArchiveEntry entry = archive.CreateEntry(entryPath, CompressionLevel.Fastest);
             using Stream entryStream = entry.Open();
             entryStream.Write( data );
             return Result.Ok();
