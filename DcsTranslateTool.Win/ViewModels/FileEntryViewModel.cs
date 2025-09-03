@@ -206,6 +206,24 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
         return checkedChildrenModels;
     }
 
+    /// <inheritdoc/>
+    public List<IFileEntryViewModel> GetCheckedViewModelRecursive( bool fileOnly = false ) {
+        List<IFileEntryViewModel> checkedChildren = [];
+
+        switch(CheckState, IsDirectory, fileOnly) {
+            case (true, false, _ ):
+            case (true, true, false ):
+            case (null, false, _ ):
+            case (null, true, false ):
+                checkedChildren.Add( this );
+                break;
+        }
+
+        foreach(var child in Children)
+            checkedChildren.AddRange( child.GetCheckedViewModelRecursive( fileOnly ) );
+
+        return checkedChildren;
+    }
     #endregion
 
     #region Private Methods

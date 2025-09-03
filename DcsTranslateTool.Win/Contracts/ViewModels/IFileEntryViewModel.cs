@@ -80,6 +80,12 @@ public interface IFileEntryViewModel : IDisposable {
 
     List<FileEntry> GetCheckedModelRecursive( bool fileOnly = false );
 
+    /// <summary>
+    /// 自身および子孫ノードのうち、チェック状態が選択系の <see cref="IFileEntryViewModel"/> を再帰的に取得する。
+    /// </summary>
+    /// <param name="fileOnly">true のときファイルのみを対象にする。</param>
+    /// <returns>チェック状態が選択系の <see cref="IFileEntryViewModel"/> のコレクション。</returns>
+    List<IFileEntryViewModel> GetCheckedViewModelRecursive( bool fileOnly = false );
     #endregion
 
     #region Events
