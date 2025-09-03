@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:conv="clr-namespace:DcsTranslateTool.Win.Converters"
     Style="{StaticResource BaseUserControlStyle}"
     mc:Ignorable="d">
@@ -120,5 +121,10 @@
                 </Button>
             </Grid>
         </Grid>
+
+        <materialDesign:Snackbar Grid.Row="2"
+                                 HorizontalAlignment="Center"
+                                 Background="Tomato"
+                                 MessageQueue="{Binding MessageQueue}" />
     </Grid>
 </UserControl>

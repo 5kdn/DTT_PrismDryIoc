@@ -4,6 +4,8 @@ using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Services;
 using DcsTranslateTool.Win.ViewModels;
 
+using MaterialDesignThemes.Wpf;
+
 using Moq;
 
 using Xunit;
@@ -19,6 +21,8 @@ public class MainViewModelTests {
         _container.Register<IAppSettingsService, AppSettingsService>( Reuse.Singleton );
         _container.Register<IFileService, FileService>( Reuse.Transient );
         _container.RegisterDelegate( () => Mock.Of<IRepositoryService>() );
+        _container.RegisterInstance<ISnackbarMessageQueue>( Mock.Of<ISnackbarMessageQueue>() );
+
         // ViewModels
         _container.Register<MainViewModel>( Reuse.Singleton );
     }
