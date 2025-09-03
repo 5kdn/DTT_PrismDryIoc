@@ -27,6 +27,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     private readonly IFileService _fileService;
     private readonly IFileEntryService _fileEntryService;
     private readonly IDispatcherService _dispatcherService;
+    private readonly ISystemService _systemService;
 
     private IReadOnlyList<FileEntry> _localEntries = [];
     private IReadOnlyList<FileEntry> _repoEntries = [];
@@ -38,7 +39,6 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     private AsyncDelegateCommand? _fetchCommand;
     private AsyncDelegateCommand? _downloadCommand;
     private AsyncDelegateCommand? _applyCommand;
-    private DelegateCommand? _resetCheckCommand;
     private DelegateCommand? _openDirectoryCommand;
 
     #endregion
@@ -49,7 +49,8 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         IRepositoryService repositoryService,
         IFileService fileService,
         IFileEntryService fileEntryService,
-        IDispatcherService dispatcherService
+        IDispatcherService dispatcherService,
+        ISystemService systemService
     ) {
         _appSettingsService = appSettingsService;
         _regionManager = regionManager;
@@ -57,6 +58,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         _fileService = fileService;
         _fileEntryService = fileEntryService;
         _dispatcherService = dispatcherService;
+        _systemService = systemService;
 
         _fileEntryService.EntriesChanged += entries =>
             _dispatcherService.InvokeAsync( () => {
@@ -114,11 +116,6 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// リポジトリ上のファイルをmizファイルに適用するコマンド
     /// </summary>
     public AsyncDelegateCommand ApplyCommand => _applyCommand ??= new AsyncDelegateCommand( OnApplyAsync );
-
-    /// <summary>
-    /// チェック状態をリセットするコマンド
-    /// </summary>
-    public DelegateCommand ResetCheckCommand => _resetCheckCommand ??= new DelegateCommand( OnResetCheck );
 
     /// <summary>
     /// 翻訳ファイルを管理するディレクトリを開くコマンド
@@ -244,14 +241,11 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         await Task.Delay( 100 );
     }
 
-    private void OnResetCheck() {
-        foreach(var tab in _tabs) {
-            tab.SetCheckRecursive( false );
-        }
-    }
-
+    /// <summary>
+    /// 翻訳ファイルの管理ディレクトリをエクスプローラーで開く
+    /// </summary>
     private void OnOpenDirectory() {
-        // TODO: TranslateFileDirを開く処理を実装
+        _systemService.OpenDirectory( _appSettingsService.TranslateFileDir );
     }
 
     /// <summary>

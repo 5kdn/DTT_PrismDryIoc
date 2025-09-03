@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO;
 
 using DcsTranslateTool.Win.Contracts.Services;
 
@@ -19,6 +20,25 @@ public class SystemService : ISystemService {
         var psi = new ProcessStartInfo
         {
             FileName = url,
+            UseShellExecute = true
+        };
+        Process.Start( psi );
+    }
+
+    /// <inheritdoc/>
+    public void OpenDirectory( string path ) {
+        if(!Directory.Exists( path )) {
+            if(File.Exists( path ) && Path.GetDirectoryName( path ) is string p) {
+                path = p;
+            }
+            else {
+                throw new DirectoryNotFoundException( path );
+            }
+        }
+        var psi = new ProcessStartInfo
+        {
+            FileName = "explorer.exe",
+            Arguments = path,
             UseShellExecute = true
         };
         Process.Start( psi );
