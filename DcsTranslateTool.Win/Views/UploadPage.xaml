@@ -106,7 +106,7 @@
                             <TreeView.ItemTemplate>
                                 <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                     <StackPanel Orientation="Horizontal">
-                                        <CheckBox IsChecked="{Binding CheckState, Mode=TwoWay}"/>
+                                        <CheckBox IsChecked="{Binding CheckState, Mode=TwoWay}" IsEnabled="{Binding CanCheck}" />
                                         <iconPacks:PackIconMaterial Margin="{StaticResource XSmallLeftMargin}" Width="16" Height="16">
                                             <iconPacks:PackIconMaterial.Foreground>
                                                 <MultiBinding Converter="{StaticResource FileChangeTypeToBrushConverter}">

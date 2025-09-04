@@ -14,6 +14,9 @@ using DryIoc.ImTools;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
+/// <summary>
+/// アップロード画面を制御する ViewModel である
+/// </summary>
 public class UploadViewModel : BindableBase, INavigationAware {
     #region Fields
 
@@ -95,12 +98,6 @@ public class UploadViewModel : BindableBase, INavigationAware {
         get => _isCreatePullRequestDialogButtonEnabled;
         set => SetProperty( ref _isCreatePullRequestDialogButtonEnabled, value );
     }
-
-    /// <summary>Download ボタンの状態を管理する</summary>
-    public bool IsDownloadButtonEnabled { get; set; } = true;
-
-    /// <summary>Apply ボタンの状態を管理する</summary>
-    public bool IsApplyButtonEnabled { get; set; } = true;
 
     #endregion
 
@@ -222,8 +219,11 @@ public class UploadViewModel : BindableBase, INavigationAware {
             return new UploadTabItemViewModel(tabType, target ?? new FileEntryViewModel(new FileEntry("null","",false), ChangeTypeMode.Upload));
         });
 
+        foreach(var tab in Tabs) tab.Root.CheckStateChanged -= OnRootCheckStateChanged;
         Tabs.Clear();
         Tabs = [.. tabs];
+        foreach(var tab in Tabs) tab.Root.CheckStateChanged += OnRootCheckStateChanged;
+
         SelectedTabIndex = tabIndex;
         ApplyFilter();
         UpdateCreatePullRequestDialogButton();
@@ -242,6 +242,13 @@ public class UploadViewModel : BindableBase, INavigationAware {
 
         IsCreatePullRequestDialogButtonEnabled = Tabs[SelectedTabIndex].Root.CheckState != false;
     }
+
+    /// <summary>
+    /// ルートノードのチェック状態が変化したときにボタンの状態を更新する
+    /// </summary>
+    /// <param name="sender">イベント送信元</param>
+    /// <param name="e">チェック状態</param>
+    private void OnRootCheckStateChanged( object? sender, bool? e ) => UpdateCreatePullRequestDialogButton();
 
     /// <summary>
     /// 現在のフィルタ条件を適用するメソッドである。
