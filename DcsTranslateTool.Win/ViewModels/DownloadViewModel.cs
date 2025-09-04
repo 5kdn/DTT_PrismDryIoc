@@ -35,6 +35,10 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     private IReadOnlyList<FileEntry> _repoEntries = [];
     private ObservableCollection<DownloadTabItemViewModel> _tabs = [];
     private int _selectedTabIndex = 0;
+    private bool _isDownloadButtonEnabled = false;
+    private bool _isApplyButtonEnabled = false;
+    private bool _isDownloading = false;
+    private bool _isApplying = false;
 
     private DelegateCommand? _openSettingsCommand;
     private AsyncDelegateCommand? _fetchCommand;
@@ -82,7 +86,12 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// </summary>
     public int SelectedTabIndex {
         get => _selectedTabIndex;
-        set => SetProperty( ref _selectedTabIndex, value );
+        set {
+            if(SetProperty( ref _selectedTabIndex, value )) {
+                UpdateDownloadButton();
+                UpdateApplyButton();
+            }
+        }
     }
 
     ///<summary>
@@ -99,10 +108,16 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     public FilterViewModel Filter { get; } = new();
 
     /// <summary>Download ボタンの状態を管理する</summary>
-    public bool IsDownloadButtonEnabled { get; set; } = true;
+    public bool IsDownloadButtonEnabled {
+        get => _isDownloadButtonEnabled;
+        private set => SetProperty( ref _isDownloadButtonEnabled, value );
+    }
 
     /// <summary>Apply ボタンの状態を管理する</summary>
-    public bool IsApplyButtonEnabled { get; set; } = true;
+    public bool IsApplyButtonEnabled {
+        get => _isApplyButtonEnabled;
+        private set => SetProperty( ref _isApplyButtonEnabled, value );
+    }
 
     #endregion
 
@@ -206,12 +221,45 @@ public class DownloadViewModel : BindableBase, INavigationAware {
 
             return new DownloadTabItemViewModel(tabType, target ?? new FileEntryViewModel(new FileEntry("null","",false), ChangeTypeMode.Download));
         });
+
+        foreach(var t in Tabs) t.Root.CheckStateChanged -= OnRootCheckStateChanged;
         Tabs.Clear();
         Tabs = [.. tabs];
+        foreach(var t in Tabs) t.Root.CheckStateChanged += OnRootCheckStateChanged;
+
         SelectedTabIndex = tabIndex;
         ApplyFilter();
+        UpdateDownloadButton();
+        UpdateApplyButton();
         Debug.WriteLine( "DownloadViewModel.OnRefleshTabs finished" );
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Download ボタンの有効状態を更新する
+    /// </summary>
+    private void UpdateDownloadButton() {
+        bool hasChecked = Tabs.Count > 0 && Tabs[SelectedTabIndex].Root.CheckState != false;
+        IsDownloadButtonEnabled = !_isDownloading && hasChecked;
+    }
+
+    /// <summary>
+    /// Apply ボタンの有効状態を更新する
+    /// </summary>
+    private void UpdateApplyButton() {
+        bool hasChecked = Tabs.Count > 0 && Tabs[SelectedTabIndex].Root.CheckState != false;
+        IsApplyButtonEnabled = !_isApplying && hasChecked;
+    }
+
+
+    /// <summary>
+    /// ルートノードのチェック状態が変化したときにボタンの状態を更新する
+    /// </summary>
+    /// <param name="sender">イベント送信元</param>
+    /// <param name="e">チェック状態</param>
+    private void OnRootCheckStateChanged( object? sender, bool? e ) {
+        UpdateDownloadButton();
+        UpdateApplyButton();
     }
 
     /// <summary>
@@ -234,15 +282,14 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// チェック状態のファイルをダウンロードする
     /// </summary>
     private async Task OnDownloadAsync() {
-        if(!IsDownloadButtonEnabled) return;
-
         try {
-            IsDownloadButtonEnabled = false;
+            _isDownloading = true;
+            UpdateDownloadButton();
 
             var targetEntries = _tabs[SelectedTabIndex]
-            .GetCheckedEntries()
-            .Where( e => !e.IsDirectory )
-            .ToList();
+                .GetCheckedEntries()
+                .Where( e => !e.IsDirectory )
+                .ToList();
             if(targetEntries.Count == 0) {
                 _snackbarService.Show( "ダウンロード対象が有りません" );
                 return;
@@ -260,7 +307,8 @@ public class DownloadViewModel : BindableBase, INavigationAware {
             _snackbarService.Show( $"{targetEntries.Count} 件のダウンロードが完了しました" );
         }
         finally {
-            IsDownloadButtonEnabled = true;
+            _isDownloading = false;
+            UpdateDownloadButton();
         }
 
 
@@ -272,8 +320,10 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     private async Task OnApplyAsync() {
         Debug.WriteLine( "DownloadViewModel.OnApplyAsync called" );
         if(!IsApplyButtonEnabled) return;
+
         try {
-            IsApplyButtonEnabled = false;
+            _isApplying = true;
+            UpdateApplyButton();
 
             var tab = _tabs[SelectedTabIndex];
             var targetEntries = GetTargetFileNodes()
@@ -314,7 +364,8 @@ public class DownloadViewModel : BindableBase, INavigationAware {
             _snackbarService.Show( $"{targetEntries.Count} 件の処理を完了しました" );
         }
         finally {
-            IsApplyButtonEnabled = true;
+            _isApplying = false;
+            UpdateApplyButton();
         }
         Debug.WriteLine( "DownloadViewModel.OnApplyAsync finished" );
     }
