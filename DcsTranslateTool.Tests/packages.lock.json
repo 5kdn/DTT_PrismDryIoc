@@ -771,6 +771,7 @@
           "GitHubJwt": "[0.0.6, )",
           "MahApps.Metro": "[2.4.10, )",
           "MahApps.Metro.IconPacks.Material": "[6.1.0, )",
+          "MaterialDesignThemes": "[5.2.1, )",
           "MaterialDesignThemes.MahApps": "[5.2.1, )",
           "Microsoft.Extensions.Configuration": "[9.0.8, )",
           "Microsoft.Extensions.Configuration.Binder": "[9.0.8, )",
