@@ -47,7 +47,7 @@
                 Grid.Column="2" Width="64"
                 Margin="{StaticResource SmallLeftMargin}"
                 Command="{Binding OpenSettingsCommand}">
-                <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+                <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center" />
             </Button>
         </Grid>
 
@@ -138,9 +138,19 @@
             </mah:MetroTabControl>
         </Grid>
         <StackPanel Grid.Row="2" Orientation="Horizontal">
-            <Button Width="96" Content="Download" Command="{Binding DownloadCommand}"/>
-            <Button Width="96" Margin="{StaticResource SmallLeftMargin}" Content="Apply" Command="{Binding ApplyCommand}"/>
-            <Button Width="96" Margin="{StaticResource SmallLeftMargin}" Content="Open Directory" Command="{Binding OpenDirectoryCommand}"/>
+            <Button Width="96"
+                    Content="Download"
+                    Command="{Binding DownloadCommand}"
+                    IsEnabled="{Binding IsDownloadButtonEnabled}"/>
+            <Button Width="96"
+                    Margin="{StaticResource SmallLeftMargin}"
+                    Content="Apply"
+                    Command="{Binding ApplyCommand}"
+                    IsEnabled="{Binding IsApplyButtonEnabled}"/>
+            <Button Width="96"
+                    Margin="{StaticResource SmallLeftMargin}"
+                    Content="Open Directory"
+                    Command="{Binding OpenDirectoryCommand}"/>
         </StackPanel>
     </Grid>
 </UserControl>

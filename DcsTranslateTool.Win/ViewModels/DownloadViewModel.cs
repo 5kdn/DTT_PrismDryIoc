@@ -29,11 +29,10 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     private readonly IDispatcherService _dispatcherService;
     private readonly ISystemService _systemService;
     private readonly IZipService _zipService;
-
+    private readonly ISnackbarService _snackbarService;
 
     private IReadOnlyList<FileEntry> _localEntries = [];
     private IReadOnlyList<FileEntry> _repoEntries = [];
-
     private ObservableCollection<DownloadTabItemViewModel> _tabs = [];
     private int _selectedTabIndex = 0;
 
@@ -53,7 +52,8 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         IFileEntryService fileEntryService,
         IDispatcherService dispatcherService,
         ISystemService systemService,
-        IZipService zipService
+        IZipService zipService,
+        ISnackbarService snackbarService
     ) {
         _appSettingsService = appSettingsService;
         _regionManager = regionManager;
@@ -63,6 +63,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         _dispatcherService = dispatcherService;
         _systemService = systemService;
         _zipService = zipService;
+        _snackbarService = snackbarService;
 
         _fileEntryService.EntriesChanged += entries =>
             _dispatcherService.InvokeAsync( () => {
@@ -96,6 +97,12 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// ファイルのフィルタ状態を取得するプロパティである。
     /// </summary>
     public FilterViewModel Filter { get; } = new();
+
+    /// <summary>Download ボタンの状態を管理する</summary>
+    public bool IsDownloadButtonEnabled { get; set; } = true;
+
+    /// <summary>Apply ボタンの状態を管理する</summary>
+    public bool IsApplyButtonEnabled { get; set; } = true;
 
     #endregion
 
@@ -136,6 +143,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedFrom( NavigationContext navigationContext ) {
         _fileEntryService.Dispose();
+        _snackbarService.Clear();
     }
 
     /// <summary>
@@ -218,7 +226,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         _repoEntries = [.. repoResult.Value];
         _localEntries = await _fileEntryService.GetEntriesAsync();
         await OnRefleshTabs();
-        Debug.WriteLine( $"DownloadViewModel.RefleshTabs: {Tabs.Count} tabs loaded." );
+        _snackbarService.Show( "ファイル一覧の取得が完了しました" );
         Debug.WriteLine( "DownloadViewModel.OnFetchAsync finished" );
     }
 
@@ -226,18 +234,36 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// チェック状態のファイルをダウンロードする
     /// </summary>
     private async Task OnDownloadAsync() {
-        var targetEntries = _tabs[SelectedTabIndex].GetCheckedEntries();
-        foreach(var entry in targetEntries) {
-            if(entry.IsDirectory) continue;
-            var result = await _repositoryService.GetFileAsync( entry.Path );
-            if(result.IsFailed) {
-                // TODO: エラーハンドリング
+        if(!IsDownloadButtonEnabled) return;
+
+        try {
+            IsDownloadButtonEnabled = false;
+
+            var targetEntries = _tabs[SelectedTabIndex]
+            .GetCheckedEntries()
+            .Where( e => !e.IsDirectory )
+            .ToList();
+            if(targetEntries.Count == 0) {
+                _snackbarService.Show( "ダウンロード対象が有りません" );
                 return;
             }
-            byte[] data = result.Value;
-            var savePath = Path.Join( _appSettingsService.TranslateFileDir, entry.Path );
-            await _fileService.SaveAsync( savePath, data );
+            foreach(var entry in targetEntries) {
+                var result = await _repositoryService.GetFileAsync( entry.Path );
+                if(result.IsFailed) {
+                    // TODO: エラーハンドリング
+                    return;
+                }
+                byte[] data = result.Value;
+                var savePath = Path.Join( _appSettingsService.TranslateFileDir, entry.Path );
+                await _fileService.SaveAsync( savePath, data );
+            }
+            _snackbarService.Show( $"{targetEntries.Count} 件のダウンロードが完了しました" );
         }
+        finally {
+            IsDownloadButtonEnabled = true;
+        }
+
+
     }
 
     /// <summary>
@@ -245,38 +271,50 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// </summary>
     private async Task OnApplyAsync() {
         Debug.WriteLine( "DownloadViewModel.OnApplyAsync called" );
+        if(!IsApplyButtonEnabled) return;
+        try {
+            IsApplyButtonEnabled = false;
 
-        var tab = _tabs[SelectedTabIndex];
-        Debug.WriteLine( $"selected Tab is {tab}" );
-        var targetEntries = GetTargetFileNodes();
-        string rootPath = tab.TabType switch
-        {
-            RootTabType.Aircraft => _appSettingsService.SourceAircraftDir,
-            RootTabType.DlcCampaigns => _appSettingsService.SourceDlcCampaignDir,
-            _ => throw new InvalidOperationException( $"未対応のタブ種別: {tab.TabType}" ),
-        };
+            var tab = _tabs[SelectedTabIndex];
+            var targetEntries = GetTargetFileNodes()
+                .Where(e=>!e.IsDirectory)
+                .ToList();
 
-        foreach(var entry in targetEntries) {
-            if(entry.IsDirectory) continue;
-
-            // ローカルにファイルがない場合は先にリポジトリからダウンロードする
-            if(entry.ChangeType == FileChangeType.RepoOnly) {
-                var result = await _repositoryService.GetFileAsync( entry.Path );
-                if(result.IsFailed) continue;
-                var savePath = Path.Join( _appSettingsService.TranslateFileDir, entry.Path );
-                await _fileService.SaveAsync( savePath, result.Value );
+            if(targetEntries.Count == 0) {
+                _snackbarService.Show( "対象が有りません" );
+                return;
             }
+            string rootPath = tab.TabType switch
+            {
+                RootTabType.Aircraft => _appSettingsService.SourceAircraftDir,
+                RootTabType.DlcCampaigns => _appSettingsService.SourceDlcCampaignDir,
+                _ => throw new InvalidOperationException( $"未対応のタブ種別: {tab.TabType}" ),
+            };
 
-            var parts = entry.Path.Split( '/', StringSplitOptions.RemoveEmptyEntries );
-            int mizIndex = Array.FindIndex( parts, p => p.EndsWith( ".miz", StringComparison.OrdinalIgnoreCase ) );
-            if(mizIndex == -1) continue;
-            var fileNodePath = string.Join( '\\', parts.Take( mizIndex + 1 ).Skip(3) );
-            var entryPath = string.Join( '/', parts.Skip( mizIndex + 1 ) );
+            foreach(var entry in targetEntries) {
+                // ローカルにファイルがない場合は先にリポジトリからダウンロードする
+                if(entry.ChangeType == FileChangeType.RepoOnly) {
+                    var result = await _repositoryService.GetFileAsync( entry.Path );
+                    if(result.IsFailed) continue;
+                    var savePath = Path.Join( _appSettingsService.TranslateFileDir, entry.Path );
+                    await _fileService.SaveAsync( savePath, result.Value );
+                }
 
-            var mizPath = Path.Join( rootPath, fileNodePath );
-            var sourceFilePath = Path.Join( _appSettingsService.TranslateFileDir, entry.Path );
+                var parts = entry.Path.Split( '/', StringSplitOptions.RemoveEmptyEntries );
+                int mizIndex = Array.FindIndex( parts, p => p.EndsWith( ".miz", StringComparison.OrdinalIgnoreCase ) );
+                if(mizIndex == -1) continue;
+                var fileNodePath = string.Join( '\\', parts.Take( mizIndex + 1 ).Skip(3) );
+                var entryPath = string.Join( '/', parts.Skip( mizIndex + 1 ) );
 
-            _zipService.AddEntry( mizPath, entryPath, sourceFilePath );
+                var mizPath = Path.Join( rootPath, fileNodePath );
+                var sourceFilePath = Path.Join( _appSettingsService.TranslateFileDir, entry.Path );
+
+                _zipService.AddEntry( mizPath, entryPath, sourceFilePath );
+            }
+            _snackbarService.Show( $"{targetEntries.Count} 件の処理を完了しました" );
+        }
+        finally {
+            IsApplyButtonEnabled = true;
         }
         Debug.WriteLine( "DownloadViewModel.OnApplyAsync finished" );
     }

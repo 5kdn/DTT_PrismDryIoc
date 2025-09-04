@@ -1,4 +1,7 @@
-﻿using DcsTranslateTool.Win.ViewModels;
+﻿using DcsTranslateTool.Win.Contracts.Services;
+using DcsTranslateTool.Win.ViewModels;
+
+using Moq;
 
 using Xunit;
 
@@ -13,6 +16,7 @@ public class ShellViewModelTests {
 
         // ViewModels
         _container.Register<ShellViewModel>( Reuse.Transient );
+        _container.RegisterInstance<ISnackbarService>( Mock.Of<ISnackbarService>() );
     }
 
     [Fact( DisplayName = "ShellViewModelが正常に生成できる" )]

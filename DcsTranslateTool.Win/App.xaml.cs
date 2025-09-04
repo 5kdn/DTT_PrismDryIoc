@@ -69,6 +69,7 @@ public partial class App : PrismApplication {
         containerRegistry.Register<IDialogProvider, DialogProvider>();
         containerRegistry.Register<IEnvironmentProvider, EnvironmentProvider>();
         containerRegistry.Register<IAppSettingsService, AppSettingsService>();
+        containerRegistry.RegisterSingleton<ISnackbarService, SnackbarService>();
 
         // Views
         containerRegistry.RegisterForNavigation<MainPage, MainViewModel>( PageKeys.Main );
@@ -83,6 +84,7 @@ public partial class App : PrismApplication {
         var appConfig = configuration
             .GetSection(nameof(AppConfig))
             .Get<AppConfig>() ?? throw new InvalidOperationException("AppConfig section is missing or invalid.");
+
 
         // Register configurations to IoC
         containerRegistry.RegisterInstance<IConfiguration>( configuration );

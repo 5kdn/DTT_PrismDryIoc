@@ -38,16 +38,16 @@
                 Style="{StaticResource PageTitleStyle}"
                 Margin="{StaticResource MediumLeftMargin}"
                 Text="{x:Static properties:Resources.UploadPageTitle}" />
-            <!--<Button
+            <Button
                 Grid.Column="1"
                 Margin="{StaticResource SmallLeftMargin}"
                 Content="Fetch"
-                Command="{Binding FetchCommand}" />-->
+                Command="{Binding FetchCommand}" />
             <Button
                 Grid.Column="2" Width="64"
                 Margin="{StaticResource SmallLeftMargin}"
                 Command="{Binding OpenSettingsCommand}">
-                <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+                <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center" />
             </Button>
         </Grid>
 

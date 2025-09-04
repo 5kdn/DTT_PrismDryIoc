@@ -1,6 +1,9 @@
 ﻿using System.Windows.Input;
 
 using DcsTranslateTool.Win.Constants;
+using DcsTranslateTool.Win.Contracts.Services;
+
+using MaterialDesignThemes.Wpf;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
@@ -8,11 +11,17 @@ namespace DcsTranslateTool.Win.ViewModels;
 /// アプリケーションシェルを制御する ViewModel
 /// </summary>
 /// <param name="regionManager">リージョン管理用サービス</param>
-public class ShellViewModel( IRegionManager regionManager ) : BindableBase {
+/// <param name="snackbarService">Snackbar サービス</param>
+public class ShellViewModel( IRegionManager regionManager, ISnackbarService snackbarService ) : BindableBase {
     private IRegionNavigationService? _navigationService;
     private DelegateCommand? _goBackCommand;
     private ICommand? _loadedCommand;
     private ICommand? _unloadedCommand;
+
+    /// <summary>
+    /// Snackbar のメッセージキューを取得するプロパティである。
+    /// </summary>
+    public ISnackbarMessageQueue MessageQueue => snackbarService.MessageQueue;
 
     /// <summary>
     /// 戻るボタン用のコマンド
