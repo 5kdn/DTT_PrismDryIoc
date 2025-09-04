@@ -127,6 +127,7 @@ public class UploadViewModel : BindableBase, INavigationAware {
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedFrom( NavigationContext navigationContext ) {
         _fileEntryService.Dispose();
+        _snackbarService.Clear();
     }
 
     /// <summary>

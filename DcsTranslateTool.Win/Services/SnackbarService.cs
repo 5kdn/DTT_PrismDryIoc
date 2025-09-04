@@ -8,9 +8,27 @@ namespace DcsTranslateTool.Win.Services;
 /// Snackbar を表示するサービスである。
 /// </summary>
 public class SnackbarService : ISnackbarService {
-    /// <inheritdoc/>
-    public ISnackbarMessageQueue MessageQueue { get; } = new SnackbarMessageQueue();
+    private readonly SnackbarMessageQueue _messageQueue = new();
 
     /// <inheritdoc/>
-    public void Show( string message ) => MessageQueue.Enqueue( message );
+    public ISnackbarMessageQueue MessageQueue => _messageQueue;
+
+    /// <inheritdoc/>
+    public void Show(
+        string message,
+        string? actionContent = null,
+        Action? actionHandler = null,
+        object? actionArgument = null,
+        TimeSpan? duration = null ) =>
+        MessageQueue.Enqueue(
+            message,
+            actionContent,
+            actionHandler is null ? null : _ => actionHandler(),
+            actionArgument,
+            false,
+            false,
+            duration );
+
+    /// <inheritdoc/>
+    public void Clear() => _messageQueue.Clear();
 }

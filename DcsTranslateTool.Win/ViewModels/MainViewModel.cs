@@ -44,7 +44,9 @@ public class MainViewModel(
     /// ナビゲーション前の処理を行う
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
-    public void OnNavigatedFrom( NavigationContext navigationContext ) { }
+    public void OnNavigatedFrom( NavigationContext navigationContext ) {
+        _snackbarService.Clear();
+    }
 
     /// <summary>
     /// ナビゲーション後の処理を行う
@@ -61,19 +63,11 @@ public class MainViewModel(
     private void OnOpenUpload() => regionManager.RequestNavigate( Regions.Main, PageKeys.Upload );
 
     private void ValidateAppSettingsAndNotify() {
-        if(string.IsNullOrEmpty( _appSettingsService.TranslateFileDir )
-            || string.IsNullOrEmpty( _appSettingsService.SourceAircraftDir )
-            || string.IsNullOrEmpty( _appSettingsService.SourceDlcCampaignDir )) {
-            _snackbarService.Show( "設定が不足しています。" );
-            //MessageQueue.Enqueue(
-            //    content: "設定が不足しています。",
-            //    actionContent: "設定",
-            //    actionHandler: ( _ ) => OnOpenSettings(),
-            //    actionArgument: null,
-            //    promote: false,
-            //    neverConsiderToBeDuplicate: true,
-            //    durationOverride: TimeSpan.FromDays( 1 )
-            //);
+        if(string.IsNullOrEmpty( _appSettingsService.TranslateFileDir ) ||
+           string.IsNullOrEmpty( _appSettingsService.SourceAircraftDir ) ||
+           string.IsNullOrEmpty( _appSettingsService.SourceDlcCampaignDir )
+        ) {
+            _snackbarService.Show( "設定が不足しています。", "設定", OnOpenSettings, null, TimeSpan.FromDays( 1 ) );
         }
     }
 }
