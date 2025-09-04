@@ -8,7 +8,6 @@
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:conv="clr-namespace:DcsTranslateTool.Win.Converters"
-    Style="{StaticResource BaseUserControlStyle}"
     mc:Ignorable="d">
     <UserControl.Resources>
         <conv:MultiplyConverter x:Key="MultiplyConverter" />
@@ -33,7 +32,7 @@
               Grid.Column="1" Width="64"
               Margin="{StaticResource SmallLeftMargin}"
               Command="{Binding OpenSettingsCommand}">
-                <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+                <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center" />
             </Button>
         </Grid>
         <!-- The content area where the main content will be placed -->
@@ -55,7 +54,6 @@
                     Width="{Binding ActualWidth, ElementName=ButtonsGrid, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.45}"
                     Height="{Binding ActualHeight, ElementName=ButtonArea, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.8}"
                     MinHeight="100" MaxHeight="600"
-                    Foreground="{DynamicResource MahApps.Brushes.Accent}"
                     Command="{Binding OpenDownloadCommand}">
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                         <iconPacks:PackIconMaterial Kind="Download" HorizontalAlignment="Center">
@@ -92,7 +90,6 @@
                     Width="{Binding ActualWidth, ElementName=ButtonsGrid, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.45}"
                     Height="{Binding ActualHeight, ElementName=ButtonArea, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.8}"
                     MinHeight="100" MaxHeight="600"
-                    Foreground="{DynamicResource MahApps.Brushes.Accent}"
                     Command="{Binding OpenUploadCommand}">
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                         <iconPacks:PackIconMaterial Kind="Upload" HorizontalAlignment="Center">
@@ -121,10 +118,5 @@
                 </Button>
             </Grid>
         </Grid>
-
-        <materialDesign:Snackbar Grid.Row="2"
-                                 HorizontalAlignment="Center"
-                                 Background="Tomato"
-                                 MessageQueue="{Binding MessageQueue}" />
     </Grid>
 </UserControl>

@@ -16,8 +16,6 @@ using DcsTranslateTool.Win.Services;
 using DcsTranslateTool.Win.ViewModels;
 using DcsTranslateTool.Win.Views;
 
-using MaterialDesignThemes.Wpf;
-
 using Microsoft.Extensions.Configuration;
 
 namespace DcsTranslateTool.Win;
@@ -71,6 +69,7 @@ public partial class App : PrismApplication {
         containerRegistry.Register<IDialogProvider, DialogProvider>();
         containerRegistry.Register<IEnvironmentProvider, EnvironmentProvider>();
         containerRegistry.Register<IAppSettingsService, AppSettingsService>();
+        containerRegistry.RegisterSingleton<ISnackbarService, SnackbarService>();
 
         // Views
         containerRegistry.RegisterForNavigation<MainPage, MainViewModel>( PageKeys.Main );
@@ -79,7 +78,6 @@ public partial class App : PrismApplication {
         containerRegistry.RegisterDialog<CreatePullRequestDialog, CreatePullRequestDialogViewModel>( PageKeys.CreatePullRequestDialog );
         containerRegistry.RegisterForNavigation<SettingsPage, SettingsViewModel>( PageKeys.Settings );
         containerRegistry.RegisterForNavigation<ShellWindow, ShellViewModel>();
-        containerRegistry.RegisterInstance<ISnackbarMessageQueue>( new SnackbarMessageQueue( TimeSpan.FromSeconds( 5 ) ) );
 
         // Configuration
         var configuration = BuildConfiguration();

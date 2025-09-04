@@ -1,24 +1,22 @@
 ﻿using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
 
-using MaterialDesignThemes.Wpf;
-
 namespace DcsTranslateTool.Win.ViewModels;
 
+/// <summary>
+/// MainPage のロジックを制御する ViewModel である。
+/// </summary>
+/// <param name="regionManager">リージョン管理用サービス</param>
+/// <param name="_snackbarService">Snackbar サービス</param>
 public class MainViewModel(
     IRegionManager regionManager,
     IAppSettingsService _appSettingsService,
-    ISnackbarMessageQueue _snackbarMessageQueue
+    ISnackbarService _snackbarService
 ) : BindableBase, INavigationAware {
 
     private DelegateCommand? _openSettingsCommand;
     private DelegateCommand? _openDownloadCommand;
     private DelegateCommand? _openUploadCommand;
-
-    /// <summary>
-    /// スナックバーのメッセージキューを取得する
-    /// </summary>
-    public ISnackbarMessageQueue MessageQueue { get; } = _snackbarMessageQueue;
 
     /// <summary>
     /// 設定画面を開くコマンド
@@ -66,15 +64,16 @@ public class MainViewModel(
         if(string.IsNullOrEmpty( _appSettingsService.TranslateFileDir )
             || string.IsNullOrEmpty( _appSettingsService.SourceAircraftDir )
             || string.IsNullOrEmpty( _appSettingsService.SourceDlcCampaignDir )) {
-            MessageQueue.Enqueue(
-                content: "設定が不足しています。",
-                actionContent: "設定",
-                actionHandler: ( _ ) => OnOpenSettings(),
-                actionArgument: null,
-                promote: false,
-                neverConsiderToBeDuplicate: true,
-                durationOverride: TimeSpan.FromDays( 1 )
-            );
+            _snackbarService.Show( "設定が不足しています。" );
+            //MessageQueue.Enqueue(
+            //    content: "設定が不足しています。",
+            //    actionContent: "設定",
+            //    actionHandler: ( _ ) => OnOpenSettings(),
+            //    actionArgument: null,
+            //    promote: false,
+            //    neverConsiderToBeDuplicate: true,
+            //    durationOverride: TimeSpan.FromDays( 1 )
+            //);
         }
     }
 }

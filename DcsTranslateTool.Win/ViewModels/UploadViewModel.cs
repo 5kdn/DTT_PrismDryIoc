@@ -23,13 +23,13 @@ public class UploadViewModel : BindableBase, INavigationAware {
     private readonly IRepositoryService _repositoryService;
     private readonly IFileEntryService _fileEntryService;
     private readonly IDispatcherService _dispatcherService;
-
-    private ObservableCollection<UploadTabItemViewModel> _tabs = [];
-    private int _selectedTabIndex = 0;
-    private bool _isCreatePullRequestDialogButtonEnabled = false;
+    private readonly ISnackbarService _snackbarService;
 
     private IReadOnlyList<FileEntry> _localEntries = [];
     private IReadOnlyList<FileEntry> _repoEntries = [];
+    private ObservableCollection<UploadTabItemViewModel> _tabs = [];
+    private int _selectedTabIndex = 0;
+    private bool _isCreatePullRequestDialogButtonEnabled = false;
 
     private DelegateCommand? _openSettingsCommand;
     private DelegateCommand? _openCreatePullRequestDialogCommand;
@@ -42,7 +42,8 @@ public class UploadViewModel : BindableBase, INavigationAware {
         IDialogService dialogService,
         IRepositoryService repositoryService,
         IFileEntryService fileEntryService,
-        IDispatcherService dispatcherService
+        IDispatcherService dispatcherService,
+        ISnackbarService snackbarService
     ) {
         _appSettingsService = appSettingsService;
         _regionManager = regionManager;
@@ -50,6 +51,7 @@ public class UploadViewModel : BindableBase, INavigationAware {
         _repositoryService = repositoryService;
         _fileEntryService = fileEntryService;
         _dispatcherService = dispatcherService;
+        _snackbarService = snackbarService;
 
         _fileEntryService.EntriesChanged += entries =>
             _dispatcherService.InvokeAsync( () => {
@@ -93,6 +95,12 @@ public class UploadViewModel : BindableBase, INavigationAware {
         get => _isCreatePullRequestDialogButtonEnabled;
         set => SetProperty( ref _isCreatePullRequestDialogButtonEnabled, value );
     }
+
+    /// <summary>Download ボタンの状態を管理する</summary>
+    public bool IsDownloadButtonEnabled { get; set; } = true;
+
+    /// <summary>Apply ボタンの状態を管理する</summary>
+    public bool IsApplyButtonEnabled { get; set; } = true;
 
     #endregion
 
@@ -186,6 +194,8 @@ public class UploadViewModel : BindableBase, INavigationAware {
         _repoEntries = [.. repoResult.Value];
         _localEntries = await _fileEntryService.GetEntriesAsync();
         await OnRefleshTabs();
+
+        _snackbarService.Show( "ファイル一覧の取得が完了しました。" );
     }
 
     /// <summary>

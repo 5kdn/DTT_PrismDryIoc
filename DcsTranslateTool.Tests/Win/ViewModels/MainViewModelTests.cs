@@ -22,6 +22,7 @@ public class MainViewModelTests {
         _container.Register<IFileService, FileService>( Reuse.Transient );
         _container.RegisterDelegate( () => Mock.Of<IRepositoryService>() );
         _container.RegisterInstance<ISnackbarMessageQueue>( Mock.Of<ISnackbarMessageQueue>() );
+        _container.RegisterInstance<ISnackbarService>( Mock.Of<ISnackbarService>() );
 
         // ViewModels
         _container.Register<MainViewModel>( Reuse.Singleton );
