@@ -96,6 +96,16 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     }
 
     /// <inheritdoc/>
+    public bool CanCheck => (_mode, ChangeType) switch
+    {
+        (ChangeTypeMode.Upload, FileChangeType.RepoOnly ) => false,
+        (ChangeTypeMode.Upload, FileChangeType.Unchanged ) => false,
+        (ChangeTypeMode.Download, FileChangeType.Unchanged ) => false,
+        (ChangeTypeMode.Download, FileChangeType.LocalOnly ) => false,
+        _ => true,
+    };
+
+    /// <inheritdoc/>
     public bool? CheckState {
         get => checkState;
         set {
@@ -122,6 +132,7 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     public bool IsSelected {
         get => isSelected;
         set {
+            if(!CanCheck && !value) return;
             if(!SetProperty( ref isSelected, value )) return;
             if(!_suppressSelectPropagation && IsDirectory) {
                 try {
@@ -160,6 +171,9 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
                 // 参照入替に伴い集計系を更新
                 RaisePropertyChanged( nameof( ChangeType ) );
                 RecomputeCheckStateFromChildren();
+
+                RaisePropertyChanged( nameof( CanCheck ) );
+                if(!CanCheck && checkState is not false) CheckState = false;
             }
         }
     }
@@ -283,6 +297,8 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
             AttachChildrenHandlers( children );
             RaisePropertyChanged( nameof( ChangeType ) );
             RecomputeCheckStateFromChildren();
+            RaisePropertyChanged( nameof( CanCheck ) );
+            if(!CanCheck && checkState != false) CheckState = false;
             return;
         }
         if(e.OldItems is not null) {
@@ -301,11 +317,18 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
         RaisePropertyChanged( nameof( ChangeType ) );
         // チェック状態の整合も再計算
         RecomputeCheckStateFromChildren();
+
+        RaisePropertyChanged( nameof( CanCheck ) );
+        if(!CanCheck && checkState is not false) CheckState = false;
     }
 
     private void OnChildPropertyChanged( object? sender, PropertyChangedEventArgs e ) {
         // 子の ChangeType が変わったら自分の ChangeType も再評価を通知
-        if(e.PropertyName == nameof( ChangeType )) RaisePropertyChanged( nameof( ChangeType ) );
+        if(e.PropertyName == nameof( ChangeType )) {
+            RaisePropertyChanged( nameof( ChangeType ) );
+            RaisePropertyChanged( nameof( CanCheck ) );
+            if(!CanCheck && checkState is not false) CheckState = false;
+        }
     }
 
     /// <summary>子のチェック状態が変わった時に自分の状態を再計算（イベントベースでバブルアップ）</summary>

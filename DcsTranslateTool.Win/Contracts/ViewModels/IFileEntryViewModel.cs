@@ -38,6 +38,11 @@ public interface IFileEntryViewModel : IDisposable {
     FileChangeType? ChangeType { get; }
 
     /// <summary>
+    /// このエントリーがチェック可能かどうかを示す値を取得する。
+    /// </summary>
+    bool CanCheck { get; }
+
+    /// <summary>
     /// チェック状態を取得または設定する
     /// </summary>
     bool? CheckState { get; set; }
