@@ -29,6 +29,7 @@ public class FilterViewModel() : BindableBase {
                 Unchanged = Deleted = Added = Modified = true;
             }
             else {
+                Unchanged = Deleted = Added = Modified = false;
                 FiltersChanged?.Invoke( this, EventArgs.Empty );
             }
         }
