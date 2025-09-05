@@ -29,5 +29,5 @@ public class DownloadTabItemViewModel( RootTabType tabType, IFileEntryViewModel 
     /// チェック状態のビューエントリを取得するメソッドである。
     /// </summary>
     /// <returns><see cref="IFileEntryViewModel"/> のリスト</returns>
-    public List<IFileEntryViewModel> GetCheckedViewModels() => Root.GetCheckedViewModelRecursive( true );
+    public List<IFileEntryViewModel> GetCheckedViewModels() => Root.GetCheckedViewModelRecursive();
 }

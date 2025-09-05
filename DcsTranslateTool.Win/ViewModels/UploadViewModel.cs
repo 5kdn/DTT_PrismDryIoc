@@ -157,27 +157,60 @@ public class UploadViewModel : BindableBase, INavigationAware {
     /// Pull Request作成ダイアログを開く
     /// </summary>
     private void OnOpenCreatePullRequestDialog() {
-        IsCreatePullRequestDialogButtonEnabled = false;
+        try {
+            IsCreatePullRequestDialogButtonEnabled = false;
 
-        var checkedEntries = Tabs[SelectedTabIndex]
+            List<FileChangeType> filter = [FileChangeType.Modified, FileChangeType.LocalOnly];
+            var checkedEntries = Tabs[SelectedTabIndex]
             .Root
-            .GetCheckedModelRecursive();
+            .GetCheckedViewModelRecursive()
+            .Select(vm=>vm.Model);
 
-        var parameters = new DialogParameters {
-            { "files", checkedEntries }
-        };
+            if(!checkedEntries.Any()) {
+                _snackbarService.Show( "アップロードできるファイルが見つかりませんでした" );
+                return;
+            }
 
-        _dialogService.ShowDialog( PageKeys.CreatePullRequestDialog, parameters, r => {
-            // ダイアログの処理
-            if(r.Result == ButtonResult.OK) {
-                // OKボタンが押された場合の処理
+            string sub;
+            try {
+                sub = GetSubCategory();
             }
-            else if(r.Result == ButtonResult.Cancel) {
-                // キャンセルボタンが押された場合の処理
+            catch {
+                _snackbarService.Show( "一度のアップロードでは機体/DLCキャンペーン以下の単位で分割してください" );
+                return;
             }
-            // ダイアログ終了後処理
-            UpdateCreatePullRequestDialogButton();
-        } );
+
+            var parameters = new DialogParameters {
+                { "files", checkedEntries },
+                {"Category", Tabs[SelectedTabIndex].Title },
+                {"SubCategory", sub }
+            };
+
+            _dialogService.ShowDialog( PageKeys.CreatePullRequestDialog, parameters, r => {
+                // ダイアログの処理
+                if(r.Result == ButtonResult.OK) {
+                    // OKボタンが押された場合の処理
+                }
+                else if(r.Result == ButtonResult.Cancel) {
+                    // キャンセルボタンが押された場合の処理
+                }
+                // ダイアログ終了後処理
+                UpdateCreatePullRequestDialogButton();
+            } );
+        }
+        finally {
+            IsCreatePullRequestDialogButtonEnabled = true;
+        }
+    }
+
+    private string GetSubCategory() {
+        var cur = Tabs[_selectedTabIndex].Root;
+        List<FileChangeType?> typeFilter = [FileChangeType.LocalOnly, FileChangeType.Modified];
+
+        if(cur.Children.Count( c => typeFilter.Contains( c.ChangeType ) && c.CheckState != false ) != 1) throw new Exception();
+        cur = cur.Children.First( c => typeFilter.Contains( c.ChangeType ) && c.CheckState != false );
+
+        return cur.Name;
     }
 
     /// <summary>
