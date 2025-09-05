@@ -52,7 +52,9 @@
                 </StackPanel>
             </StackPanel>
             <TextBox Text="{Binding PRComment, Mode=TwoWay}"
-                     Margin="{StaticResource SmallTopMargin}"/>
+                     Margin="{StaticResource SmallTopMargin}"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     BorderBrush="Purple"/>
         </StackPanel>
         <!--Confirmation-->
         <StackPanel Margin="{StaticResource SmallTopMargin}">
