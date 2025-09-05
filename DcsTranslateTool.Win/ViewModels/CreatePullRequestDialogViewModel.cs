@@ -28,19 +28,9 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
         set => SetProperty( ref _files, value );
     }
 
-    public string Category {
-        get {
-            // TODO: 取得ファイル(_files)からカテゴリを自動的に決定するロジックを実装する
-            return "Cat";
-        }
-    }
+    public string Category { get; set; } = string.Empty;
 
-    public string Subcategory {
-        get {
-            // TODO: 取得ファイル(_files)からカテゴリを自動的に決定するロジックを実装する
-            return "Sub";
-        }
-    }
+    public string Subcategory { get; set; } = string.Empty;
 
     public ObservableCollection<PullRequestChangeKindItem> PullRequestChangeKinds { get; }
 
@@ -118,6 +108,8 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
     public void OnDialogClosed() { }
     public void OnDialogOpened( IDialogParameters parameters ) {
         _files = parameters.GetValue<IEnumerable<FileEntry>>( "files" );
+        Category = parameters.GetValue<string>( "Category" );
+        Subcategory = parameters.GetValue<string>( "SubCategory" );
     }
 
     public IEnumerable<PullRequestChangeKind> SelectedChangeKinds =>

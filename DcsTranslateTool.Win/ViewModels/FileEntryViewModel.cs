@@ -221,23 +221,24 @@ public class FileEntryViewModel : BindableBase, IFileEntryViewModel {
     }
 
     /// <inheritdoc/>
-    public List<IFileEntryViewModel> GetCheckedViewModelRecursive( bool fileOnly = false ) {
+    public List<IFileEntryViewModel> GetCheckedViewModelRecursive() {
         List<IFileEntryViewModel> checkedChildren = [];
 
-        switch(CheckState, IsDirectory, fileOnly) {
-            case (true, false, _ ):
-            case (true, true, false ):
-            case (null, false, _ ):
-            case (null, true, false ):
-                checkedChildren.Add( this );
-                break;
+        if(
+            CheckState is true &&
+            !IsDirectory &&
+            ChangeType != FileChangeType.RepoOnly &&
+            ChangeType != FileChangeType.Unchanged
+            ) {
+            checkedChildren.Add( this );
         }
 
         foreach(var child in Children)
-            checkedChildren.AddRange( child.GetCheckedViewModelRecursive( fileOnly ) );
+            checkedChildren.AddRange( child.GetCheckedViewModelRecursive() );
 
         return checkedChildren;
     }
+
     #endregion
 
     #region Private Methods

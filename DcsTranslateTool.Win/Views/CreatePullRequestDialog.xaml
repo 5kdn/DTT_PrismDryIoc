@@ -51,7 +51,8 @@
                     </ItemsControl>
                 </StackPanel>
             </StackPanel>
-            <TextBox Text="{Binding PRComment, Mode=TwoWay}" Margin="{StaticResource SmallTopMargin}"/>
+            <TextBox Text="{Binding PRComment, Mode=TwoWay}"
+                     Margin="{StaticResource SmallTopMargin}"/>
         </StackPanel>
         <!--Confirmation-->
         <StackPanel Margin="{StaticResource SmallTopMargin}">
