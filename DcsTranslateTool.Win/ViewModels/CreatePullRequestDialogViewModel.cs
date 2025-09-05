@@ -1,8 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows;
+using System.IO;
 
+using DcsTranslateTool.Core.Contracts.Services;
+using DcsTranslateTool.Core.Enums;
 using DcsTranslateTool.Core.Models;
+using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Models;
 
 namespace DcsTranslateTool.Win.ViewModels;
@@ -14,7 +17,9 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
     private IEnumerable<FileEntry>? _files;
     private string _prComment = "[概要]\n簡潔に変更内容を記載してください。\n\n[変更内容]\n- mizファイル単位で箇条書きで記載してください\n- 機体やキャンペーン全体に関連する場合、機体やキャンペーンごとの記載でも大丈夫です\n\n[備考]\n- 気になる点があれば箇条書きで記載してください";
 
-    private DelegateCommand? _createPullRequestCommand;
+    private AsyncDelegateCommand? _createPullRequestCommand;
+    private readonly IAppSettingsService _appSettingsService;
+    private readonly IRepositoryService _repositoryService;
 
     #endregion
 
@@ -62,7 +67,13 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
     /// <summary>
     /// クラスの新しいインスタンスを生成する
     /// </summary>
-    public CreatePullRequestDialogViewModel() {
+    public CreatePullRequestDialogViewModel(
+        IAppSettingsService appSettingsService,
+        IRepositoryService repositoryService
+    ) {
+        _appSettingsService = appSettingsService;
+        _repositoryService = repositoryService;
+
         PullRequestChangeKinds = new ObservableCollection<PullRequestChangeKindItem>(
             Enum.GetValues( typeof( PullRequestChangeKind ) )
                 .Cast<PullRequestChangeKind>()
@@ -82,8 +93,12 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
     }
 
     #region Commands
-    public DelegateCommand CreatePullRequestCommand
-    => _createPullRequestCommand ??= new DelegateCommand( OnCreatePullRequest );
+
+    /// <summary>
+    /// PRを作成するコマンド
+    /// </summary>
+    public AsyncDelegateCommand CreatePullRequestCommand
+        => _createPullRequestCommand ??= new AsyncDelegateCommand( OnCreatePullRequestAsync );
 
     #endregion
 
@@ -115,6 +130,10 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
     public IEnumerable<PullRequestChangeKind> SelectedChangeKinds =>
         PullRequestChangeKinds.Where( x => x.IsChecked ).Select( x => x.Kind );
 
+    #endregion
+
+    #region Private Methods
+
     private void PullRequestChangeKindItem_PropertyChanged( object? sender, PropertyChangedEventArgs e ) {
         if(e.PropertyName == nameof( PullRequestChangeKindItem.IsChecked )) {
             RaisePropertyChanged( nameof( PRTitle ) );
@@ -133,23 +152,52 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
         string dateStr = jst.ToString("yyyyMMdd-HHmmss") + "JST";
 
         var changes = string.Join("_", SelectedChangeKinds.Select( x => x.ToString() ));
-        return $"feature/{Category}/{Subcategory}--{changes}--{dateStr}";
+        return $"feature/{Category}/{Subcategory}/{changes}--{dateStr}";
     }
 
-    private void OnCreatePullRequest() {
-        string newBranchName = CreateBranchName();
+    /// <summary>
+    /// GitHubへファイルをプッシュしPRを作成する
+    /// </summary>
+    private async Task OnCreatePullRequestAsync() {
+        if(Files is null) {
+            RequestClose.Invoke( new DialogResult( ButtonResult.Abort ) );
+            return;
+        }
 
-        // For Debugging purposes
+        var branchName = CreateBranchName();
         var msg = string.Join("\n",PullRequestChangeKinds.Where( x => x.IsChecked ).Select( x => x.DisplayName ));
-        MessageBox.Show( $"{newBranchName}\n{msg}" );
+
         try {
-            // TODO: PR作成処理をここに実装
+            var createBranchResult = await _repositoryService.CreateBranchAsync( branchName );
+            if(createBranchResult.IsFailed) {
+                RequestClose.Invoke( new DialogResult( ButtonResult.Abort ) );
+                return;
+            }
+
+            var commitFiles = Files.Select( f => new CommitFile
+            {
+                Operation = CommitOperationType.AddOrUpdate,
+                LocalPath = Path.Combine( _appSettingsService.TranslateFileDir, f.Path ),
+                RepoPath = f.Path
+            } );
+            var commitResult = await _repositoryService.CommitAsync( branchName, commitFiles, PRTitle );
+            if(commitResult.IsFailed) {
+                RequestClose.Invoke( new DialogResult( ButtonResult.Abort ) );
+                return;
+            }
+
+            var prResult = await _repositoryService.CreatePullRequestAsync( branchName, PRTitle, PRComment );
+            if(prResult.IsFailed) {
+                RequestClose.Invoke( new DialogResult( ButtonResult.Abort ) );
+                return;
+            }
+
             RequestClose.Invoke( new DialogResult( ButtonResult.OK ) );
         }
         catch {
-            // TODO: ユーザーにエラー通知
             RequestClose.Invoke( new DialogResult( ButtonResult.Abort ) );
         }
     }
+
     #endregion
 }
