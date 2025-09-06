@@ -5,13 +5,13 @@ using FluentResults;
 namespace DcsTranslateTool.Core.Contracts.Services;
 
 /// <summary>
-/// GitHub リポジトリ操作のサービスを提供する
+/// GitHub リポジトリ操作のサービスを提供するインターフェース
 /// </summary>
 public interface IRepositoryService {
     /// <summary>
-    /// リポジトリのファイルリスト<see cref="FileEntry"/>を取得する。
+    /// リポジトリのファイルリスト<see cref="FileEntry"/>を取得する
     /// </summary>
-    /// <returns>リポジトリエントリー</returns>
+    /// <returns><see cref="FileEntry"/> の列挙結果</returns>
     Task<Result<IEnumerable<FileEntry>>> GetFileEntriesAsync();
 
     /// <summary>
@@ -31,7 +31,7 @@ public interface IRepositoryService {
     /// ファイルをコミットする
     /// </summary>
     /// <param name="branchName">コミット先ブランチ名</param>
-    /// <param name="files">コミットするローカルパス一覧</param>
+    /// <param name="files">コミットする <see cref="CommitFile"/> のローカルパス一覧</param>
     /// <param name="message">コミットメッセージ</param>
     Task<Result> CommitAsync( string branchName, IEnumerable<CommitFile> files, string message );
 
@@ -39,7 +39,7 @@ public interface IRepositoryService {
     /// ファイルをコミットする
     /// </summary>
     /// <param name="branchName">コミット先ブランチ名</param>
-    /// <param name="file">コミットするローカルパス</param>
+    /// <param name="file">コミットする <see cref="CommitFile"/> のローカルパス</param>
     /// <param name="message">コミットメッセージ</param>
     Task<Result> CommitAsync( string branchName, CommitFile file, string message );
 
