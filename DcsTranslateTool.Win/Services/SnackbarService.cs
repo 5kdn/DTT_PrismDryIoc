@@ -5,7 +5,7 @@ using MaterialDesignThemes.Wpf;
 namespace DcsTranslateTool.Win.Services;
 
 /// <summary>
-/// Snackbar を表示するサービスである。
+/// Snackbar を表示するサービス
 /// </summary>
 public class SnackbarService : ISnackbarService {
     private readonly SnackbarMessageQueue _messageQueue = new();

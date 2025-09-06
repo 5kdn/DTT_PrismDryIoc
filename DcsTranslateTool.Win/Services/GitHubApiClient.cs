@@ -12,11 +12,9 @@ using Octokit;
 namespace DcsTranslateTool.Win.Services;
 
 /// <summary>
-/// GitHub API にアクセスするクライアント実装。
+/// GitHub API にアクセスするクライアント実装
 /// </summary>
-/// <remarks>
-/// <see cref="GitHubApiClient"/> の新しいインスタンスを初期化する。
-/// </remarks>
+/// <param name="decryptService"><see cref="DecryptService"/> を注入する</param>
 public class GitHubApiClient( DecryptService decryptService ) : IGitHubApiClient {
     /// <inheritdoc/>
     public async Task<IEnumerable<FileEntry>> GetFileEntriesAsync( string branch = "master" ) {

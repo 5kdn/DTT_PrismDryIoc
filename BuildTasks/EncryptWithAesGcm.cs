@@ -3,6 +3,10 @@ using System.Text;
 
 using Microsoft.Build.Framework;
 namespace BuildTasks;
+
+/// <summary>
+/// AES-GCM を用いて文字列を暗号化する MSBuild タスク
+/// </summary>
 public sealed class EncryptWithAesGcm : ITask {
     public IBuildEngine? BuildEngine { get; set; }
     public ITaskHost? HostObject { get; set; }
@@ -80,6 +84,11 @@ public sealed class EncryptWithAesGcm : ITask {
         return key;
     }
 
+    /// <summary>
+    /// バイト列を Base64URL 形式でエンコードする
+    /// </summary>
+    /// <param name="data">エンコード対象のバイト列</param>
+    /// <returns>Base64URL 形式の文字列</returns>
     private static string Base64UrlEncode( byte[] data ) =>
         Convert.ToBase64String( data ).TrimEnd( '=' ).Replace( '+', '-' ).Replace( '/', '_' );
 }
