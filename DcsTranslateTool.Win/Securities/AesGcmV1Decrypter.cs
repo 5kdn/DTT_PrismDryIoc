@@ -9,7 +9,7 @@ using DcsTranslateTool.Win.Helpers;
 namespace DcsTranslateTool.Win.Securities;
 
 /// <summary>
-/// AES-GCM v1 アルゴリズムで復号するクラスである。
+/// AES-GCM v1 アルゴリズムで復号するクラス
 /// </summary>
 public sealed class AesGcmV1Decrypter : IDecrypter {
     /// <inheritdoc/>

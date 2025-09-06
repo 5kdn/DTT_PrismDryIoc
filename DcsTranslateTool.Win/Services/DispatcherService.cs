@@ -5,7 +5,7 @@ using DcsTranslateTool.Win.Contracts.Services;
 namespace DcsTranslateTool.Win.Services;
 
 /// <summary>
-/// WPFのDispatcherを用いてUIスレッドで処理を実行するサービスである。
+/// WPF の Dispatcher を用いてUIスレッドで処理を実行するサービス
 /// </summary>
 public class DispatcherService : IDispatcherService {
     /// <inheritdoc />
