@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
-using System.Windows.Media;
 
 using DcsTranslateTool.Win.Enums;
 
@@ -24,23 +23,27 @@ public class FileChangeTypeToBrushConverter : IMultiValueConverter {
             values[0] is FileChangeType changeType &&
             values[1] is ChangeTypeMode mode
             ) {
-            return (changeType, mode) switch
+            var key = (changeType, mode) switch
             {
                 // DL済みで変更なし
-                (FileChangeType.Unchanged, _ ) => Brushes.DimGray,
+                (FileChangeType.Unchanged, _ ) => "Brush.Filter.Text3",
                 // リポジトリに存在し、ローカルに無い
-                (FileChangeType.RepoOnly, ChangeTypeMode.Download ) => Brushes.MediumSeaGreen,
-                (FileChangeType.RepoOnly, ChangeTypeMode.Upload ) => Brushes.Silver,
+                (FileChangeType.RepoOnly, ChangeTypeMode.Download ) => "Brush.Filter.Text2",
+                (FileChangeType.RepoOnly, ChangeTypeMode.Upload ) => "Brush.Filter.Text4",
                 // リポジトリに存在せず、ローカルに有る
-                (FileChangeType.LocalOnly, ChangeTypeMode.Download ) => Brushes.Silver,
-                (FileChangeType.LocalOnly, ChangeTypeMode.Upload ) => Brushes.MediumSeaGreen,
+                (FileChangeType.LocalOnly, ChangeTypeMode.Download ) => "Brush.Filter.Text4",
+                (FileChangeType.LocalOnly, ChangeTypeMode.Upload ) => "Brush.Filter.Text2",
                 // 変更差分有り
-                (FileChangeType.Modified, _ ) => Brushes.Tomato,
+                (FileChangeType.Modified, _ ) => "Brush.Filter.Text1",
                 // デフォルト・読み込み失敗
-                (_, _ ) => Brushes.DimGray,
+                (_, _ ) => "Brush.Filter.Text3",
             };
+
+            var app = App.Current;
+            var brush = app.TryFindResource( key );
+            return (object?)brush ?? throw new KeyNotFoundException();
         }
-        return Brushes.DimGray;
+        throw new KeyNotFoundException();
     }
 
     /// <summary>

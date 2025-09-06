@@ -5,72 +5,47 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
-    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:conv="clr-namespace:DcsTranslateTool.Win.Converters"
     mc:Ignorable="d">
+    
     <UserControl.Resources>
         <conv:MultiplyConverter x:Key="MultiplyConverter" />
         <conv:IconSizeConverter x:Key="IconSizeConverter" />
     </UserControl.Resources>
+    
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="48" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <!-- The Mahapps Metro title bar -->
-        <Grid Margin="{StaticResource MediumLeftRightMargin}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <TextBlock
-                Style="{StaticResource PageTitleStyle}"
-                Margin="{StaticResource MediumLeftMargin}"
-                Text="{x:Static properties:Resources.MainPageTitle}" />
-            <Button
-              Grid.Column="1" Width="64"
-              Margin="{StaticResource SmallLeftMargin}"
-              Command="{Binding OpenSettingsCommand}">
-                <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center" />
-            </Button>
-        </Grid>
+        <!-- タイトルバー -->
         <!-- The content area where the main content will be placed -->
-        <Grid
-            x:Name="ButtonArea"
-            Grid.Row="1"
-            Margin="{StaticResource MediumLeftRightMargin}">
+        <Grid x:Name="ButtonArea" Margin="{StaticResource MediumLeftRightMargin}">
             <Grid x:Name="ButtonsGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Button
-                    HorizontalAlignment="Center"
-                    HorizontalContentAlignment="Center"
-                    VerticalContentAlignment="Center"
-                    VerticalAlignment="Center"
-                    Width="{Binding ActualWidth, ElementName=ButtonsGrid, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.45}"
-                    Height="{Binding ActualHeight, ElementName=ButtonArea, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.8}"
-                    MinHeight="100" MaxHeight="600"
-                    Command="{Binding OpenDownloadCommand}">
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                        <iconPacks:PackIconMaterial Kind="Download" HorizontalAlignment="Center">
-                            <iconPacks:PackIconMaterial.Width>
+                <Button Width="{Binding ActualWidth, ElementName=ButtonsGrid, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.45}"
+                        Height="{Binding ActualHeight, ElementName=ButtonArea, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.8}"
+                        MinHeight="100" MaxHeight="600"
+                        Command="{Binding OpenDownloadCommand}">
+                    <StackPanel Orientation="Vertical">
+                        <materialDesign:PackIcon Kind="Download" HorizontalAlignment="Center">
+                            <materialDesign:PackIcon.Width>
                                 <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.6">
                                     <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualWidth" />
                                     <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualHeight" />
                                 </MultiBinding>
-                            </iconPacks:PackIconMaterial.Width>
-                            <iconPacks:PackIconMaterial.Height>
+                            </materialDesign:PackIcon.Width>
+                            <materialDesign:PackIcon.Height>
                                 <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.6">
                                     <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualWidth" />
                                     <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualHeight" />
                                 </MultiBinding>
-                            </iconPacks:PackIconMaterial.Height>
-                        </iconPacks:PackIconMaterial>
-                        <TextBlock HorizontalAlignment="Center" Text="{x:Static properties:Resources.DownloadPageTitle}">
+                            </materialDesign:PackIcon.Height>
+                        </materialDesign:PackIcon>
+                        <TextBlock HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource MaterialDesign.Brush.Background}"
+                                   Text="{x:Static properties:Resources.DownloadPageTitle}">
                             <TextBlock.FontSize>
                                 <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.2">
                                     <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualWidth" />
@@ -81,32 +56,28 @@
                     </StackPanel>
                 </Button>
 
-                <Button
-                    Grid.Column="1"
-                    HorizontalAlignment="Center"
-                    HorizontalContentAlignment="Center"
-                    VerticalContentAlignment="Center"
-                    VerticalAlignment="Center"
-                    Width="{Binding ActualWidth, ElementName=ButtonsGrid, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.45}"
-                    Height="{Binding ActualHeight, ElementName=ButtonArea, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.8}"
-                    MinHeight="100" MaxHeight="600"
-                    Command="{Binding OpenUploadCommand}">
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                        <iconPacks:PackIconMaterial Kind="Upload" HorizontalAlignment="Center">
-                            <iconPacks:PackIconMaterial.Width>
+                <Button Grid.Column="1"
+                        Width="{Binding ActualWidth, ElementName=ButtonsGrid, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.45}"
+                        Height="{Binding ActualHeight, ElementName=ButtonArea, Converter={StaticResource MultiplyConverter}, ConverterParameter=0.8}"
+                        MinHeight="100" MaxHeight="600"
+                        Command="{Binding OpenUploadCommand}">
+                    <StackPanel Orientation="Vertical">
+                        <materialDesign:PackIcon Kind="Upload" HorizontalAlignment="Center">
+                            <materialDesign:PackIcon.Width>
                                 <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.6">
                                     <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualWidth" />
                                     <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualHeight" />
                                 </MultiBinding>
-                            </iconPacks:PackIconMaterial.Width>
-                            <iconPacks:PackIconMaterial.Height>
+                            </materialDesign:PackIcon.Width>
+                            <materialDesign:PackIcon.Height>
                                 <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.6">
                                     <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualWidth" />
                                     <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualHeight" />
                                 </MultiBinding>
-                            </iconPacks:PackIconMaterial.Height>
-                        </iconPacks:PackIconMaterial>
-                        <TextBlock HorizontalAlignment="Center" Text="{x:Static properties:Resources.UploadPageTitle}">
+                            </materialDesign:PackIcon.Height>
+                        </materialDesign:PackIcon>
+                        <TextBlock Foreground="{DynamicResource MaterialDesign.Brush.Background}"
+                                   Text="{x:Static properties:Resources.UploadPageTitle}">
                             <TextBlock.FontSize>
                                 <MultiBinding Converter="{StaticResource IconSizeConverter}" ConverterParameter="0.2">
                                     <Binding RelativeSource="{RelativeSource AncestorType=Button}" Path="ActualWidth" />

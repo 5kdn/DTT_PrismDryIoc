@@ -1,4 +1,5 @@
 ﻿using DcsTranslateTool.Win.Contracts.Services;
+using DcsTranslateTool.Win.Services;
 using DcsTranslateTool.Win.ViewModels;
 
 using Moq;
@@ -12,11 +13,13 @@ public class ShellViewModelTests {
 
     public ShellViewModelTests() {
         _container = new Container();
+        // Services
         _container.Register<IRegionManager, RegionManager>( Reuse.Singleton );
+        _container.Register<IAppSettingsService, AppSettingsService>( Reuse.Singleton );
+        _container.RegisterInstance<ISnackbarService>( Mock.Of<ISnackbarService>() );
 
         // ViewModels
         _container.Register<ShellViewModel>( Reuse.Transient );
-        _container.RegisterInstance<ISnackbarService>( Mock.Of<ISnackbarService>() );
     }
 
     [Fact( DisplayName = "ShellViewModelが正常に生成できる" )]

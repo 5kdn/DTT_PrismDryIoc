@@ -32,7 +32,12 @@ public class MultiplyConverter : IValueConverter {
     /// <param name="culture">カルチャ</param>
     /// <returns>計算結果</returns>
     public object ConvertBack( object value, Type targetType, object parameter, CultureInfo culture ) {
-        if(value is double baseValue && parameter is string paramStr && double.TryParse( paramStr, out var scale ) && scale != 0) {
+        if(
+            value is double baseValue &&
+            parameter is string paramStr &&
+            double.TryParse( paramStr, out var scale )
+            && scale != 0
+        ) {
             return baseValue / scale;
         }
 

@@ -5,7 +5,6 @@ using System.IO;
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Helpers;
 using DcsTranslateTool.Core.Models;
-using DcsTranslateTool.Win.Constants;
 using DcsTranslateTool.Win.Contracts.Services;
 using DcsTranslateTool.Win.Contracts.ViewModels;
 using DcsTranslateTool.Win.Enums;
@@ -40,7 +39,6 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     private bool _isDownloading = false;
     private bool _isApplying = false;
 
-    private DelegateCommand? _openSettingsCommand;
     private AsyncDelegateCommand? _fetchCommand;
     private AsyncDelegateCommand? _downloadCommand;
     private AsyncDelegateCommand? _applyCommand;
@@ -124,11 +122,6 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     #region Commands
 
     /// <summary>
-    /// 設定画面を開くコマンド
-    /// </summary>
-    public DelegateCommand OpenSettingsCommand => _openSettingsCommand ??= new DelegateCommand( OnOpenSettings );
-
-    /// <summary>
     /// リポジトリツリーを取得するコマンド
     /// </summary>
     public AsyncDelegateCommand FetchCommand => _fetchCommand ??= new AsyncDelegateCommand( OnFetchAsync );
@@ -181,11 +174,6 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     #endregion
 
     #region Private Methods
-
-    /// <summary>
-    /// 設定ページに遷移する
-    /// </summary>
-    private void OnOpenSettings() => _regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
 
     /// <summary>
     /// リポジトリとローカルストレージのファイルエントリを同期し、
@@ -250,7 +238,6 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         bool hasChecked = Tabs.Count > 0 && Tabs[SelectedTabIndex].Root.CheckState != false;
         IsApplyButtonEnabled = !_isApplying && hasChecked;
     }
-
 
     /// <summary>
     /// ルートノードのチェック状態が変化したときにボタンの状態を更新する

@@ -5,6 +5,7 @@
     <!--Base Styles-->
     <Style x:Key="BaseTextBlockStyle" TargetType="{x:Type TextBlock}">
         <Setter Property="FontSize" Value="{StaticResource MediumFontSize}" />
+        <Setter Property="FontFamily" Value="/Fonts/#Zen Kaku Gothic New" />
         <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
     </Style>
