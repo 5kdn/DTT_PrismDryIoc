@@ -7,7 +7,7 @@ using FluentResults;
 namespace DcsTranslateTool.Core.Services;
 
 /// <summary>
-/// zip ファイル操作を提供するサービスを実装する
+/// zip ファイル操作を提供するサービス
 /// </summary>
 public class ZipService : IZipService {
     /// <inheritdoc />

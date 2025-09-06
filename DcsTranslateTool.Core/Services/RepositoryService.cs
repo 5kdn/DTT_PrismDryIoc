@@ -5,6 +5,11 @@ using FluentResults;
 
 namespace DcsTranslateTool.Core.Services;
 
+/// <summary>
+/// GitHub API クライアント <see cref="IGitHubApiClient"/> を用いてリポジトリを操作するサービス
+/// </summary>
+/// <param name="gitHubApiClient"><see cref="IGitHubApiClient"/> の実装</param>
+/// <param name="gitHubApiClient">GitHub API クライアント</param>
 public class RepositoryService( IGitHubApiClient gitHubApiClient ) : IRepositoryService {
     private const string MainBranch = "master";
 

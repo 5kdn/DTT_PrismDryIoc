@@ -1,7 +1,7 @@
 namespace DcsTranslateTool.Core.Contracts.Services;
 
 /// <summary>
-/// ファイル操作の契約を提供する
+/// ファイル操作を提供する <see cref="FileService"/> の契約を定義するインターフェース
 /// </summary>
 public interface IFileService {
     /// <summary>
@@ -10,7 +10,7 @@ public interface IFileService {
     /// <typeparam name="T">戻り値の型</typeparam>
     /// <param name="folderPath">フォルダパス</param>
     /// <param name="fileName">ファイル名</param>
-    /// <returns>読み込んだオブジェクト。存在しない場合は default</returns>
+    /// <returns>読み込んだオブジェクト。存在しない場合は <see langword="default"/></returns>
     /// <exception cref="ArgumentException">folderPath または fileName が null もしくは空の場合</exception>
     /// <exception cref="IOException">ファイルの読み込みに失敗した場合</exception>
     /// <exception cref="JsonException">JSON の解析に失敗した場合</exception>
@@ -37,7 +37,7 @@ public interface IFileService {
     void Delete( string folderPath, string fileName );
 
     /// <summary>
-    /// ファイルに指定した内容を非同期で保存します。
+    /// ファイルに指定した内容を非同期で保存する
     /// </summary>
     /// <param name="path">保存先のファイルパス</param>
     /// <param name="content">保存する内容</param>
@@ -46,7 +46,7 @@ public interface IFileService {
     Task SaveAsync( string path, string content );
 
     /// <summary>
-    /// ファイルに指定した内容を非同期で保存します。
+    /// ファイルに指定した内容を非同期で保存する
     /// </summary>
     /// <param name="path">保存先のファイルパス</param>
     /// <param name="content">保存する内容</param>
