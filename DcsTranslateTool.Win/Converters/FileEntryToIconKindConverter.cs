@@ -3,7 +3,7 @@ using System.Windows.Data;
 
 using DcsTranslateTool.Win.Enums;
 
-using MahApps.Metro.IconPacks;
+using MaterialDesignThemes.Wpf;
 
 namespace DcsTranslateTool.Win.Converters;
 
@@ -29,27 +29,27 @@ public class FileEntryToIconKindConverter : IMultiValueConverter {
             return (isDirectory, changeType, mode) switch
             {
                 // DL済みで変更なし
-                (true, FileChangeType.Unchanged, _ ) => PackIconMaterialKind.FolderCheckOutline,
-                (false, FileChangeType.Unchanged, _ ) => PackIconMaterialKind.FileCheckOutline,
+                (true, FileChangeType.Unchanged, _ ) => PackIconKind.FolderCheckOutline,
+                (false, FileChangeType.Unchanged, _ ) => PackIconKind.FileCheckOutline,
                 // 未DL
-                (true, FileChangeType.RepoOnly, ChangeTypeMode.Download ) => PackIconMaterialKind.FolderDownloadOutline,
-                (false, FileChangeType.RepoOnly, ChangeTypeMode.Download ) => PackIconMaterialKind.FileDownloadOutline,
-                (true, FileChangeType.RepoOnly, ChangeTypeMode.Upload ) => PackIconMaterialKind.FolderRemoveOutline,
-                (false, FileChangeType.RepoOnly, ChangeTypeMode.Upload ) => PackIconMaterialKind.FileRemoveOutline,
+                (true, FileChangeType.RepoOnly, ChangeTypeMode.Download ) => PackIconKind.FolderDownloadOutline,
+                (false, FileChangeType.RepoOnly, ChangeTypeMode.Download ) => PackIconKind.FileDownloadOutline,
+                (true, FileChangeType.RepoOnly, ChangeTypeMode.Upload ) => PackIconKind.FolderRemoveOutline,
+                (false, FileChangeType.RepoOnly, ChangeTypeMode.Upload ) => PackIconKind.FileRemoveOutline,
                 // リポジトリに存在せず、ローカルに有る
-                (true, FileChangeType.LocalOnly, ChangeTypeMode.Download ) => PackIconMaterialKind.FolderRemoveOutline,
-                (false, FileChangeType.LocalOnly, ChangeTypeMode.Download ) => PackIconMaterialKind.FileRemoveOutline,
-                (true, FileChangeType.LocalOnly, ChangeTypeMode.Upload ) => PackIconMaterialKind.FolderUploadOutline,
-                (false, FileChangeType.LocalOnly, ChangeTypeMode.Upload ) => PackIconMaterialKind.FileUploadOutline,
+                (true, FileChangeType.LocalOnly, ChangeTypeMode.Download ) => PackIconKind.FolderRemoveOutline,
+                (false, FileChangeType.LocalOnly, ChangeTypeMode.Download ) => PackIconKind.FileRemoveOutline,
+                (true, FileChangeType.LocalOnly, ChangeTypeMode.Upload ) => PackIconKind.FolderUploadOutline,
+                (false, FileChangeType.LocalOnly, ChangeTypeMode.Upload ) => PackIconKind.FileUploadOutline,
                 // 変更差分有り
-                (true, FileChangeType.Modified, _ ) => PackIconMaterialKind.FolderAlertOutline,
-                (false, FileChangeType.Modified, _ ) => PackIconMaterialKind.FileAlertOutline,
+                (true, FileChangeType.Modified, _ ) => PackIconKind.FolderAlertOutline,
+                (false, FileChangeType.Modified, _ ) => PackIconKind.FileAlertOutline,
                 // デフォルト・読み込み失敗
-                (true, _, _ ) => PackIconMaterialKind.FolderQuestion,
-                (false, _, _ ) => PackIconMaterialKind.FileQuestion,
+                (true, _, _ ) => PackIconKind.FolderQuestion,
+                (false, _, _ ) => PackIconKind.FileQuestion,
             };
         }
-        return PackIconMaterialKind.FileQuestion;
+        return PackIconKind.FileQuestion;
     }
 
     /// <summary>

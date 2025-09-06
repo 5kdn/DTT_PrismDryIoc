@@ -19,7 +19,7 @@ public class SettingsViewModel(
     IDialogProvider dialogProvider,
     IEnvironmentProvider environmentProvider,
     IAppSettingsService appSettingsService
-    ) : BindableBase, INavigationAware {
+) : BindableBase, INavigationAware {
     private AppTheme _theme;
     private string _versionDescription = string.Empty;
     private string _sourceAircraftDir = string.Empty;
@@ -137,8 +137,7 @@ public class SettingsViewModel(
     /// <summary>
     /// 設定を初期値に戻す
     /// </summary>
-    private void OnResetSettings()
-        => ResetToDefault();
+    private void OnResetSettings() => ResetToDefault();
 
     /// <summary>
     /// 保存された設定を読み込む
@@ -158,7 +157,6 @@ public class SettingsViewModel(
     /// 初期値を設定する
     /// </summary>
     private void ResetToDefault() {
-        appSettingsService.Reset();
         SourceAircraftDir = string.Empty;
         SourceDlcCampaignDir = string.Empty;
         SourceUserDir = GetDefaultUserDir();

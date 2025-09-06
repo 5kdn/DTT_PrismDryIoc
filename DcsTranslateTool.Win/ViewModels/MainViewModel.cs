@@ -10,18 +10,11 @@ namespace DcsTranslateTool.Win.ViewModels;
 /// <param name="_snackbarService">Snackbar サービス</param>
 public class MainViewModel(
     IRegionManager regionManager,
-    IAppSettingsService _appSettingsService,
     ISnackbarService _snackbarService
 ) : BindableBase, INavigationAware {
 
-    private DelegateCommand? _openSettingsCommand;
     private DelegateCommand? _openDownloadCommand;
     private DelegateCommand? _openUploadCommand;
-
-    /// <summary>
-    /// 設定画面を開くコマンド
-    /// </summary>
-    public DelegateCommand OpenSettingsCommand => _openSettingsCommand ??= new DelegateCommand( OnOpenSettings );
 
     /// <summary>
     /// ダウンロード画面を開くコマンド
@@ -52,22 +45,9 @@ public class MainViewModel(
     /// ナビゲーション後の処理を行う
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
-    public void OnNavigatedTo( NavigationContext navigationContext ) {
-        ValidateAppSettingsAndNotify();
-    }
-
-    private void OnOpenSettings() => regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
+    public void OnNavigatedTo( NavigationContext navigationContext ) { }
 
     private void OnOpenDownload() => regionManager.RequestNavigate( Regions.Main, PageKeys.Download );
 
     private void OnOpenUpload() => regionManager.RequestNavigate( Regions.Main, PageKeys.Upload );
-
-    private void ValidateAppSettingsAndNotify() {
-        if(string.IsNullOrEmpty( _appSettingsService.TranslateFileDir ) ||
-           string.IsNullOrEmpty( _appSettingsService.SourceAircraftDir ) ||
-           string.IsNullOrEmpty( _appSettingsService.SourceDlcCampaignDir )
-        ) {
-            _snackbarService.Show( "設定が不足しています。", "設定", OnOpenSettings, null, TimeSpan.FromDays( 1 ) );
-        }
-    }
 }

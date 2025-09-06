@@ -7,7 +7,6 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
         mc:Ignorable="d"
-        Style="{StaticResource BaseUserControlStyle}"
         d:Width="800">
     <StackPanel Margin="{StaticResource MediumLeftTopRightBottomMargin}">
         <!--アップロードするファイル一覧-->

@@ -5,14 +5,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
-    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:vm="clr-namespace:DcsTranslateTool.Win.ViewModels"
-    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:conv="clr-namespace:DcsTranslateTool.Win.Converters"
     xmlns:enums="clr-namespace:DcsTranslateTool.Win.Enums"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     d:DataContext="{d:DesignInstance Type=vm:DownloadViewModel}"
-    Style="{StaticResource BaseUserControlStyle}"
     mc:Ignorable="d">
 
     <UserControl.Resources>
@@ -31,24 +29,12 @@
         <Grid Margin="{StaticResource MediumLeftRightMargin}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <TextBlock
                 Style="{StaticResource PageTitleStyle}"
                 Margin="{StaticResource MediumLeftMargin}"
                 Text="{x:Static properties:Resources.DownloadPageTitle}" />
-            <Button
-                Grid.Column="1"
-                Margin="{StaticResource SmallLeftMargin}"
-                Content="Fetch"
-                Command="{Binding FetchCommand}" />
-            <Button
-                Grid.Column="2" Width="64"
-                Margin="{StaticResource SmallLeftMargin}"
-                Command="{Binding OpenSettingsCommand}">
-                <iconPacks:PackIconMaterial Kind="Cog" HorizontalAlignment="Center" />
-            </Button>
+
         </Grid>
 
         <Grid Grid.Row="1" Margin="{StaticResource MediumLeftRightMargin}">
@@ -60,40 +46,41 @@
                 <CheckBox Content="All"  Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.All, Mode=TwoWay}"/>
                 <CheckBox Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Modified, Mode=TwoWay}">
                     <StackPanel Orientation="Horizontal">
-                        <iconPacks:PackIconMaterial Kind="FileAlertOutline" Foreground="{x:Static Brushes.Tomato}" Width="16" Height="16"/>
-                        <TextBlock Text="変更/更新" Foreground="{x:Static Brushes.Tomato}" />
+                        <materialDesign:PackIcon Kind="FileAlertOutline" Foreground="{StaticResource Brush.Filter.Text1}" />
+                        <TextBlock Text="変更/更新" Foreground="{StaticResource Brush.Filter.Text1}" />
                     </StackPanel>
                 </CheckBox>
                 <CheckBox Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Deleted, Mode=TwoWay}">
                     <StackPanel Orientation="Horizontal">
-                        <iconPacks:PackIconMaterial Kind="FileDownloadOutline" Foreground="{x:Static Brushes.MediumSeaGreen}" Width="16" Height="16"/>
-                        <TextBlock Text="未DL" Foreground="{x:Static Brushes.MediumSeaGreen}" />
+                        <materialDesign:PackIcon Kind="FileDownloadOutline" Foreground="{StaticResource Brush.Filter.Text2}" />
+                        <TextBlock Text="未DL" Foreground="{StaticResource Brush.Filter.Text2}" />
                     </StackPanel>
                 </CheckBox>
                 <CheckBox Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Unchanged, Mode=TwoWay}">
                     <StackPanel Orientation="Horizontal">
-                        <iconPacks:PackIconMaterial Kind="FileCheckOutline" Foreground="{x:Static Brushes.DimGray}" Width="16" Height="16"/>
-                        <TextBlock Text="DL済" Foreground="{x:Static Brushes.DimGray}" />
+                        <materialDesign:PackIcon Kind="FileCheckOutline" Foreground="{StaticResource Brush.Filter.Text3}" />
+                        <TextBlock Text="DL済" Foreground="{DynamicResource MaterialDesign.Brush.Foreground.}" />
                     </StackPanel>
                 </CheckBox>
                 <CheckBox Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Added, Mode=TwoWay}">
                     <StackPanel Orientation="Horizontal">
-                        <iconPacks:PackIconMaterial Kind="FileRemoveOutline" Foreground="{x:Static Brushes.Silver}" Width="16" Height="16"/>
-                        <TextBlock Text="追加" Foreground="{x:Static Brushes.Silver}" />
+                        <materialDesign:PackIcon Kind="FileRemoveOutline" Foreground="{StaticResource Brush.Filter.Text4}" />
+                        <TextBlock Text="追加" Foreground="{StaticResource Brush.Filter.Text4}" />
                     </StackPanel>
                 </CheckBox>
             </StackPanel>
-            <mah:MetroTabControl
+
+            <TabControl
             Grid.Row="1"
             Margin="{StaticResource MediumLeftRightMargin}"
             SelectedIndex="{Binding SelectedTabIndex}"
             ItemsSource="{Binding Tabs}">
-                <mah:MetroTabControl.ItemTemplate>
+                <TabControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type vm:DownloadTabItemViewModel}">
                         <TextBlock Text="{Binding Title}"/>
                     </DataTemplate>
-                </mah:MetroTabControl.ItemTemplate>
-                <mah:MetroTabControl.ContentTemplate>
+                </TabControl.ItemTemplate>
+                <TabControl.ContentTemplate>
                     <DataTemplate DataType="{x:Type vm:DownloadTabItemViewModel}">
                         <TreeView x:Name="TreeViewControl" ItemsSource="{Binding Root.Children}">
                             <TreeView.ItemContainerStyle>
@@ -106,21 +93,21 @@
                                 <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                     <StackPanel Orientation="Horizontal">
                                         <CheckBox IsChecked="{Binding CheckState, Mode=TwoWay}" IsEnabled="{Binding CanCheck}" />
-                                        <iconPacks:PackIconMaterial Margin="{StaticResource XSmallLeftMargin}" Width="16" Height="16">
-                                            <iconPacks:PackIconMaterial.Foreground>
+                                        <materialDesign:PackIcon Margin="{StaticResource XSmallLeftMargin}">
+                                            <materialDesign:PackIcon.Foreground>
                                                 <MultiBinding Converter="{StaticResource FileChangeTypeToBrushConverter}">
                                                     <Binding Path="ChangeType"/>
                                                     <Binding Source="{x:Static enums:ChangeTypeMode.Download}"/>
                                                 </MultiBinding>
-                                            </iconPacks:PackIconMaterial.Foreground>
-                                            <iconPacks:PackIconMaterial.Kind>
+                                            </materialDesign:PackIcon.Foreground>
+                                            <materialDesign:PackIcon.Kind>
                                                 <MultiBinding Converter="{StaticResource FileEntryToIconKindConverter}">
                                                     <Binding Path="IsDirectory"/>
                                                     <Binding Path="ChangeType"/>
                                                     <Binding Source="{x:Static enums:ChangeTypeMode.Download}"/>
                                                 </MultiBinding>
-                                            </iconPacks:PackIconMaterial.Kind>
-                                        </iconPacks:PackIconMaterial>
+                                            </materialDesign:PackIcon.Kind>
+                                        </materialDesign:PackIcon>
                                         <TextBlock Text="{Binding Name}" Margin="{StaticResource XSmallLeftMargin}">
                                             <TextBlock.Foreground>
                                                 <MultiBinding Converter="{StaticResource FileChangeTypeToBrushConverter}">
@@ -134,19 +121,26 @@
                             </TreeView.ItemTemplate>
                         </TreeView>
                     </DataTemplate>
-                </mah:MetroTabControl.ContentTemplate>
-            </mah:MetroTabControl>
+                </TabControl.ContentTemplate>
+            </TabControl>
         </Grid>
         <StackPanel Grid.Row="2" Orientation="Horizontal">
             <Button Width="96"
+                    Content="Fetch"
+                    Command="{Binding FetchCommand}" />
+
+            <Button Width="96"
+                    Margin="{StaticResource SmallLeftMargin}"
                     Content="Download"
                     Command="{Binding DownloadCommand}"
                     IsEnabled="{Binding IsDownloadButtonEnabled}"/>
+
             <Button Width="96"
                     Margin="{StaticResource SmallLeftMargin}"
                     Content="Apply"
                     Command="{Binding ApplyCommand}"
                     IsEnabled="{Binding IsApplyButtonEnabled}"/>
+
             <Button Width="96"
                     Margin="{StaticResource SmallLeftMargin}"
                     Content="Open Directory"

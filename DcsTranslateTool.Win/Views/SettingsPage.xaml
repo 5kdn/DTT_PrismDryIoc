@@ -8,7 +8,6 @@
     xmlns:models="clr-namespace:DcsTranslateTool.Win.Models"
     xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-    Style="{StaticResource BaseUserControlStyle}"
     mc:Ignorable="d">
     <UserControl.Resources>
         <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" EnumType="models:AppTheme" />
@@ -19,9 +18,10 @@
                 <RowDefinition Height="48" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <TextBlock
-                Style="{StaticResource PageTitleStyle}"
-                Text="{x:Static properties:Resources.SettingsPageTitle}" />
+            <TextBlock Style="{StaticResource PageTitleStyle}"
+                       Text="{x:Static properties:Resources.SettingsPageTitle}" />
+
+            <!-- Folder Settings -->
             <StackPanel
                 x:Name="ContentArea"
                 Grid.Row="1"
@@ -80,22 +80,28 @@
                     </Grid>
                 </StackPanel>
 
-                <Separator />
+                <!-- Reset Button -->
+                <Button
+                    Content="{x:Static properties:Resources.SettingsPageResetButton}"
+                    Margin="{StaticResource MediumTopMargin}"
+                    Command="{Binding ResetSettingsCommand}" />
 
+                <Separator Margin="{StaticResource MediumTopMargin}"/>
+
+                <!-- Personal Settings -->
                 <TextBlock
                     Margin="{StaticResource SmallTopMargin}"
                     Style="{StaticResource SubtitleTextStyle}"
                     Text="{x:Static properties:Resources.SettingsPagePersonalizationTitle}" />
-                <StackPanel Margin="{StaticResource SmallTopBottomMargin}">
-                    <TextBlock
-                        Style="{StaticResource BodyTextStyle}"
-                        Text="{x:Static properties:Resources.SettingsPageChooseThemeText}" />
+
+                <StackPanel Margin="{StaticResource SmallTopBottomMargin}" >
+                    <TextBlock Text="{x:Static properties:Resources.SettingsPageChooseThemeText}"
+                               Style="{StaticResource BodyTextStyle}" />
                     <StackPanel Margin="{StaticResource XSmallTopMargin}">
-                        <RadioButton
-                            GroupName="AppTheme"
-                            Content="{x:Static properties:Resources.SettingsPageRadioButtonLightTheme}"
-                            FontSize="{StaticResource MediumFontSize}"
-                            IsChecked="{Binding Theme, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Light}">
+                        <RadioButton GroupName="AppTheme"
+                                     Content="{x:Static properties:Resources.SettingsPageRadioButtonLightTheme}"
+                                     FontSize="{StaticResource MediumFontSize}"
+                                     IsChecked="{Binding Theme, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Light}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Checked">
                                     <i:InvokeCommandAction Command="{Binding SetThemeCommand}" CommandParameter="Light" />
@@ -129,35 +135,36 @@
                     </StackPanel>
                 </StackPanel>
 
-                <TextBlock
-                    Margin="{StaticResource SmallTopMargin}"
-                    Style="{StaticResource SubtitleTextStyle}"
-                    Text="{x:Static properties:Resources.SettingsPageAboutTitle}" />
-                <TextBlock
-                    Text="{Binding VersionDescription, Mode=OneWay}"
-                    Margin="{StaticResource XSmallTopMargin}"
-                    Style="{StaticResource BodyTextStyle}" />
-                <TextBlock
-                    Margin="{StaticResource XSmallTopMargin}"
-                    Style="{StaticResource BodyTextStyle}"
-                    Text="{x:Static properties:Resources.SettingsPageAboutText}" />
+                <!-- About this application -->
+                <StackPanel Margin="{StaticResource MediumTopMargin}">
+                    <TextBlock
+                        Margin="{StaticResource SmallTopMargin}"
+                        Style="{StaticResource SubtitleTextStyle}"
+                        Text="{x:Static properties:Resources.SettingsPageAboutTitle}" />
+                    <TextBlock
+                        Text="{Binding VersionDescription, Mode=OneWay}"
+                        Margin="{StaticResource XSmallTopMargin}"
+                        Style="{StaticResource BodyTextStyle}" />
+                    <TextBlock
+                        Margin="{StaticResource XSmallTopMargin}"
+                        Style="{StaticResource BodyTextStyle}"
+                        Text="{x:Static properties:Resources.SettingsPageAboutText}" />
+                </StackPanel>
 
-                <TextBlock
-                    Margin="{StaticResource SmallTopMargin}"
-                    AutomationProperties.Name="{Binding Text, ElementName=settingsPrivacyStatement}">
-                    <Hyperlink
-                        Command="{Binding PrivacyStatementCommand}"
-                        AutomationProperties.Name="{Binding Text, ElementName=settingsPrivacyStatement}">
-                        <TextBlock
-                            x:Name="settingsPrivacyStatement"
-                            Style="{StaticResource BodyTextStyle}"
-                            Text="{x:Static properties:Resources.SettingsPagePrivacyStatementText}" />
-                    </Hyperlink>
-                </TextBlock>
-                <Button
-                    Content="{x:Static properties:Resources.SettingsPageResetButton}"
-                    Margin="{StaticResource SmallTopMargin}"
-                    Command="{Binding ResetSettingsCommand}" />
+                <!-- Privacy -->
+                <StackPanel Margin="{StaticResource MediumTopMargin}">
+                    <TextBlock Margin="{StaticResource SmallTopMargin}"
+                               AutomationProperties.Name="{Binding Text, ElementName=settingsPrivacyStatement}">
+                        <Hyperlink
+                            Command="{Binding PrivacyStatementCommand}"
+                            AutomationProperties.Name="{Binding Text, ElementName=settingsPrivacyStatement}">
+                            <TextBlock
+                                x:Name="settingsPrivacyStatement"
+                                Style="{StaticResource BodyTextStyle}"
+                                Text="{x:Static properties:Resources.SettingsPagePrivacyStatementText}" />
+                        </Hyperlink>
+                    </TextBlock>
+                </StackPanel>
             </StackPanel>
         </Grid>
     </ScrollViewer>

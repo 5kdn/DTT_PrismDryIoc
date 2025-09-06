@@ -1,10 +1,17 @@
-﻿using DcsTranslateTool.Win.Constants;
+﻿using System.Windows;
 
-using MahApps.Metro.Controls;
+using DcsTranslateTool.Win.Constants;
 
 namespace DcsTranslateTool.Win.Views;
 
-public partial class ShellWindow : MetroWindow {
+/// <summary>
+/// シェルウィンドウである。
+/// </summary>
+public partial class ShellWindow : Window {
+    /// <summary>
+    /// 新しいインスタンスを生成する。
+    /// </summary>
+    /// <param name="regionManager">リージョンマネージャー</param>
     public ShellWindow( IRegionManager regionManager ) {
         InitializeComponent();
         RegionManager.SetRegionName( shellContentControl, Regions.Main );

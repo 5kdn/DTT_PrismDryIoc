@@ -57,15 +57,6 @@
           "System.Diagnostics.EventLog": "6.0.0"
         }
       },
-      "ControlzEx": {
-        "type": "Transitive",
-        "resolved": "4.4.0",
-        "contentHash": "pZ5z4hYWwE4R13UMCVs6vII//nL7hz+Nwn4oJlnsZJRGqJNy6Z9KnJiTZfly6lKFu0pMc1aWBZpx+VqFTQKP1Q==",
-        "dependencies": {
-          "Microsoft.Xaml.Behaviors.Wpf": "1.1.19",
-          "System.Text.Json": "4.7.2"
-        }
-      },
       "DryIoc.dll": {
         "type": "Transitive",
         "resolved": "5.4.3",
@@ -99,30 +90,6 @@
           "System.Text.Json": "5.0.2"
         }
       },
-      "MahApps.Metro": {
-        "type": "Transitive",
-        "resolved": "2.4.10",
-        "contentHash": "45exHKJCVYaD1/rNr3ekZPECEBM4uHOt6aYp6yNaJbliFMUo+d3z8Gi1xG+qEkbiHKITX+dlz+BW1FOsjAbl/w==",
-        "dependencies": {
-          "ControlzEx": "[4.4.0, 6.0.0)"
-        }
-      },
-      "MahApps.Metro.IconPacks.Core": {
-        "type": "Transitive",
-        "resolved": "6.1.0",
-        "contentHash": "op3E+N8dKBRiKwqy7/P9d9vG/1+HcaUohEsEUkN8FtAmQEEpmAo88Y6GIIqsmtheXsks4VGAVtXgzsfgxL12eA==",
-        "dependencies": {
-          "System.Text.Json": "8.0.5"
-        }
-      },
-      "MahApps.Metro.IconPacks.Material": {
-        "type": "Transitive",
-        "resolved": "6.1.0",
-        "contentHash": "PGTlI0v1RfA9CZPAafKtHAhXR6W2UgVFWDsInyOuLF1jMnv8YccE240ZSe02a+xsAwnAhtROAPRfagLkJAIQcQ==",
-        "dependencies": {
-          "MahApps.Metro.IconPacks.Core": "6.1.0"
-        }
-      },
       "MaterialDesignColors": {
         "type": "Transitive",
         "resolved": "5.2.1",
@@ -135,16 +102,6 @@
         "dependencies": {
           "MaterialDesignColors": "5.2.1",
           "Microsoft.Xaml.Behaviors.Wpf": "1.1.39"
-        }
-      },
-      "MaterialDesignThemes.MahApps": {
-        "type": "Transitive",
-        "resolved": "5.2.1",
-        "contentHash": "8lbnJKQjn3Ri6irNSl797AK3AqgtlYs7NjDsCXPYRhrua2ULb5qX2AY7F7vwpHDPRj8II+auW6trTxS0Im9iEw==",
-        "dependencies": {
-          "MahApps.Metro": "2.0.0",
-          "MaterialDesignColors": "5.2.1",
-          "MaterialDesignThemes": "5.2.1"
         }
       },
       "Microsoft.CodeCoverage": {
@@ -769,10 +726,7 @@
         "dependencies": {
           "DcsTranslateTool.Core": "[1.2.3, )",
           "GitHubJwt": "[0.0.6, )",
-          "MahApps.Metro": "[2.4.10, )",
-          "MahApps.Metro.IconPacks.Material": "[6.1.0, )",
           "MaterialDesignThemes": "[5.2.1, )",
-          "MaterialDesignThemes.MahApps": "[5.2.1, )",
           "Microsoft.Extensions.Configuration": "[9.0.8, )",
           "Microsoft.Extensions.Configuration.Binder": "[9.0.8, )",
           "Microsoft.Extensions.Configuration.CommandLine": "[9.0.8, )",

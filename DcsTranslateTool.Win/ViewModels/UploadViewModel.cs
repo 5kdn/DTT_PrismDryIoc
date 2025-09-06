@@ -34,7 +34,6 @@ public class UploadViewModel : BindableBase, INavigationAware {
     private int _selectedTabIndex = 0;
     private bool _isCreatePullRequestDialogButtonEnabled = false;
 
-    private DelegateCommand? _openSettingsCommand;
     private DelegateCommand? _openCreatePullRequestDialogCommand;
 
     #endregion
@@ -104,11 +103,6 @@ public class UploadViewModel : BindableBase, INavigationAware {
     #region Commands
 
     /// <summary>
-    /// 設定画面を開くコマンド
-    /// </summary>
-    public DelegateCommand OpenSettingsCommand => _openSettingsCommand ??= new DelegateCommand( OnOpenSettings );
-
-    /// <summary>
     /// Pull Request 作成ダイアログを開くコマンド
     /// </summary>
     public DelegateCommand OpenCreatePullRequestDialogCommand =>
@@ -147,11 +141,6 @@ public class UploadViewModel : BindableBase, INavigationAware {
     #endregion
 
     #region Private Methods
-
-    /// <summary>
-    /// 設定ページに遷移する
-    /// </summary>
-    private void OnOpenSettings() => _regionManager.RequestNavigate( Regions.Main, PageKeys.Settings );
 
     /// <summary>
     /// Pull Request作成ダイアログを開く

@@ -1,0 +1,9 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Filterに使用するテキストカラー -->
+    <Color x:Key="Color.CustomFilter1Foreground">Tomato</Color>
+    <Color x:Key="Color.CustomFilter2Foreground">MediumSeaGreen</Color>
+    <Color x:Key="Color.CustomFilter3Foreground">DimGray</Color>
+    <Color x:Key="Color.CustomFilter4Foreground">Silver</Color>
+</ResourceDictionary>
