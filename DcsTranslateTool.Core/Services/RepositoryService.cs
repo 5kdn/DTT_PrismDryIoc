@@ -9,14 +9,14 @@ namespace DcsTranslateTool.Core.Services;
 /// GitHub API クライアント <see cref="IGitHubApiClient"/> を用いてリポジトリを操作するサービス
 /// </summary>
 /// <param name="gitHubApiClient"><see cref="IGitHubApiClient"/> の実装</param>
-/// <param name="gitHubApiClient">GitHub API クライアント</param>
-public class RepositoryService( IGitHubApiClient gitHubApiClient ) : IRepositoryService {
-    private const string MainBranch = "master";
+/// <param name="defaultBranch">既定ブランチ名</param>
+public class RepositoryService( IGitHubApiClient gitHubApiClient, string defaultBranch = "master" ) : IRepositoryService {
+    private readonly string _defaultBranch = defaultBranch;
 
     /// <inheritdoc/>
     public async Task<Result<IEnumerable<FileEntry>>> GetFileEntriesAsync() {
         try {
-            var entries = await gitHubApiClient.GetFileEntriesAsync( MainBranch );
+            var entries = await gitHubApiClient.GetFileEntriesAsync( _defaultBranch );
             return Result.Ok( entries );
         }
         catch(Exception ex) {
@@ -38,7 +38,7 @@ public class RepositoryService( IGitHubApiClient gitHubApiClient ) : IRepository
     /// <inheritdoc/>
     public async Task<Result> CreateBranchAsync( string branchName ) {
         try {
-            await gitHubApiClient.CreateBranchAsync( MainBranch, branchName );
+            await gitHubApiClient.CreateBranchAsync( _defaultBranch, branchName );
             return Result.Ok();
         }
         catch(Exception ex) {
@@ -64,7 +64,7 @@ public class RepositoryService( IGitHubApiClient gitHubApiClient ) : IRepository
     /// <inheritdoc/>
     public async Task<Result> CreatePullRequestAsync( string branchName, string title, string message ) {
         try {
-            await gitHubApiClient.CreatePullRequestAsync( branchName, MainBranch, title, message );
+            await gitHubApiClient.CreatePullRequestAsync( branchName, _defaultBranch, title, message );
             return Result.Ok();
         }
         catch(Exception ex) {

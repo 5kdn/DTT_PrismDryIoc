@@ -9,6 +9,9 @@ namespace DcsTranslateTool.Core.Contracts.Services;
 public interface IFileEntryService : IDisposable {
     /// <summary>
     /// 指定ディレクトリ以下の全てのファイルを再帰的に取得する
+    /// <para>
+    /// ファイルのみを対象とし、フォルダは対象としない
+    /// </para>
     /// </summary>
     /// <param name="path">探索するルートパス</param>
     /// <returns>フラットな <see cref="FileEntry"/> のコレクション</returns>

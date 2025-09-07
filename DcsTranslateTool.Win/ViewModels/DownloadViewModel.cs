@@ -70,7 +70,8 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         _fileEntryService.EntriesChanged += entries =>
             _dispatcherService.InvokeAsync( () => {
                 _localEntries = entries;
-                return OnRefleshTabs();
+                RefleshTabs();
+                return Task.CompletedTask;
             }
         );
 
@@ -189,9 +190,8 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// このメソッドはエラーをログに記録し、タブに変更を加えることなく終了します。
     /// </para>
     /// </remarks>
-    /// <returns>A task that represents the asynchronous operation of refreshing the tabs.</returns>
-    private Task OnRefleshTabs() {
-        Debug.WriteLine( "DownloadViewModel.OnRefleshTabs called" );
+    private void RefleshTabs() {
+        Debug.WriteLine( "DownloadViewModel.RefleshTabs called" );
         var tabIndex = SelectedTabIndex;
 
         // リポジトリとローカルの FileEntry をマージする
@@ -219,8 +219,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         ApplyFilter();
         UpdateDownloadButton();
         UpdateApplyButton();
-        Debug.WriteLine( "DownloadViewModel.OnRefleshTabs finished" );
-        return Task.CompletedTask;
+        Debug.WriteLine( "DownloadViewModel.RefleshTabs finished" );
     }
 
     /// <summary>
@@ -260,7 +259,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         }
         _repoEntries = [.. repoResult.Value];
         _localEntries = await _fileEntryService.GetEntriesAsync();
-        await OnRefleshTabs();
+        RefleshTabs();
         _snackbarService.Show( "ファイル一覧の取得が完了しました" );
         Debug.WriteLine( "DownloadViewModel.OnFetchAsync finished" );
     }
@@ -427,7 +426,10 @@ public class DownloadViewModel : BindableBase, INavigationAware {
 
         var last = parts[^1];
         if(!current.Children.Any( c => c?.Name == last )) {
-            current.Children.Add( new FileEntryViewModel( new FileEntry( last, entry.Path, entry.IsDirectory, entry.LocalSha, entry.RepoSha ), ChangeTypeMode.Download ) );
+            current.Children.Add(
+                new FileEntryViewModel(
+                    new FileEntry( last, entry.Path, entry.IsDirectory, entry.LocalSha, entry.RepoSha ),
+                    ChangeTypeMode.Download ) );
         }
     }
 

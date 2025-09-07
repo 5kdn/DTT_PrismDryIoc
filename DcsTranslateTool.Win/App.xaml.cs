@@ -33,7 +33,7 @@ public partial class App : PrismApplication {
 
     protected override Window CreateShell() => Container.Resolve<ShellWindow>();
 
-    protected override async void OnInitialized() {
+    protected override void OnInitialized() {
         var persistAndRestoreService = Container.Resolve<IPersistAndRestoreService>();
         persistAndRestoreService.RestoreData();
 
@@ -41,7 +41,6 @@ public partial class App : PrismApplication {
         themeSelectorService.InitializeTheme();
 
         base.OnInitialized();
-        await Task.CompletedTask;
     }
 
     protected override void OnStartup( StartupEventArgs e ) {
