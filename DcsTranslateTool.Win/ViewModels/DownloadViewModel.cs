@@ -104,7 +104,7 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// <summary>
     /// ファイルのフィルタ状態を取得するプロパティである。
     /// </summary>
-    public FilterViewModel Filter { get; } = new();
+    public IFilterViewModel Filter { get; } = new FilterViewModel();
 
     /// <summary>Download ボタンの状態を管理する</summary>
     public bool IsDownloadButtonEnabled {

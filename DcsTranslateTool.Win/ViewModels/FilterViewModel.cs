@@ -1,43 +1,40 @@
-﻿using DcsTranslateTool.Win.Enums;
+﻿using DcsTranslateTool.Win.Contracts.ViewModels;
+using DcsTranslateTool.Win.Enums;
 
 namespace DcsTranslateTool.Win.ViewModels;
 
 /// <summary>
 /// ファイルの変更種別によるフィルタ状態を保持する ViewModel である。
 /// </summary>
-public class FilterViewModel() : BindableBase {
+public class FilterViewModel() : BindableBase, IFilterViewModel {
     #region Fields
 
     private bool _all = true;
     private bool _unchanged = true;
-    private bool _deleted = true;
-    private bool _added = true;
+    private bool _repoOnly = true;
+    private bool _localOnly = true;
     private bool _modified = true;
 
     #endregion
 
     #region Properties
 
-    /// <summary>
-    /// すべての項目を対象とするかどうかを取得または設定するプロパティである。
-    /// </summary>
+    /// <inheritdoc/>
     public bool All {
         get => _all;
         set {
             if(!SetProperty( ref _all, value )) return;
             if(value) {
-                Unchanged = Deleted = Added = Modified = true;
+                Unchanged = RepoOnly = LocalOnly = Modified = true;
             }
             else {
-                Unchanged = Deleted = Added = Modified = false;
+                Unchanged = RepoOnly = LocalOnly = Modified = false;
                 FiltersChanged?.Invoke( this, EventArgs.Empty );
             }
         }
     }
 
-    /// <summary>
-    /// 変更なしの項目を含めるかどうかを取得または設定するプロパティである。
-    /// </summary>
+    /// <inheritdoc/>
     public bool Unchanged {
         get => _unchanged;
         set {
@@ -46,31 +43,25 @@ public class FilterViewModel() : BindableBase {
         }
     }
 
-    /// <summary>
-    /// 削除された項目を含めるかどうかを取得または設定するプロパティである。
-    /// </summary>
-    public bool Deleted {
-        get => _deleted;
+    /// <inheritdoc/>
+    public bool RepoOnly {
+        get => _repoOnly;
         set {
-            if(!SetProperty( ref _deleted, value )) return;
+            if(!SetProperty( ref _repoOnly, value )) return;
             UpdateAll();
         }
     }
 
-    /// <summary>
-    /// 新規項目を含めるかどうかを取得または設定するプロパティである。
-    /// </summary>
-    public bool Added {
-        get => _added;
+    /// <inheritdoc/>
+    public bool LocalOnly {
+        get => _localOnly;
         set {
-            if(!SetProperty( ref _added, value )) return;
+            if(!SetProperty( ref _localOnly, value )) return;
             UpdateAll();
         }
     }
 
-    /// <summary>
-    /// 変更された項目を含めるかどうかを取得または設定するプロパティである。
-    /// </summary>
+    /// <inheritdoc/>
     public bool Modified {
         get => _modified;
         set {
@@ -83,14 +74,11 @@ public class FilterViewModel() : BindableBase {
 
     #region Methods
 
-    /// <summary>
-    /// 有効なフィルタを列挙するメソッドである。
-    /// </summary>
-    /// <returns>選択されている<see cref="FileChangeType"/>の列挙。</returns>
+    /// <inheritdoc/>
     public IEnumerable<FileChangeType?> GetActiveTypes() {
         if(Unchanged) yield return FileChangeType.Unchanged;
-        if(Deleted) yield return FileChangeType.RepoOnly;
-        if(Added) yield return FileChangeType.LocalOnly;
+        if(RepoOnly) yield return FileChangeType.RepoOnly;
+        if(LocalOnly) yield return FileChangeType.LocalOnly;
         if(Modified) yield return FileChangeType.Modified;
     }
 
@@ -98,7 +86,7 @@ public class FilterViewModel() : BindableBase {
     /// All の状態を更新するメソッドである。
     /// </summary>
     private void UpdateAll() {
-        bool allChecked = Unchanged && Deleted && Added && Modified;
+        bool allChecked = Unchanged && RepoOnly && LocalOnly && Modified;
         if(_all != allChecked) {
             _all = allChecked;
             RaisePropertyChanged( nameof( All ) );
@@ -110,9 +98,7 @@ public class FilterViewModel() : BindableBase {
 
     #region Events
 
-    /// <summary>
-    /// フィルタ状態が変更されたときに通知するイベントである。
-    /// </summary>
+    /// <inheritdoc/>
     public event EventHandler? FiltersChanged;
 
     #endregion
