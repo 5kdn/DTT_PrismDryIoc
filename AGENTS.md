@@ -1,158 +1,179 @@
-# Agents.md
+# AGENTS.md
+
+**Prism + DryIoc** を用いた WPF アプリ (**DcsTranslateTool**) 向けに、コーディングエージェント/自動化ツールが迷わず安全に作業するためのガイドです。人間とエージェントの両方が同じルールに従える、予測可能な作業場所を提供します。
+
+---
 
 ## プロジェクト概要
 
-本プロジェクトは、「DCS（Digital Combat Simulator）」の日本語化作業を支援するWindows用アプリケーションである。
-アプリはPrismフレームワークとDryIocによるDIコンテナを用いたWPFアプリとして設計されている。
-また、GitHubと連携して日本語翻訳ファイルのダウンロード・アップロード、ローカルパス管理等を行う。
+- ソリューション: `DcsTranslateTool.sln`
+- アプリ/ライブラリ
+  - `DcsTranslateTool.Win/` — WPF デスクトップアプリ (Prism アプリのエントリ)
+  - `DcsTranslateTool.Core/` — ドメイン/サービスの共有ライブラリ
+  - `DcsTranslateTool.Tests/` — ユニットテスト
+  - `BuildTasks/` — ビルド/配布補助 (MSBuild/PowerShell 等)
+- リポジトリ共通設定
+  - 依存は中央管理: `Directory.Packages.props`
+  - ビルド既定: `Directory.Build.props`
+  - ポリシー: `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md`
+  - ライセンス: MIT (`LICENSE`)
 
-## 開発環境
-- ターゲットフレームワーク: net8.0-windows10.0.19041.0
+> エージェントへのヒント: 実際のターゲット フレームワーク (TFM) やアナライザー設定は `*.csproj`/`Directory.*.props` を先に読み取って確定してください。
 
-## 主なプロジェクト構成
+---
 
-- DcsTranslateTool.Win (Windows用アプリケーション本体)
-    - Properties (ViewModelに定義されるプロパティ)
-    - Constants (定数値をまとめるクラスやファイル)
-    - Contracts (インターフェースや抽象クラス)
-    - Converters (値変換ロジックを持つクラス)
-    - Enums (プレゼンテーション層用Enum)
-    - Extensions (拡張メソッド)
-    - Helpers (汎用的な便利関数やユーティリティクラス)
-    - Models (アプリケーションのデータ構造やエンティティを表すクラス)
-    - Providers (インスタンスやデータを供給する役割)
-    - Services (ビジネスロジックや外部とのやり取りを担う)
-    - Styles (UIの見た目を一括管理するリソース)
-    - ViewModels
-    - Views
-- DcsTranslateTool.Core (アプリケーションの「コア機能」や「ロジック部分」のみを分離したライブラリプロジェクト)
-    - Contracts (インターフェースや抽象クラス)
-    - Enums (ドメイン用Enum)
-    - Extensions (拡張メソッド)
-    - Helpers (汎用的な便利関数やユーティリティクラス)
-    - Models (アプリケーションのデータ構造やエンティティを表すクラス)
-    - Services (本ライブラリプロジェクト内で完結するサービス)
-- DcsTranslateTool.Test (DcsTranslateToolに対するユニットテスト)
-- DcsTranslateTool.Core.Test (DcsTranslateTool.Coreに対するユニットテスト)
+## セットアップ & ビルド
 
-## コーディングスタイル
+これらは .NET WPF/Prism プロジェクト向けの安全なデフォルト設定です。csprojを確認した後、TFM（netX.Y-windows）を調整してください。
 
-- コーディングスタイルは.editorconfigに従うこと。
-- 行の長さは120文字を上限とする。
-- クラスや関数にはドキュメントコメントを常体である調の日本語で作成すること。
-- コードおよびコメントは常体で記述し、文体はである調とすること。
-- ドキュメントコメントにはsummary, param(引数がある場合), returns(返り値がある場合)を追加すること。
+```powershell
+# SDK 状態の確認 (任意)
+dotnet --info
 
-## テストと品質保証
+# 依存関係の復元とビルド
+ dotnet restore DcsTranslateTool.sln
+ dotnet build   DcsTranslateTool.sln -c Debug --nologo
 
-1. テストメソッドの命名規則
-- 関数名は「どういう状況(When/Context)」で「何をしたら(Do/Action)」「どうなるべきか(Then/Outcome)」を体言止めの日本語で自然な文章として書くこと。
-- 主な命名フォーマット（日本語の場合） `[関数名]は[前提]したとき[結果]になる`
+# テスト実行
+ dotnet test    DcsTranslateTool.sln -c Debug --nologo --verbosity minimal
 
+# リリースビルド
+ dotnet build   DcsTranslateTool.sln -c Release --nologo
+```
 
-2. テストケースの粒度
-- 1つのテストで1つのことだけを検証すること。
-- テストケースは対象関数ごとに#regionを使用すること
-- テストケースは以下の順で並び替えること
-    1. 同一対象関数
-    2. 通常成功パターン
-    3. 条件付き成功パターン
-    4. 失敗パターン
+### アプリ実行 (Windows)
 
-3. Arrange-Act-Assert（AAAパターン）
-- AAAパターンに従ってテストを記述すること。
-- それぞれのブロックの前に`// Arrange`, `// Act`, `// Assert`を追加すること。
+デバッグビルド後、以下の実行ファイルを起動します (TFM は csproj を確認)。
 
-4. テストの独立性
-- 各テストケースは他のテストの実行順や状態に依存しない状態を保つこと。
-- テスト実行順が変わっても結果が変わらないようにすること。
-- テストケースは対象関数ごとに#regionを使用してください
-- テストケースは以下の順で並び替えること
-  1. 同一対象関数
-  2. 通常成功パターン
-  3. 条件付き成功パターン
-  4. 失敗パターン
+```text
+DcsTranslateTool.Win/bin/Debug/<TFM>/DcsTranslateTool.Win.exe
+```
 
-5. テスト対象
-- 以下はテスト対象としない
-    - 単純なデータ構造（DTO/POCO/Entityなど）
-    - 外部インフラ依存のラッパーやアダプタ
-    - UI/画面・ビューモデルの描画/表示専用ロジック
-    - 自動生成コード・ライブラリやフレームワーク由来のクラス
-    - 単純なラッパークラスや一時的なコード
-    - プロジェクト内で今後削除・リファクタ予定のコード。
-    - 副作用のみを持つ、もしくは状態を持たない静的クラス
-    - 定数クラスやEnum、単純な設定クラス
-    - プライベートな内部クラス・匿名クラス
+`<TFM>` 値の例: `net8.0-windows` 。 `DcsTranslateTool.Win.csproj` で確認してください。
 
-6. その他
-Windows専用のコードが有る対象に対するテストコードには `[Trait("Category", "WindowsOnly")` を追加し、非Windows環境でのテストでは `dotnet test --filter "Category!=WindowsOnly"` としてテストを実行すること。
+---
 
-t_wadaメソッドに従ってユニットテストを作成すること。
+## ビルド/テストの期待値
 
-Windows専用のコードが有る対象に対するテストコードには `[Trait("Category", "WindowsOnly")` を追加し、非Windows環境でのテストでは `dotnet test --filter "Category!=WindowsOnly"` としてテストを実行すること。
+- **テストは常にグリーン** であること。最終確認は `dotnet test -c Release`。
+- **フォーマット**: ルートの `.editorconfig` に従い、`dotnet format` を実行。
+- **Warnings as Errors** が有効な場合は警告を解消すること。
+- **中央管理パッケージ**: 可能な限り `Directory.Packages.props` でバージョン更新。個別プロジェクトの明示オプトアウトがない限り、局所上書きは避ける。
 
-## ビルド・デプロイ手順
+### テスト追加の方針
 
-## **コミット・PRメッセージ規約**
+- 既存のテストフレームワークを使用して、新しいユニットテストを `DcsTranslateTool.Tests/` 配下に配置してください。
+- テスト名は明確に命名し、可能な限り1つのテストにつき1つのアサーション/動作とする。
+- `Core` にパブリックAPIを追加する場合は、それらをカバーするユニットテストを追加してください。
 
-コミットは小さな粒度で作成すること。
+---
 
-メッセージは日本語で作成すること。
+## Prism + DryIoc の規約 (エージェントが守るべきこと)
 
-メッセージには以下のルールでPrefixを追加すること。
+- **起動**: `App.xaml.cs` に `PrismApplication` (または同等) 実装。
+- 登録:
+  - 依存は `RegisterTypes(IContainerRegistry container)`、またはモジュール (`IModule`) で登録。
+  - アプリ全体で共有するものは `RegisterSingleton`、都度生成は `Register`。
+  - ナビゲーション対象ビューは `RegisterForNavigation<View, ViewModel>("RouteName")` で登録。
+- **MVVM**:
+  - ベースVMは通常`BindableBase`を継承する（プロパティ変更サポートのため）。
+  - サービス依存関係にはコンストラクタ注入を優先する。
+  - UIナビゲーションは直接ビューインスタンス化ではなく、Prismのナビゲーションサービス経由で行うべきである。
+- モジュール（存在する場合）： `IModule`  を実装し、 `OnInitialized` / `RegisterTypes` 内で関連するサービス/ビューを登録する。
 
-- feat: 新しい機能
-- fix: バグの修正
-- docs: ドキュメントのみの変更
-- style: 空白、フォーマット、セミコロン追加など
-- refactor: 仕様に影響がないコード改善(リファクタ)
-- perf: パフォーマンス向上関連
-- test: テスト関連
-- chore: ビルド、補助ツール、ライブラリ関連
+### ありがちな落とし穴 (クイックチェック)
 
-メッセージは変更した理由や目的を記述すること。
+- **ナビゲーションできない** → `RegisterForNavigation` の有無/ルート名、XAML の Region 名一致を確認。
+- **ViewModel 依存が null** → 登録漏れ/ライフタイム不一致。コンテナ登録を再確認。
+- **Binding エラー** → `PresentationTraceSources.TraceLevel=High` を有効化し、Output を確認。`DataContext` が VM か確認。
+- **WPF TFM の不一致** → `netX.Y-windows` かつ `UseWPF` が有効か確認。
 
-## ブランチ構成
+---
 
-ブランチ戦略は GitHub Flow の戦略とする
+## コードスタイル & クオリティゲート
 
-- master
-  - ブランチ名は `master`
-  - 直接コミット禁止。
-  - Pull Requestを通した Squash merge のみを受け付ける。
-  - 常にデプロイ可能な状態を保つ
-  - プロダクトとしてリリースするためのブランチ。リリースしたらタグ付けする。
-- feat branches
-  - ブランチ名は `feat/` から始まる。
-  - 新機能を開発するブランチ。
-- fix branches
-  - ブランチ名は `fix/` から始まる。
-  - リリース後のバグフィックスなど、 現在のプロダクトのバージョンに対する変更用。
-- docs branches
-  - ブランチ名は `docs/` から始まる。
-  - ドキュメントのみの変更。
-- style branches
-  - ブランチ名は `style/` から始まる。
-  - コードの意味に影響しない変更 (空白・フォーマット・セミコロン等)。
-- refactor branches
-  - ブランチ名は `refactor/` から始まる。
-  - リファクタリング (機能追加やバグ修正を含まない)。
-- perf branches
-  - ブランチ名は `pref/` から始まる。
-  - パフォーマンス改善。
-- test branches
-  - ブランチ名は `test/` から始まる。
-  - テスト追加・修正。
-- build branches
-  - ブランチ名は `build/` から始まる。
-  - ビルドシステムや依存関係の変更。
-- ci branches
-  - ブランチ名は `ci/` から始まる。
-  - CI 設定やスクリプトの変更。
-- chore branches
-  - ブランチ名は `chore/` から始まる。
-  - その他の変更 (src や test 以外の修正)。
-- revert branches
-  - ブランチ名は `revert/` から始まる。
-  - コミット取り消し
+- Follow `.editorconfig` at the repo root. Run:
+
+```bash
+dotnet format --verify-no-changes
+```
+
+- アクセス修飾子は明示。イベント以外の `async void` は禁止。
+- `#nullable enable` が有効なら警告を解消し、呼び出し側で責務を持つ。
+- 公開 API には必要に応じて XML ドキュメントコメントを付与。
+
+---
+
+## リポジトリ構成 (クイックマップ)
+
+```text
+DTT_PrismDryIoc/
+├─ DcsTranslateTool.sln
+├─ DcsTranslateTool.Win/           # WPF app (Prism/DryIoc)
+├─ DcsTranslateTool.Core/          # domain & services
+├─ DcsTranslateTool.Tests/         # unit tests
+├─ BuildTasks/                     # build helpers
+├─ Directory.Build.props           # global build setup
+├─ Directory.Packages.props        # central NuGet versions
+├─ .github/                        # CI workflows
+├─ CONTRIBUTING.md | SECURITY.md | CODE_OF_CONDUCT.md | LICENSE
+└─ AGENTS.md                       # this file
+```
+
+---
+
+## CI & commits
+
+- **CI**: `.github/workflows/` で `restore → build → test → (必要なら pack)` の流れを想定。
+- **コミットメッセージ**: 簡潔な命令形。`.gitmessage.txt` のテンプレートに従う。
+- **リリース自動化**: 手動でバージョンをいじらず、`release-please` に任せる。
+
+---
+
+## Security & licensing
+
+- 脆弱性報告: `SECURITY.md` に従う。
+- ライセンス: MIT。サードパーティのライセンス表記は保持すること。
+
+---
+
+## エージェントが安全に自動化できる作業
+
+- 新規 View + ViewModel の追加とナビゲーション配線。
+- `Core` にサービス I/F を追加し、コンテナへ登録。
+- 新規/変更仕様に対するユニットテスト作成。
+- `Directory.Packages.props` での NuGet 更新 (SemVer と CI を尊重)。
+- アナライザー/nullable 警告の解消。
+
+---
+
+## ローカル・トラブルシューティング
+
+- **Prism ブートストラップ失敗**: `OnInitialized` にブレークポイント。`MainWindow` がコンテナ経由で生成されているか確認。
+- **XAML デザイナ不調**: 実行 (`F5`) での挙動を基準に判断。DI 解決はデザイナで失敗しがち。
+- **実行時のファイル未検出**: `Build Action`/`Copy to Output Directory` を確認。
+- **WPF リソースを要するテスト**: ロジックを `Core` に寄せ、UI 依存をモック化。
+
+---
+
+## 最小限のプルリクエストチェックリスト
+
+- [ ]  `dotnet build -c Release` が警告なし（または正当な抑制あり）で成功する
+- [ ]  `dotnet test -c Release` が成功する
+- [ ]  `dotnet format` を実行し、差分がない
+- [ ]  新規/変更された公開動作がテストでカバーされている
+- [ ]  コンテナ登録が追加/更新されている
+- [ ]  ユーザー可視動作が変更された場合、README/ドキュメントが更新されている
+
+---
+
+## メンテナ向けメモ
+
+- 大規模リファクタよりも **加算的変更** を優先。
+- 名前空間とフォルダ構成は一致させる (`Views/`, `ViewModels/`, `Services/` 等)。
+- XAML の移動/改名時は `x:Class` とリソース URI の整合を取る。
+- ロギング/HTTP 等の横断関心事は I/F 駆動で設計し、コンストラクタ注入する。
+
+---
+
+*本ドキュメントはエージェント作業のための最小限ガイドです。人間の貢献者は必要に応じて `README.md` や各ポリシー文書も参照してください。*
