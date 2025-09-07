@@ -111,4 +111,34 @@ public class FileEntryServiceTests : IDisposable {
     }
 
     #endregion
+
+    #region GetEntriesAsync
+
+    [Fact]
+    public async Task GetEntriesAsyncはWatch未実行で空のリストを返す() {
+        // Arrange
+        using var service = new FileEntryService();
+
+        // Act
+        var entries = await service.GetEntriesAsync();
+
+        // Assert
+        Assert.Empty( entries );
+    }
+
+    [Fact]
+    public async Task Watchは存在しないディレクトリを指定したときGetEntriesAsyncが空のリストを返す() {
+        // Arrange
+        var targetDir = Path.Combine(_tempDir, "NotExistDir");
+        using var service = new FileEntryService();
+
+        // Act
+        service.Watch( targetDir );
+        var entries = await service.GetEntriesAsync();
+
+        // Assert
+        Assert.Empty( entries );
+    }
+
+    #endregion
 }

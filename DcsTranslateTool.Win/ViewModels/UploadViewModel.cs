@@ -88,7 +88,7 @@ public class UploadViewModel : BindableBase, INavigationAware {
     /// <summary>
     /// ファイルのフィルタ状態を取得するプロパティである。
     /// </summary>
-    public FilterViewModel Filter { get; } = new();
+    public IFilterViewModel Filter { get; } = new FilterViewModel();
 
     /// <summary>
     /// Pull Request 作成ダイアログを開くボタンが有効かどうかを示す
