@@ -58,15 +58,15 @@ public class RepositoryServiceTests {
         // Arrange
         var mockClient = new Mock<IGitHubApiClient>();
         mockClient
-            .Setup( c => c.CreateBranchAsync( "master", "new-branch" ) )
+            .Setup( c => c.CreateBranchAsync( "default-branch-name", "new-branch" ) )
             .Returns( Task.CompletedTask );
-        var service = new RepositoryService( mockClient.Object );
+        var service = new RepositoryService( mockClient.Object, "default-branch-name" );
 
         // Act
         await service.CreateBranchAsync( "new-branch" );
 
         // Assert
-        mockClient.Verify( c => c.CreateBranchAsync( "master", "new-branch" ), Times.Once );
+        mockClient.Verify( c => c.CreateBranchAsync( "default-branch-name", "new-branch" ), Times.Once );
     }
 
     #endregion

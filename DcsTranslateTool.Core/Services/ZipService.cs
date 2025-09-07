@@ -15,7 +15,7 @@ public class ZipService : IZipService {
         if(string.IsNullOrWhiteSpace( zipFilePath )) {
             return Result.Fail( $"zip ファイルパスが null または空です: {zipFilePath}" );
         }
-        if(!File.Exists( zipFilePath )) Result.Fail( $"ファイルが存在しません{zipFilePath}" );
+        if(!File.Exists( zipFilePath )) Result.Fail( $"ファイルが存在しません: {zipFilePath}" );
         try {
             using FileStream fs = new(zipFilePath, FileMode.Open, FileAccess.Read);
             using ZipArchive archive = new(fs, ZipArchiveMode.Read);
@@ -78,7 +78,7 @@ public class ZipService : IZipService {
             return Result.Fail( $"zip ファイルが壊れている可能性があります: {ex.Message}" );
         }
         catch(IOException ex) {
-            throw new IOException( $"zip ファイル書き込み中に入出力エラーが発生した: {ex.Message}" );
+            return Result.Fail( $"zip ファイル書き込み中に入出力エラーが発生しました: {ex.Message}" );
         }
     }
 

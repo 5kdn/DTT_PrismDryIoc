@@ -32,13 +32,12 @@ public class FileEntryService() : IFileEntryService {
 
         List<FileEntry> result = [];
         try {
-            foreach(var file in Directory.GetFiles( path, "*", SearchOption.AllDirectories )) {
-                result.Add( new LocalFileEntry(
-                    Path.GetFileName( file ),
-                    Path.GetRelativePath( path, file ).Replace( "\\", "/" ),
-                    Directory.Exists( file ),
-                    await GitBlobSha1Helper.CalculateAsync( file )
-                ) );
+            foreach(var entryPath in Directory.GetFiles( path, "*", SearchOption.AllDirectories )) {
+                bool isDir = Directory.Exists( entryPath );
+                string relative = Path.GetRelativePath( path, entryPath ).Replace( "\\", "/" );
+                string name = Path.GetFileName( entryPath );
+                string? sha = isDir ? null : await GitBlobSha1Helper.CalculateAsync( entryPath );
+                result.Add( new LocalFileEntry( name, relative, isDir, sha ) );
             }
             return result;
         }
