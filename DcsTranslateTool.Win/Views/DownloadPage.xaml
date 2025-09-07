@@ -17,7 +17,7 @@
         <conv:FileEntryToIconKindConverter x:Key="FileEntryToIconKindConverter"/>
         <conv:FileChangeTypeToBrushConverter x:Key="FileChangeTypeToBrushConverter"/>
     </UserControl.Resources>
-    
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="48" />
@@ -53,7 +53,7 @@
                                    Foreground="{StaticResource Brush.Filter.Text1}" />
                     </StackPanel>
                 </CheckBox>
-                <CheckBox Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Deleted, Mode=TwoWay}">
+                <CheckBox Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.RepoOnly, Mode=TwoWay}">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="FileDownloadOutline"
                                                  Foreground="{StaticResource Brush.Filter.Text2}" />
@@ -68,7 +68,7 @@
                                    Foreground="{DynamicResource MaterialDesign.Brush.Foreground.}" />
                     </StackPanel>
                 </CheckBox>
-                <CheckBox Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Added, Mode=TwoWay}">
+                <CheckBox Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.LocalOnly, Mode=TwoWay}">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="FileRemoveOutline" Foreground="{StaticResource Brush.Filter.Text4}" />
                         <TextBlock Text="{x:Static properties:Resources.DownloadPageFilterLocalOnlyText}"
@@ -133,25 +133,41 @@
         </Grid>
         <StackPanel Grid.Row="2" Orientation="Horizontal">
             <Button Width="96"
-                    Content="{x:Static properties:Resources.DownloadPageFetchButtonContent}"
-                    Command="{Binding FetchCommand}" />
+                    Command="{Binding FetchCommand}" >
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Reload" Margin="0,1.61,0,0" />
+                    <TextBlock Text="{x:Static properties:Resources.DownloadPageFetchButtonContent}"/>
+                </StackPanel>
+            </Button>
 
             <Button Width="96"
                     Margin="{StaticResource SmallLeftMargin}"
-                    Content="{x:Static properties:Resources.DownloadPageDownloadButtonContent}"
                     Command="{Binding DownloadCommand}"
-                    IsEnabled="{Binding IsDownloadButtonEnabled}"/>
+                    IsEnabled="{Binding IsDownloadButtonEnabled}" >
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Download" Margin="0,1.61,0,0" />
+                    <TextBlock Text="{x:Static properties:Resources.DownloadPageDownloadButtonContent}"/>
+                </StackPanel>
+            </Button>
 
             <Button Width="96"
                     Margin="{StaticResource SmallLeftMargin}"
-                    Content="{x:Static properties:Resources.DownloadPageApplyButtonContent}"
                     Command="{Binding ApplyCommand}"
-                    IsEnabled="{Binding IsApplyButtonEnabled}"/>
+                    IsEnabled="{Binding IsApplyButtonEnabled}" >
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="ArchiveArrowDownOutline" Margin="0,1.61,0,0" />
+                    <TextBlock Text="{x:Static properties:Resources.DownloadPageApplyButtonContent}"/>
+                </StackPanel>
+            </Button>
 
             <Button Width="96"
                     Margin="{StaticResource SmallLeftMargin}"
-                    Content="{x:Static properties:Resources.DownloadPageOpenDirectoryButtonContent}"
-                    Command="{Binding OpenDirectoryCommand}"/>
+                    Command="{Binding OpenDirectoryCommand}" >
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="FolderOpenOutline" Margin="0,1.61,0,0" />
+                    <TextBlock Text="{x:Static properties:Resources.DownloadPageOpenDirectoryButtonContent}"/>
+                </StackPanel>
+            </Button>
         </StackPanel>
     </Grid>
 </UserControl>

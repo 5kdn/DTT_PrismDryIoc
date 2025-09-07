@@ -142,13 +142,22 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Button Content="{x:Static properties:Resources.UploadPageFetchButtonContent}" Command="{Binding FetchCommand}" />
+            <Button Command="{Binding FetchCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Reload"  Margin="0,1.61,0,0" />
+                    <TextBlock Text="{x:Static properties:Resources.UploadPageFetchButtonContent}" />
+                </StackPanel>
+            </Button>
 
             <Button Grid.Column="1"
                     Margin="{StaticResource SmallLeftMargin}"
-                    Content="{x:Static properties:Resources.UploadPageCreatePRButtonContent}"
                     IsEnabled="{Binding IsCreatePullRequestDialogButtonEnabled}"
-                    Command="{Binding OpenCreatePullRequestDialogCommand}"/>
+                    Command="{Binding OpenCreatePullRequestDialogCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Upload"  Margin="0,1.61,0,0" />
+                    <TextBlock Text="{x:Static properties:Resources.UploadPageCreatePRButtonContent}" />
+                </StackPanel>
+            </Button>
         </Grid>
     </Grid>
 </UserControl>

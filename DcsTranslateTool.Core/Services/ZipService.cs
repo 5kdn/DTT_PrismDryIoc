@@ -15,7 +15,7 @@ public class ZipService : IZipService {
         if(string.IsNullOrWhiteSpace( zipFilePath )) {
             return Result.Fail( $"zip ファイルパスが null または空です: {zipFilePath}" );
         }
-        if(!File.Exists( zipFilePath )) Result.Fail( $"ファイルが存在しません: {zipFilePath}" );
+        if(!File.Exists( zipFilePath )) return Result.Fail( $"ファイルが存在しません: {zipFilePath}" );
         try {
             using FileStream fs = new(zipFilePath, FileMode.Open, FileAccess.Read);
             using ZipArchive archive = new(fs, ZipArchiveMode.Read);

@@ -27,7 +27,7 @@ public interface IFileEntryService : IDisposable {
     /// 監視対象のファイルエントリを取得する非同期メソッドである
     /// </summary>
     /// <returns>取得したファイルエントリのリスト</returns>
-    Task<IReadOnlyList<FileEntry>> GetEntriesAsync();
+    Task<Result<IReadOnlyList<FileEntry>>> GetEntriesAsync();
 
     /// <summary>
     /// 監視対象のファイルエントリが変化したときに発火するイベントである

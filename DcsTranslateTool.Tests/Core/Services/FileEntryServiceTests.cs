@@ -63,7 +63,7 @@ public class FileEntryServiceTests : IDisposable {
     }
 
     [Fact]
-    public async Task GetChildrenRecursiveは存在しないパスを指定した場合Failが返る() {
+    public async Task GetChildrenRecursiveは存在しないパスを指定した場合失敗結果を返す() {
         // Arrange
         var invalidPath = Path.Combine(_tempDir, "NotExist_" + Guid.NewGuid());
         var service = new FileEntryService();
@@ -120,24 +120,25 @@ public class FileEntryServiceTests : IDisposable {
         using var service = new FileEntryService();
 
         // Act
-        var entries = await service.GetEntriesAsync();
+        var result = await service.GetEntriesAsync();
 
         // Assert
-        Assert.Empty( entries );
+        Assert.True( result.IsSuccess );
+        Assert.Empty( result.Value );
     }
 
     [Fact]
-    public async Task Watchは存在しないディレクトリを指定したときGetEntriesAsyncが空のリストを返す() {
+    public async Task Watchは存在しないディレクトリを指定したときGetEntriesAsyncが失敗結果を返す() {
         // Arrange
         var targetDir = Path.Combine(_tempDir, "NotExistDir");
         using var service = new FileEntryService();
 
         // Act
         service.Watch( targetDir );
-        var entries = await service.GetEntriesAsync();
+        var result = await service.GetEntriesAsync();
 
         // Assert
-        Assert.Empty( entries );
+        Assert.True( result.IsFailed );
     }
 
     #endregion

@@ -18,7 +18,6 @@ namespace DcsTranslateTool.Win.Services;
 public class GitHubApiClient( DecryptService decryptService ) : IGitHubApiClient {
     /// <inheritdoc/>
     public async Task<IEnumerable<FileEntry>> GetFileEntriesAsync( string branch = "master" ) {
-        Debug.WriteLine( "GitHubApiClient.GetRepositoryEntriesAsync called" );
         try {
             IGitHubClient client = await InstallationClientGenerator();
             Debug.WriteLine( $"TargetRepository: {TargetRepository.Owner}/{TargetRepository.Repo} heads/{branch}" );
@@ -28,11 +27,7 @@ public class GitHubApiClient( DecryptService decryptService ) : IGitHubApiClient
             return tree.Tree.Select( item => TreeItemToFileEntryConverter.Convert( item ) );
         }
         catch(ApiException ex) {
-            Debug.WriteLine( $"GitHub API の呼び出しに失敗しました1: {ex.Message}" );
             throw new Exception( "GitHub API の呼び出しに失敗しました1", ex );
-        }
-        finally {
-            Debug.WriteLine( "GitHubApiClient.GetRepositoryEntriesAsync completed" );
         }
     }
 
@@ -118,7 +113,6 @@ public class GitHubApiClient( DecryptService decryptService ) : IGitHubApiClient
     }
 
     private async Task<IGitHubClient> InstallationClientGenerator() {
-        Debug.WriteLine( "GitHubApiClient.InstallationClientGenerator called" );
         try {
             var privateKeySource = new GitHubJwt.StringPrivateKeySource(decryptService.GetMessage());
             var option = new GitHubJwt.GitHubJwtFactoryOptions
@@ -142,15 +136,10 @@ public class GitHubApiClient( DecryptService decryptService ) : IGitHubApiClient
             return installationClient;
         }
         catch(ApiException ex) {
-            Debug.WriteLine( $"GitHub API の呼び出しに失敗しました: {ex.Message}" );
             throw new Exception( "GitHub API の呼び出しに失敗しました", ex );
         }
         catch(Exception ex) {
-            Debug.WriteLine( $"GitHub API の呼び出しに失敗しました: {ex.Message}" );
             throw new Exception( "GitHub API の呼び出しに失敗しました", ex );
-        }
-        finally {
-            Debug.WriteLine( "GitHubApiClient.InstallationClientGenerator completed" );
         }
     }
 }

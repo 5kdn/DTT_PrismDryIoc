@@ -124,7 +124,7 @@ namespace DcsTranslateTool.Win.Properties {
         }
         
         /// <summary>
-        ///   ダウンロード に類似しているローカライズされた文字列を検索します。
+        ///   DL に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string DownloadPageDownloadButtonContent {
             get {
@@ -133,7 +133,7 @@ namespace DcsTranslateTool.Win.Properties {
         }
         
         /// <summary>
-        ///   取得 に類似しているローカライズされた文字列を検索します。
+        ///   リロード に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string DownloadPageFetchButtonContent {
             get {
@@ -187,7 +187,7 @@ namespace DcsTranslateTool.Win.Properties {
         }
         
         /// <summary>
-        ///   フォルダーを開く に類似しているローカライズされた文字列を検索します。
+        ///   開く に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string DownloadPageOpenDirectoryButtonContent {
             get {
@@ -376,7 +376,7 @@ namespace DcsTranslateTool.Win.Properties {
         }
         
         /// <summary>
-        ///   取得 に類似しているローカライズされた文字列を検索します。
+        ///   リロード に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string UploadPageFetchButtonContent {
             get {
