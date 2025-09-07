@@ -24,7 +24,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <!-- The Mahapps Metro title bar -->
+        <!-- Title bar -->
         <Grid Margin="{StaticResource MediumLeftRightMargin}">
             <TextBlock Style="{StaticResource PageTitleStyle}"
                        Margin="{StaticResource MediumLeftMargin}"
@@ -37,35 +37,43 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal">
-                <CheckBox Content="All"
+                <CheckBox Content="{x:Static properties:Resources.UploadPageFilterAllContent}"
                           Margin="{StaticResource SmallRightMargin}"
                           IsChecked="{Binding Filter.All, Mode=TwoWay}"/>
                 <CheckBox Margin="{StaticResource SmallRightMargin}"
                           IsChecked="{Binding Filter.Modified, Mode=TwoWay}">
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="FileAlertOutline" Foreground="{StaticResource Brush.Filter.Text1}" />
-                        <TextBlock Text="変更/更新" Foreground="{StaticResource Brush.Filter.Text1}"/>
+                        <materialDesign:PackIcon Kind="FileAlertOutline"
+                                                 Foreground="{StaticResource Brush.Filter.Text1}" />
+                        <TextBlock Text="{x:Static properties:Resources.UploadPageFilterModifiedText}"
+                                   Foreground="{StaticResource Brush.Filter.Text1}"/>
                     </StackPanel>
                 </CheckBox>
                 <CheckBox Margin="{StaticResource SmallRightMargin}"
                           IsChecked="{Binding Filter.Added, Mode=TwoWay}">
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="FileUploadOutline" Foreground="{StaticResource Brush.Filter.Text2}" />
-                        <TextBlock Text="新規" Foreground="{StaticResource Brush.Filter.Text2}"/>
+                        <materialDesign:PackIcon Kind="FileUploadOutline"
+                                                 Foreground="{StaticResource Brush.Filter.Text2}" />
+                        <TextBlock Text="{x:Static properties:Resources.UploadPageFilterLocalOnlyText}"
+                                   Foreground="{StaticResource Brush.Filter.Text2}"/>
                     </StackPanel>
                 </CheckBox>
                 <CheckBox Margin="{StaticResource SmallRightMargin}"
                           IsChecked="{Binding Filter.Unchanged, Mode=TwoWay}">
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="FileCheckOutline" Foreground="{StaticResource Brush.Filter.Text3}" />
-                        <TextBlock Text="更新無し" Foreground="{StaticResource Brush.Filter.Text3}"/>
+                        <materialDesign:PackIcon Kind="FileCheckOutline"
+                                                 Foreground="{StaticResource Brush.Filter.Text3}" />
+                        <TextBlock Text="{x:Static properties:Resources.DownloadPageFilterUnchangedText}"
+                                   Foreground="{StaticResource Brush.Filter.Text3}"/>
                     </StackPanel>
                 </CheckBox>
                 <CheckBox Margin="{StaticResource SmallRightMargin}"
                           IsChecked="{Binding Filter.Deleted, Mode=TwoWay}">
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="FileRemoveOutline" Foreground="{StaticResource Brush.Filter.Text4}" />
-                        <TextBlock Text="未DL" Foreground="{StaticResource Brush.Filter.Text4}"/>
+                        <materialDesign:PackIcon Kind="FileRemoveOutline"
+                                                 Foreground="{StaticResource Brush.Filter.Text4}" />
+                        <TextBlock Text="{x:Static properties:Resources.UploadPageFilterRepoOnlyText}"
+                                   Foreground="{StaticResource Brush.Filter.Text4}"/>
                     </StackPanel>
                 </CheckBox>
 
@@ -86,13 +94,15 @@
                             <TreeView.ItemContainerStyle>
                                 <Style TargetType="TreeViewItem">
                                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
-                                        <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                        <Setter Property="Visibility"
+                                                Value="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </Style>
                             </TreeView.ItemContainerStyle>
                             <TreeView.ItemTemplate>
                                 <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                     <StackPanel Orientation="Horizontal">
-                                        <CheckBox IsChecked="{Binding CheckState, Mode=TwoWay}" IsEnabled="{Binding CanCheck}" />
+                                        <CheckBox IsChecked="{Binding CheckState, Mode=TwoWay}"
+                                                  IsEnabled="{Binding CanCheck}" />
                                         <materialDesign:PackIcon Margin="{StaticResource XSmallLeftMargin}">
                                             <materialDesign:PackIcon.Foreground>
                                                 <MultiBinding Converter="{StaticResource FileChangeTypeToBrushConverter}">
@@ -132,11 +142,11 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Button Content="Fetch" Command="{Binding FetchCommand}" />
+            <Button Content="{x:Static properties:Resources.UploadPageFetchButtonContent}" Command="{Binding FetchCommand}" />
 
             <Button Grid.Column="1"
                     Margin="{StaticResource SmallLeftMargin}"
-                    Content="Create PR"
+                    Content="{x:Static properties:Resources.UploadPageCreatePRButtonContent}"
                     IsEnabled="{Binding IsCreatePullRequestDialogButtonEnabled}"
                     Command="{Binding OpenCreatePullRequestDialogCommand}"/>
         </Grid>

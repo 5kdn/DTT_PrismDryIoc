@@ -1,17 +1,16 @@
-﻿<UserControl
-    x:Class="DcsTranslateTool.Win.Views.DownloadPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
-    xmlns:vm="clr-namespace:DcsTranslateTool.Win.ViewModels"
-    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-    xmlns:conv="clr-namespace:DcsTranslateTool.Win.Converters"
-    xmlns:enums="clr-namespace:DcsTranslateTool.Win.Enums"
-    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-    d:DataContext="{d:DesignInstance Type=vm:DownloadViewModel}"
-    mc:Ignorable="d">
+﻿<UserControl x:Class="DcsTranslateTool.Win.Views.DownloadPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:properties="clr-namespace:DcsTranslateTool.Win.Properties"
+             xmlns:vm="clr-namespace:DcsTranslateTool.Win.ViewModels"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:conv="clr-namespace:DcsTranslateTool.Win.Converters"
+             xmlns:enums="clr-namespace:DcsTranslateTool.Win.Enums"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             d:DataContext="{d:DesignInstance Type=vm:DownloadViewModel}"
+             mc:Ignorable="d">
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -25,7 +24,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <!-- The Mahapps Metro title bar -->
+        <!-- Title bar -->
         <Grid Margin="{StaticResource MediumLeftRightMargin}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -43,29 +42,37 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal">
-                <CheckBox Content="All"  Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.All, Mode=TwoWay}"/>
-                <CheckBox Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Modified, Mode=TwoWay}">
+                <CheckBox Content="{x:Static properties:Resources.DownloadPageFilterAllContent}"
+                          Margin="{StaticResource SmallRightMargin}"
+                          IsChecked="{Binding Filter.All, Mode=TwoWay}"/>
+                <CheckBox Margin="{StaticResource SmallRightMargin}"
+                          IsChecked="{Binding Filter.Modified, Mode=TwoWay}">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="FileAlertOutline" Foreground="{StaticResource Brush.Filter.Text1}" />
-                        <TextBlock Text="変更/更新" Foreground="{StaticResource Brush.Filter.Text1}" />
+                        <TextBlock Text="{x:Static properties:Resources.DownloadPageFilterModifiedText}"
+                                   Foreground="{StaticResource Brush.Filter.Text1}" />
                     </StackPanel>
                 </CheckBox>
                 <CheckBox Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Deleted, Mode=TwoWay}">
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="FileDownloadOutline" Foreground="{StaticResource Brush.Filter.Text2}" />
-                        <TextBlock Text="未DL" Foreground="{StaticResource Brush.Filter.Text2}" />
+                        <materialDesign:PackIcon Kind="FileDownloadOutline"
+                                                 Foreground="{StaticResource Brush.Filter.Text2}" />
+                        <TextBlock Text="{x:Static properties:Resources.DownloadPageFilterRepoOnlyText}"
+                                   Foreground="{StaticResource Brush.Filter.Text2}" />
                     </StackPanel>
                 </CheckBox>
                 <CheckBox Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Unchanged, Mode=TwoWay}">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="FileCheckOutline" Foreground="{StaticResource Brush.Filter.Text3}" />
-                        <TextBlock Text="DL済" Foreground="{DynamicResource MaterialDesign.Brush.Foreground.}" />
+                        <TextBlock Text="{x:Static properties:Resources.DownloadPageFilterUnchangedText}"
+                                   Foreground="{DynamicResource MaterialDesign.Brush.Foreground.}" />
                     </StackPanel>
                 </CheckBox>
                 <CheckBox Margin="{StaticResource SmallRightMargin}" IsChecked="{Binding Filter.Added, Mode=TwoWay}">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="FileRemoveOutline" Foreground="{StaticResource Brush.Filter.Text4}" />
-                        <TextBlock Text="追加" Foreground="{StaticResource Brush.Filter.Text4}" />
+                        <TextBlock Text="{x:Static properties:Resources.DownloadPageFilterLocalOnlyText}"
+                                   Foreground="{StaticResource Brush.Filter.Text4}" />
                     </StackPanel>
                 </CheckBox>
             </StackPanel>
@@ -126,24 +133,24 @@
         </Grid>
         <StackPanel Grid.Row="2" Orientation="Horizontal">
             <Button Width="96"
-                    Content="Fetch"
+                    Content="{x:Static properties:Resources.DownloadPageFetchButtonContent}"
                     Command="{Binding FetchCommand}" />
 
             <Button Width="96"
                     Margin="{StaticResource SmallLeftMargin}"
-                    Content="Download"
+                    Content="{x:Static properties:Resources.DownloadPageDownloadButtonContent}"
                     Command="{Binding DownloadCommand}"
                     IsEnabled="{Binding IsDownloadButtonEnabled}"/>
 
             <Button Width="96"
                     Margin="{StaticResource SmallLeftMargin}"
-                    Content="Apply"
+                    Content="{x:Static properties:Resources.DownloadPageApplyButtonContent}"
                     Command="{Binding ApplyCommand}"
                     IsEnabled="{Binding IsApplyButtonEnabled}"/>
 
             <Button Width="96"
                     Margin="{StaticResource SmallLeftMargin}"
-                    Content="Open Directory"
+                    Content="{x:Static properties:Resources.DownloadPageOpenDirectoryButtonContent}"
                     Command="{Binding OpenDirectoryCommand}"/>
         </StackPanel>
     </Grid>

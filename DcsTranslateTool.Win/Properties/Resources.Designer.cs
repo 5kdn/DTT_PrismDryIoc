@@ -70,6 +70,132 @@ namespace DcsTranslateTool.Win.Properties {
         }
         
         /// <summary>
+        ///   確認事項 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string CreatePullRequestDialogConfirmationLabel {
+            get {
+                return ResourceManager.GetString("CreatePullRequestDialogConfirmationLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   PRを作成 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string CreatePullRequestDialogCreatePRButtonContent {
+            get {
+                return ResourceManager.GetString("CreatePullRequestDialogCreatePRButtonContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   主な変更点 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string CreatePullRequestDialogMainChangesLabel {
+            get {
+                return ResourceManager.GetString("CreatePullRequestDialogMainChangesLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   PRタイトル： に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string CreatePullRequestDialogPRTitleLabel {
+            get {
+                return ResourceManager.GetString("CreatePullRequestDialogPRTitleLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   アップロードするファイルリスト に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string CreatePullRequestDialogUploadFileListHeader {
+            get {
+                return ResourceManager.GetString("CreatePullRequestDialogUploadFileListHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   適用 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DownloadPageApplyButtonContent {
+            get {
+                return ResourceManager.GetString("DownloadPageApplyButtonContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   ダウンロード に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DownloadPageDownloadButtonContent {
+            get {
+                return ResourceManager.GetString("DownloadPageDownloadButtonContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   取得 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DownloadPageFetchButtonContent {
+            get {
+                return ResourceManager.GetString("DownloadPageFetchButtonContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   All に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DownloadPageFilterAllContent {
+            get {
+                return ResourceManager.GetString("DownloadPageFilterAllContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   追加 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DownloadPageFilterLocalOnlyText {
+            get {
+                return ResourceManager.GetString("DownloadPageFilterLocalOnlyText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   変更/更新 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DownloadPageFilterModifiedText {
+            get {
+                return ResourceManager.GetString("DownloadPageFilterModifiedText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   未DL に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DownloadPageFilterRepoOnlyText {
+            get {
+                return ResourceManager.GetString("DownloadPageFilterRepoOnlyText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   DL済 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DownloadPageFilterUnchangedText {
+            get {
+                return ResourceManager.GetString("DownloadPageFilterUnchangedText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   フォルダーを開く に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DownloadPageOpenDirectoryButtonContent {
+            get {
+                return ResourceManager.GetString("DownloadPageOpenDirectoryButtonContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Download に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string DownloadPageTitle {
@@ -88,7 +214,7 @@ namespace DcsTranslateTool.Win.Properties {
         }
         
         /// <summary>
-        ///   Settings page placeholder text.  Your app description goes here. に類似しているローカライズされた文字列を検索します。
+        ///   設定ページのプレースホルダーである。ここにアプリケーションの説明を記述する。 に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string SettingsPageAboutText {
             get {
@@ -97,7 +223,7 @@ namespace DcsTranslateTool.Win.Properties {
         }
         
         /// <summary>
-        ///   About this application に類似しているローカライズされた文字列を検索します。
+        ///   このアプリケーションについて に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string SettingsPageAboutTitle {
             get {
@@ -237,6 +363,69 @@ namespace DcsTranslateTool.Win.Properties {
         public static string ShellGoBackButton {
             get {
                 return ResourceManager.GetString("ShellGoBackButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   PRを作成 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string UploadPageCreatePRButtonContent {
+            get {
+                return ResourceManager.GetString("UploadPageCreatePRButtonContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   取得 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string UploadPageFetchButtonContent {
+            get {
+                return ResourceManager.GetString("UploadPageFetchButtonContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   All に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string UploadPageFilterAllContent {
+            get {
+                return ResourceManager.GetString("UploadPageFilterAllContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   新規 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string UploadPageFilterLocalOnlyText {
+            get {
+                return ResourceManager.GetString("UploadPageFilterLocalOnlyText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   変更/更新 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string UploadPageFilterModifiedText {
+            get {
+                return ResourceManager.GetString("UploadPageFilterModifiedText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   未DL に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string UploadPageFilterRepoOnlyText {
+            get {
+                return ResourceManager.GetString("UploadPageFilterRepoOnlyText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   更新無し に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string UploadPageFilterUnchangedText {
+            get {
+                return ResourceManager.GetString("UploadPageFilterUnchangedText", resourceCulture);
             }
         }
         
