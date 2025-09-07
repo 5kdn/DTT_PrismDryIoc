@@ -39,7 +39,7 @@ public class FileEntryService() : IFileEntryService {
                 string? sha = isDir ? null : await GitBlobSha1Helper.CalculateAsync( entryPath );
                 result.Add( new LocalFileEntry( name, relative, isDir, sha ) );
             }
-            return result;
+            return Result.Ok<IEnumerable<FileEntry>>( result );
         }
         catch(Exception ex) {
             return Result.Fail( ex.Message );
@@ -63,11 +63,12 @@ public class FileEntryService() : IFileEntryService {
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<FileEntry>> GetEntriesAsync() {
-        if(string.IsNullOrEmpty( _path )) return await Task.FromResult<IReadOnlyList<FileEntry>>( [] );
+    public async Task<Result<IReadOnlyList<FileEntry>>> GetEntriesAsync() {
+        if(string.IsNullOrEmpty( _path )) return Result.Ok<IReadOnlyList<FileEntry>>( [] );
+
         var result = await GetChildrenRecursiveAsync( _path );
-        if(result.IsFailed) return await Task.FromResult<IReadOnlyList<FileEntry>>( [] );
-        return await Task.FromResult<IReadOnlyList<FileEntry>>( [.. result.Value] );
+        if(result.IsFailed) return Result.Fail<IReadOnlyList<FileEntry>>( result.Errors );
+        return Result.Ok<IReadOnlyList<FileEntry>>( [.. result.Value] );
     }
 
     /// <summary>
@@ -83,6 +84,7 @@ public class FileEntryService() : IFileEntryService {
     private async Task NotifyAsync() {
         if(EntriesChanged is null) return;
         var entries = await GetEntriesAsync();
-        await EntriesChanged.Invoke( entries );
+        if(entries.IsFailed) return;
+        await EntriesChanged.Invoke( entries.Value );
     }
 }

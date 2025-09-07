@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 
 using DcsTranslateTool.Core.Contracts.Services;
@@ -160,7 +159,6 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedTo( NavigationContext navigationContext ) {
-        Debug.WriteLine( "DownloadViewModel.OnNavigatedTo called" );
         _fileEntryService.Watch( _appSettingsService.TranslateFileDir );
         _ = OnFetchAsync();
     }
@@ -191,7 +189,6 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// </para>
     /// </remarks>
     private void RefleshTabs() {
-        Debug.WriteLine( "DownloadViewModel.RefleshTabs called" );
         var tabIndex = SelectedTabIndex;
 
         // リポジトリとローカルの FileEntry をマージする
@@ -219,7 +216,6 @@ public class DownloadViewModel : BindableBase, INavigationAware {
         ApplyFilter();
         UpdateDownloadButton();
         UpdateApplyButton();
-        Debug.WriteLine( "DownloadViewModel.RefleshTabs finished" );
     }
 
     /// <summary>
@@ -252,16 +248,15 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// リポジトリからツリーを取得する
     /// </summary>
     private async Task OnFetchAsync() {
-        Debug.WriteLine( "DownloadViewModel.OnFetchAsync called" );
         var repoResult = await _repositoryService.GetFileEntriesAsync();
         if(repoResult.IsFailed) {
-            foreach(var err in repoResult.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {err.Message}" );
+            _snackbarService.Show( "リポジトリファイル一覧の取得に失敗しました" );
+            return;
         }
         _repoEntries = [.. repoResult.Value];
-        _localEntries = await _fileEntryService.GetEntriesAsync();
+
         RefleshTabs();
         _snackbarService.Show( "ファイル一覧の取得が完了しました" );
-        Debug.WriteLine( "DownloadViewModel.OnFetchAsync finished" );
     }
 
     /// <summary>
@@ -304,7 +299,6 @@ public class DownloadViewModel : BindableBase, INavigationAware {
     /// 選択されたファイルをmizファイルに適用する。
     /// </summary>
     private async Task OnApplyAsync() {
-        Debug.WriteLine( "DownloadViewModel.OnApplyAsync called" );
         if(!IsApplyButtonEnabled) return;
 
         try {
@@ -353,7 +347,6 @@ public class DownloadViewModel : BindableBase, INavigationAware {
             _isApplying = false;
             UpdateApplyButton();
         }
-        Debug.WriteLine( "DownloadViewModel.OnApplyAsync finished" );
     }
 
     /// <summary>

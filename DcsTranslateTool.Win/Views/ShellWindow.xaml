@@ -47,7 +47,7 @@
         </Grid>
 
         <!--body-->
-        <ContentControl x:Name="shellContentControl" Grid.Row="1" />
+        <ContentControl x:Name="shellContentControl" Grid.Row="1" Margin="{StaticResource MediumLeftTopRightBottomMargin}" />
         
         <!--Snackbar-->
         <materialDesign:Snackbar Grid.RowSpan="2"

@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
 
 using DcsTranslateTool.Core.Contracts.Services;
 using DcsTranslateTool.Core.Helpers;
@@ -126,7 +125,6 @@ public class UploadViewModel : BindableBase, INavigationAware {
     /// </summary>
     /// <param name="navigationContext">ナビゲーションコンテキスト</param>
     public void OnNavigatedTo( NavigationContext navigationContext ) {
-        Debug.WriteLine( "UploadViewModel.OnNavigatedTo called" );
         _fileEntryService.Watch( _appSettingsService.TranslateFileDir );
         _ = LoadAsync();
     }
@@ -208,21 +206,19 @@ public class UploadViewModel : BindableBase, INavigationAware {
     private async Task LoadAsync() {
         var repoResult = await _repositoryService.GetFileEntriesAsync();
         if(repoResult.IsFailed) {
-            foreach(var error in repoResult.Errors) Console.WriteLine( $"DownloadViewModel.OnFetch:: {error.Message}" );
+            _snackbarService.Show( "リポジトリファイル一覧の取得に失敗しました" );
             return;
         }
         _repoEntries = [.. repoResult.Value];
-        _localEntries = await _fileEntryService.GetEntriesAsync();
-        await OnRefleshTabs();
 
-        _snackbarService.Show( "ファイル一覧の取得が完了しました。" );
+        await OnRefleshTabs();
+        _snackbarService.Show( "ファイル一覧の取得が完了しました" );
     }
 
     /// <summary>
     /// TabsをTranslateFileDirから初期化
     /// </summary>
     private Task OnRefleshTabs() {
-        Debug.WriteLine( "UploadViewModel.RefleshTabs called" );
         var tabIndex = SelectedTabIndex;
 
         // リポジトリとローカルの FileEntry をマージする
@@ -249,7 +245,6 @@ public class UploadViewModel : BindableBase, INavigationAware {
         SelectedTabIndex = tabIndex;
         ApplyFilter();
         UpdateCreatePullRequestDialogButton();
-        Debug.WriteLine( $"UploadViewModel.RefleshTabs: {Tabs.Count} tabs loaded." );
         return Task.CompletedTask;
     }
 

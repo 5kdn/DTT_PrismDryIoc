@@ -142,10 +142,10 @@
     <value>All</value>
   </data>
   <data name="DownloadPageDownloadButtonContent" xml:space="preserve">
-    <value>ダウンロード</value>
+    <value>DL</value>
   </data>
   <data name="DownloadPageFetchButtonContent" xml:space="preserve">
-    <value>取得</value>
+    <value>リロード</value>
   </data>
   <data name="DownloadPageFilterLocalOnlyText" xml:space="preserve">
     <value>追加</value>
@@ -160,7 +160,7 @@
     <value>未DL</value>
   </data>
   <data name="DownloadPageOpenDirectoryButtonContent" xml:space="preserve">
-    <value>フォルダーを開く</value>
+    <value>開く</value>
   </data>
   <data name="DownloadPageTitle" xml:space="preserve">
     <value>Download</value>
@@ -223,7 +223,7 @@
     <value>PRを作成</value>
   </data>
   <data name="UploadPageFetchButtonContent" xml:space="preserve">
-    <value>取得</value>
+    <value>リロード</value>
   </data>
   <data name="UploadPageFilterAllContent" xml:space="preserve">
     <value>All</value>

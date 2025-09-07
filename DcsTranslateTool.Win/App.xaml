@@ -20,7 +20,7 @@
                 <materialDesign:BundledTheme BaseTheme="Light"
                                              ColorAdjustment="{materialDesign:ColorAdjustment}"
                                              PrimaryColor="DeepPurple"
-                                             SecondaryColor="DeepOrange" />
+                                             SecondaryColor="Lime" />
 
                 <ResourceDictionary Source="/Styles/_FontSizes.xaml" />
                 <ResourceDictionary Source="/Styles/_Thickness.xaml" />
