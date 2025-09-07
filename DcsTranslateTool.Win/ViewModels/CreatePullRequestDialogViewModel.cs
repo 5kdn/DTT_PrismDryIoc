@@ -37,7 +37,7 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
 
     public string Subcategory { get; set; } = string.Empty;
 
-    public ObservableCollection<PullRequestChangeKindItem> PullRequestChangeKinds { get; }
+    public ObservableCollection<PullRequestChangeKindViewModel> PullRequestChangeKinds { get; }
 
     /// <summary>
     /// PRのタイトル
@@ -74,14 +74,14 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
         _appSettingsService = appSettingsService;
         _repositoryService = repositoryService;
 
-        PullRequestChangeKinds = new ObservableCollection<PullRequestChangeKindItem>(
+        PullRequestChangeKinds = new ObservableCollection<PullRequestChangeKindViewModel>(
             Enum.GetValues( typeof( PullRequestChangeKind ) )
                 .Cast<PullRequestChangeKind>()
-                .Select( kind => new PullRequestChangeKindItem( kind ) )
+                .Select( kind => new PullRequestChangeKindViewModel( kind ) )
         );
 
         foreach(var item in PullRequestChangeKinds) {
-            item.PropertyChanged += PullRequestChangeKindItem_PropertyChanged;
+            item.PropertyChanged += PullRequestChangeKindViewModel_PropertyChanged;
         }
         AgreementItems =
         [
@@ -134,8 +134,8 @@ public class CreatePullRequestDialogViewModel : BindableBase, IDialogAware {
 
     #region Private Methods
 
-    private void PullRequestChangeKindItem_PropertyChanged( object? sender, PropertyChangedEventArgs e ) {
-        if(e.PropertyName == nameof( PullRequestChangeKindItem.IsChecked )) {
+    private void PullRequestChangeKindViewModel_PropertyChanged( object? sender, PropertyChangedEventArgs e ) {
+        if(e.PropertyName == nameof( PullRequestChangeKindViewModel.IsChecked )) {
             RaisePropertyChanged( nameof( PRTitle ) );
             RaisePropertyChanged( nameof( CanCreatePR ) );
         }

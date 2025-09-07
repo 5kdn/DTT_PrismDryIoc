@@ -81,16 +81,6 @@ public class CreatePullRequestDialogViewModelTests {
 
     #endregion
 
-    #region PRTitle
-
-    [Fact]
-    [Trait( "Category", "WindowsOnly" )]
-    public void PRTitleはチェックした変更点のDisplayNameがタイトルに含まれるようになる() {
-        // TODO: テストを作成
-    }
-
-    #endregion
-
     #region PRComment
 
     [Fact]
