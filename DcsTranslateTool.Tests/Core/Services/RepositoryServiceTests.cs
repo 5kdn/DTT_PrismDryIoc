@@ -25,6 +25,40 @@ public class RepositoryServiceTests {
         mockClient.Verify( m => m.GetFileEntriesAsync( It.IsAny<string>() ), Times.Once );
     }
 
+    [Fact]
+    public async Task GetRepositoryTreeAsyncはエントリ取得時に成功を返す() {
+        // Arrange
+        var expected = new FileEntry[] { new RepoFileEntry("a", "a", false, "sha") };
+        var mockClient = new Mock<IGitHubApiClient>();
+        mockClient
+            .Setup( m => m.GetFileEntriesAsync( It.IsAny<string>() ) )
+            .ReturnsAsync( expected );
+        var service = new RepositoryService( mockClient.Object );
+
+        // Act
+        var result = await service.GetFileEntriesAsync();
+
+        // Assert
+        Assert.True( result.IsSuccess );
+        Assert.Equal( expected, result.Value );
+    }
+
+    [Fact]
+    public async Task GetRepositoryTreeAsyncはAPI例外時に失敗を返す() {
+        // Arrange
+        var mockClient = new Mock<IGitHubApiClient>();
+        mockClient
+            .Setup( m => m.GetFileEntriesAsync( It.IsAny<string>() ) )
+            .ThrowsAsync( new Exception( "error" ) );
+        var service = new RepositoryService( mockClient.Object );
+
+        // Act
+        var result = await service.GetFileEntriesAsync();
+
+        // Assert
+        Assert.True( result.IsFailed );
+    }
+
     #endregion
 
     #region GetFileAsync
@@ -49,6 +83,22 @@ public class RepositoryServiceTests {
         Assert.Equal( expected, result.Value );
     }
 
+    [Fact]
+    public async Task GetFileAsyncはAPI例外時に失敗を返す() {
+        // Arrange
+        var mockClient = new Mock<IGitHubApiClient>();
+        mockClient
+            .Setup( c => c.GetFileAsync( It.IsAny<string>(), It.IsAny<string>() ) )
+            .ThrowsAsync( new Exception( "error" ) );
+        var service = new RepositoryService( mockClient.Object );
+
+        // Act
+        var result = await service.GetFileAsync( "path" );
+
+        // Assert
+        Assert.True( result.IsFailed );
+    }
+
     #endregion
 
     #region CreateBranchAsync
@@ -67,6 +117,22 @@ public class RepositoryServiceTests {
 
         // Assert
         mockClient.Verify( c => c.CreateBranchAsync( "default-branch-name", "new-branch" ), Times.Once );
+    }
+
+    [Fact]
+    public async Task CreateBranchAsyncはAPI例外時に失敗を返す() {
+        // Arrange
+        var mockClient = new Mock<IGitHubApiClient>();
+        mockClient
+            .Setup( c => c.CreateBranchAsync( It.IsAny<string>(), It.IsAny<string>() ) )
+            .ThrowsAsync( new Exception( "err" ) );
+        var service = new RepositoryService( mockClient.Object );
+
+        // Act
+        var result = await service.CreateBranchAsync( "b" );
+
+        // Assert
+        Assert.True( result.IsFailed );
     }
 
     #endregion
@@ -119,6 +185,58 @@ public class RepositoryServiceTests {
             Times.Once );
     }
 
+    [Fact]
+    public async Task CommitAsyncはAPI例外時に失敗を返す() {
+        // Arrange
+        var mockClient = new Mock<IGitHubApiClient>();
+        mockClient.Setup( c => c.CommitAsync( It.IsAny<string>(), It.IsAny<IEnumerable<CommitFile>>(), It.IsAny<string>() ) )
+                  .ThrowsAsync( new Exception( "err" ) );
+        var service = new RepositoryService( mockClient.Object );
+        var file = new CommitFile { LocalPath = "a", RepoPath = "b", Operation = CommitOperationType.AddOrUpdate };
+
+        // Act
+        var result = await service.CommitAsync( "b", file, "m" );
+
+        // Assert
+        Assert.True( result.IsFailed );
+    }
+
     #endregion
 
+    #region CreatePullRequestAsync
+
+    [Fact]
+    public async Task CreatePullRequestAsyncはAPIを呼び出す() {
+        // Arrange
+        var mockClient = new Mock<IGitHubApiClient>();
+        mockClient
+            .Setup( c => c.CreatePullRequestAsync( "feature", "master", "title", "msg" ) )
+            .Returns( Task.CompletedTask );
+        var service = new RepositoryService( mockClient.Object );
+
+        // Act
+        var result = await service.CreatePullRequestAsync( "feature", "title", "msg" );
+
+        // Assert
+        Assert.True( result.IsSuccess );
+        mockClient.Verify( c => c.CreatePullRequestAsync( "feature", "master", "title", "msg" ), Times.Once );
+    }
+
+    [Fact]
+    public async Task CreatePullRequestAsyncはAPI例外時に失敗を返す() {
+        // Arrange
+        var mockClient = new Mock<IGitHubApiClient>();
+        mockClient
+            .Setup( c => c.CreatePullRequestAsync( It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>() ) )
+            .ThrowsAsync( new Exception( "err" ) );
+        var service = new RepositoryService( mockClient.Object );
+
+        // Act
+        var result = await service.CreatePullRequestAsync( "feature", "title", "msg" );
+
+        // Assert
+        Assert.True( result.IsFailed );
+    }
+
+    #endregion
 }

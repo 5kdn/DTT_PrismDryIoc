@@ -25,7 +25,7 @@ public class ZipServiceTests : IDisposable {
     #region GetEntries
 
     [Fact]
-    public void 正常なzipファイルでGetEntriesを実行したとき全エントリー名が返る() {
+    public void GetEntriesは全エントリー名を取得する() {
         // Arrange
         var zipPath = Path.Join(_tempDir, "test.zip");
         using(var archive = ZipFile.Open( zipPath, ZipArchiveMode.Create )) {
@@ -48,7 +48,7 @@ public class ZipServiceTests : IDisposable {
     [Theory]
     [InlineData( "" )]
     [InlineData( " " )]
-    public void Zipファイルパスが空のときGetEntriesを実行したときArgumentExceptionの失敗が返る( string targetPath ) {
+    public void GetEntriesはZip空のファイルパスを指定したときArgumentExceptionを送出する( string targetPath ) {
         // Arrange
         var sut = new ZipService();
 
@@ -61,7 +61,7 @@ public class ZipServiceTests : IDisposable {
     }
 
     [Fact]
-    public void ファイルが存在しないパスでGetEntriesを実行したときFileNotFoundExceptionの失敗が返る() {
+    public void GetEntriesは存在しないパスを指定したときFileNotFoundExceptionを送出する() {
         // Arrange
         var zipPath = Path.Join(_tempDir, "notfound.zip");
         var sut = new ZipService();
@@ -75,7 +75,7 @@ public class ZipServiceTests : IDisposable {
     }
 
     [Fact]
-    public void 壊れたzipファイルでGetEntriesを実行したときInvalidDataExceptionの失敗が返る() {
+    public void GetEntriesは壊れたzipファイルを指定したときInvalidDataExceptionを送出する() {
         // Arrange
         var zipPath = Path.Join(_tempDir, "broken.zip");
         File.WriteAllText( zipPath, "not a zip archive!" );
@@ -90,7 +90,7 @@ public class ZipServiceTests : IDisposable {
     }
 
     [Fact]
-    public void アクセス不可なzipファイルでGetEntriesを実行したときIOExceptionの失敗が返る() {
+    public void GetEntriesはアクセス不可なzipファイルを指定したときIOExceptionを送出する() {
         // Arrange
         var zipPath = Path.Join(_tempDir, "locked.zip");
         using(var archive = ZipFile.Open( zipPath, ZipArchiveMode.Create )) {
@@ -113,7 +113,7 @@ public class ZipServiceTests : IDisposable {
 
     [Fact]
     [Trait( "Category", "WindowsOnly" )]
-    public void 正常にバイト列をzipに追加できるAddEntryバイト列版() {
+    public void AddEntryはバイト列をzipに追加できる() {
         // Arrange
         var service = new ZipService();
         var zipPath = Path.Join(_tempDir, "dummy.zip");
@@ -138,7 +138,7 @@ public class ZipServiceTests : IDisposable {
 
     [Fact]
     [Trait( "Category", "WindowsOnly" )]
-    public void Zipファイルパスが空でAddEntryバイト列版を呼ぶとArgumentExceptionになる() {
+    public void AddEntryは空のZipファイルパスを指定したときArgumentExceptionを送出する() {
         // Arrange
         var service = new ZipService();
         byte[] data = [1, 2, 3];
@@ -153,7 +153,7 @@ public class ZipServiceTests : IDisposable {
 
     [Fact]
     [Trait( "Category", "WindowsOnly" )]
-    public void Zipファイルが存在しないAddEntryバイト列版でFileNotFoundExceptionになる() {
+    public void AddEntryは存在しないZipファイルを指定したときFileNotFoundExceptionを送出する() {
         // Arrange
         var service = new ZipService();
         byte[] data = [1, 2, 3];
@@ -168,7 +168,7 @@ public class ZipServiceTests : IDisposable {
 
     [Fact]
     [Trait( "Category", "WindowsOnly" )]
-    public void EntryPathが空でAddEntryバイト列版を呼ぶとArgumentExceptionになる() {
+    public void AddEntryは空のEntryPathのときArgumentExceptionを送出する() {
         // Arrange
         var service = new ZipService();
         var zipPath = Path.Join(_tempDir, "dummy.zip");
@@ -185,7 +185,7 @@ public class ZipServiceTests : IDisposable {
 
     [Fact]
     [Trait( "Category", "WindowsOnly" )]
-    public void Dataが空配列でAddEntryバイト列版を呼ぶとArgumentExceptionになる() {
+    public void AddEntryはDataが空配列のときArgumentExceptionを送出する() {
         // Arrange
         var service = new ZipService();
         var zipPath = Path.Join(_tempDir, "dummy.zip");
@@ -197,6 +197,80 @@ public class ZipServiceTests : IDisposable {
         // Assert
         Assert.True( result.IsFailed );
         Assert.Contains( "追加するデータが null または空です", result.Errors[0].Message );
+    }
+
+    #endregion
+
+    #region AddEntry(file)
+
+    [Fact]
+    [Trait( "Category", "WindowsOnly" )]
+    public void AddEntryはzipにファイルパスから正常に追加できる() {
+        // Arrange
+        var service = new ZipService();
+        var zipPath = Path.Join(_tempDir, "file.zip");
+        using(ZipFile.Open( zipPath, ZipArchiveMode.Create )) { }
+        var filePath = Path.Join(_tempDir, "data.txt");
+        File.WriteAllText( filePath, "data" );
+
+        // Act
+        var result = service.AddEntry( zipPath, "data.txt", filePath );
+
+        // Assert
+        Assert.True( result.IsSuccess );
+        using var archive = ZipFile.OpenRead( zipPath );
+        Assert.NotNull( archive.GetEntry( "data.txt" ) );
+    }
+
+    [Fact]
+    [Trait( "Category", "WindowsOnly" )]
+    public void AddEntryは存在しないZipファイルにファイルパスを追加しようとしたとき失敗する() {
+        // Arrange
+        var service = new ZipService();
+        var filePath = Path.Join(_tempDir, "data.txt");
+        File.WriteAllText( filePath, "data" );
+
+        // Act
+        var result = service.AddEntry( Path.Join(_tempDir, "no.zip" ), "data.txt", filePath );
+
+        // Assert
+        Assert.True( result.IsFailed );
+        Assert.Contains( "ファイルが存在しません", result.Errors[0].Message );
+    }
+
+
+    [Fact]
+    [Trait( "Category", "WindowsOnly" )]
+    public void AddEntryは存在しないファイルパスを追加しようとしたとき失敗する() {
+        // Arrange
+        var service = new ZipService();
+        var zipPath = Path.Join(_tempDir, "file.zip");
+        using(ZipFile.Open( zipPath, ZipArchiveMode.Create )) { }
+
+        // Act
+        var result = service.AddEntry( zipPath, "data.txt", Path.Join(_tempDir, "nofile.txt") );
+
+        // Assert
+        Assert.True( result.IsFailed );
+        Assert.Contains( "ファイルが存在しません", result.Errors[0].Message );
+    }
+
+    [Fact]
+    [Trait( "Category", "WindowsOnly" )]
+    public void AddEntryはEntryPathが空のとき失敗する() {
+        // Arrange
+        var service = new ZipService();
+        var zipPath = Path.Join(_tempDir, "file.zip");
+        using(ZipFile.Open( zipPath, ZipArchiveMode.Create )) { }
+        var filePath = Path.Join(_tempDir, "data.txt");
+        File.WriteAllText( filePath, "data" );
+
+        // Act
+        var result = service.AddEntry( zipPath, "", filePath );
+
+        // Assert
+        Assert.True( result.IsFailed );
+        Assert.Contains( "値が null または空です", result.Errors[0].Message );
     }
 
     #endregion
@@ -228,7 +302,7 @@ public class ZipServiceTests : IDisposable {
 
     [Fact]
     [Trait( "Category", "WindowsOnly" )]
-    public void ディレクトリエントリを指定してDeleteEntryしたとき配下全て削除できる() {
+    public void DeleteEntryはディレクトリエントリを指定したとき配下全てを削除できる() {
         // Arrange
         var service = new ZipService();
         var zipPath = Path.Join(_tempDir, "dummy.zip");
@@ -251,7 +325,7 @@ public class ZipServiceTests : IDisposable {
 
     [Fact]
     [Trait( "Category", "WindowsOnly" )]
-    public void Zipファイルパスが空でDeleteEntryしたときArgumentExceptionになる() {
+    public void DeleteEntryはZipファイルパスが空のときArgumentExceptionを送出する() {
         // Arrange
         var service = new ZipService();
 
@@ -265,7 +339,7 @@ public class ZipServiceTests : IDisposable {
 
     [Fact]
     [Trait( "Category", "WindowsOnly" )]
-    public void Zipファイルが存在しないDeleteEntryでFileNotFoundExceptionになる() {
+    public void DeleteEntryはZipファイルが存在しないときFileNotFoundExceptionを送出する() {
         // Arrange
         var service = new ZipService();
 
@@ -279,7 +353,7 @@ public class ZipServiceTests : IDisposable {
 
     [Fact]
     [Trait( "Category", "WindowsOnly" )]
-    public void EntryPathが空でDeleteEntryしたときArgumentExceptionになる() {
+    public void DeleteEntryはEntryPathが空のときArgumentExceptionを送出する() {
         // Arrange
         var service = new ZipService();
         var zipPath = Path.Join(_tempDir, "dummy.zip");
